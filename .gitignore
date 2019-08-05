@@ -3,6 +3,8 @@ node-cli/node-cli
 *.pyc
 /build/*
 /bin
+/network/crypto-config
+/network/channel-artifacts
 .idea
 *.iml
 .DS_Store
