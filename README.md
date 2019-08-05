@@ -9,11 +9,11 @@ export FABRIC_CFG_PATH=$PWD
 
 ../bin/configtxgen -profile TwoOrgsOrdererGenesis -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
 
-# Create channel
+# Create a Channel Configuration Transaction
 
 export CHANNEL_NAME=mychannel  && ../bin/configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
 
-# define anchor peer for Org1 and Org2
+# Define anchor peer for Org1 and Org2
 
 ../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
 
