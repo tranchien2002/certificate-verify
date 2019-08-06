@@ -1,18 +1,19 @@
 OrdererOrgs:
   - Name: Orderer
-    Domain: example.com
+    Domain: authdee.com
     Specs:
       - Hostname: orderer
 PeerOrgs:
-  - Name: Org1
-    Domain: org1.example.com
+  - Name: Cluster1
+    Domain: cluster1.authdee.com
     EnableNodeOUs: true
     Template:
       Count: 1
     Users:
       Count: 1
-  - Name: Org2
-    Domain: org2.example.com
+
+  - Name: Cluster2
+    Domain: cluster2.authdee.com
     EnableNodeOUs: true
     Template:
       Count: 1
