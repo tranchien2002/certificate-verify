@@ -1,0 +1,8 @@
+{
+  "index": {
+    "fields": ["hash_key"]
+  },
+  "ddoc": "indexHashKeyStudentDegreeDoc",
+  "name": "indexHashKeyStudentDegree",
+  "type": "json"
+}

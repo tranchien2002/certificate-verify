@@ -1,0 +1,8 @@
+{
+  "index": {
+    "fields": ["school_id"]
+  },
+  "ddoc": "indexSchoolIdIssuerDoc",
+  "name": "indexSchoolIdIssuer",
+  "type": "json"
+}
