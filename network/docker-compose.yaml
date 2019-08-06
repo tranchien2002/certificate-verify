@@ -15,10 +15,10 @@ services:
     - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
     - FABRIC_CA_SERVER_CA_NAME=ca.cluster1.authdee.com
     - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.cluster1.authdee.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/00a11d8903eacbd5172e4addc02d489f9ba997b89af3387c4bc9e8a649e43bae_sk
+    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/
     ports:
     - "7054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster1.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/00a11d8903eacbd5172e4addc02d489f9ba997b89af3387c4bc9e8a649e43bae_sk -b admin:adminpw'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster1.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/ -b admin:adminpw'
     volumes:
     - ./crypto-config/peerOrganizations/cluster1.authdee.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.cluster1.authdee.com
@@ -31,10 +31,10 @@ services:
     - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
     - FABRIC_CA_SERVER_CA_NAME=ca.cluster2.authdee.com
     - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.cluster2.authdee.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/9380a8af0148767d300690c076332bbb280c870a08528702a0d6b8d8b411ee20_sk
+    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/
     ports:
     - "8054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster2.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/9380a8af0148767d300690c076332bbb280c870a08528702a0d6b8d8b411ee20_sk -b admin:adminpw'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster2.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/ -b admin:adminpw'
     volumes:
     - ./crypto-config/peerOrganizations/cluster2.authdee.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.cluster2.authdee.com

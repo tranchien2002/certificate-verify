@@ -1,8 +1,0 @@
-{
-  "index": {
-    "fields": ["degree_id", "course_id"]
-  },
-  "ddoc": "indexDegreeIdCourseIdDoc",
-  "name": "indexDegreeIdCourseId",
-  "type": "json"
-}

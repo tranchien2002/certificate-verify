@@ -1,8 +1,0 @@
-{
-  "index": {
-    "fields": ["email"]
-  },
-  "ddoc": "indexEmailIssuerDoc",
-  "name": "indexEmailIssuer",
-  "type": "json"
-}

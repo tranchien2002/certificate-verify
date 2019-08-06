@@ -1,8 +1,0 @@
-{
-  "index": {
-    "fields": ["school_id"]
-  },
-  "ddoc": "indexSchoolIdDegreeDoc",
-  "name": "indexSchoolIdDegree",
-  "type": "json"
-}

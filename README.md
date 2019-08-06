@@ -2,7 +2,8 @@
 curl -sSL http://bit.ly/2ysbOFE | bash -s
 
 # Generate channel congiguration and achor peer for Orgs
-network/generate.sh
+cd network
+./generate.sh
 
 # Start network
-network/start.sh
+./start.sh

@@ -1,8 +1,0 @@
-{
-  "index": {
-    "fields": ["school_id", "role"]
-  },
-  "ddoc": "indexSchoolIdDoc",
-  "name": "indexSchoolId",
-  "type": "json"
-}
