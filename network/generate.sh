@@ -6,7 +6,7 @@
 #
 export PATH=$GOPATH/src/github.com/hyperledger/fabric/build/bin:${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
-CHANNEL_NAME=authdeechannel
+CHANNEL_NAME=certificatechannel
 
 # remove previous crypto material and config transactions
 rm -fr channel-artifacts/*
@@ -34,14 +34,14 @@ if [ "$?" -ne 0 ]; then
 fi
 
 # generate anchor peer transaction
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Cluster1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Cluster1MSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/AcademyMSPanchors.tx -channelID $CHANNEL_NAME -asOrg AcademyMSP
 if [ "$?" -ne 0 ]; then
-  echo "Failed to generate anchor peer update for Cluster1MSP..."
+  echo "Failed to generate anchor peer update for AcademyMSP..."
   exit 1
 fi
 
-../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Cluster2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Cluster2MSP
+../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
 if [ "$?" -ne 0 ]; then
-  echo "Failed to generate anchor peer update for Cluster1MSP..."
+  echo "Failed to generate anchor peer update for StudentMSP..."
   exit 1
 fi

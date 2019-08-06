@@ -6,43 +6,43 @@
 version: '2'
 
 networks:
-  authdee:
+  certificate:
 
 services:
-  ca.cluster1.authdee.com:
+  ca.academy.certificate.com:
     image: hyperledger/fabric-ca:1.4.0
     environment:
-    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-    - FABRIC_CA_SERVER_CA_NAME=ca.cluster1.authdee.com
-    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.cluster1.authdee.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.academy.certificate.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
     ports:
-    - "7054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster1.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw'
+      - '7054:7054'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw'
     volumes:
-    - ./crypto-config/peerOrganizations/cluster1.authdee.com/ca/:/etc/hyperledger/fabric-ca-server-config
-    container_name: ca.cluster1.authdee.com
+      - ./crypto-config/peerOrganizations/academy.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca.academy.certificate.com
     networks:
-    - authdee
+      - certificate
 
-  ca.cluster2.authdee.com:
+  ca.student.certificate.com:
     image: hyperledger/fabric-ca:1.4.0
     environment:
-    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-    - FABRIC_CA_SERVER_CA_NAME=ca.cluster2.authdee.com
-    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.cluster2.authdee.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.student.certificate.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
     ports:
-    - "8054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.cluster2.authdee.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw'
+      - '8054:7054'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw'
     volumes:
-    - ./crypto-config/peerOrganizations/cluster2.authdee.com/ca/:/etc/hyperledger/fabric-ca-server-config
-    container_name: ca.cluster2.authdee.com
+      - ./crypto-config/peerOrganizations/student.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca.student.certificate.com
     networks:
-    - authdee
+      - certificate
 
-  orderer.authdee.com:
-    container_name: orderer.authdee.com
+  orderer.certificate.com:
+    container_name: orderer.certificate.com
     image: hyperledger/fabric-orderer:1.4.0
     environment:
       - FABRIC_LOGGING_SPEC=info
@@ -54,71 +54,71 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
     command: orderer
     ports:
-      - "7050:7050"
+      - '7050:7050'
     volumes:
-        - ./channel-artifacts/:/etc/hyperledger/configtx
-        - ./crypto-config/ordererOrganizations/authdee.com/orderers/orderer.authdee.com/:/etc/hyperledger/msp/orderer
-        - ./crypto-config/peerOrganizations/cluster1.authdee.com/peers/peer0.cluster1.authdee.com/:/etc/hyperledger/msp/peerCluster1
+      - ./channel-artifacts/:/etc/hyperledger/configtx
+      - ./crypto-config/ordererOrganizations/certificate.com/orderers/orderer.certificate.com/:/etc/hyperledger/msp/orderer
+      - ./crypto-config/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/:/etc/hyperledger/msp/peerAcademy
     networks:
-      - authdee
+      - certificate
 
-  peer0.cluster1.authdee.com:
-    container_name: peer0.cluster1.authdee.com
+  peer0.academy.certificate.com:
+    container_name: peer0.academy.certificate.com
     image: hyperledger/fabric-peer:1.4.0
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer0.cluster1.authdee.com
+      - CORE_PEER_ID=peer0.academy.certificate.com
       - FABRIC_LOGGING_SPEC=info
       - CORE_CHAINCODE_LOGGING_LEVEL=info
-      - CORE_PEER_LOCALMSPID=Cluster1MSP
+      - CORE_PEER_LOCALMSPID=AcademyMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
-      - CORE_PEER_ADDRESS=peer0.cluster1.authdee.com:7051
+      - CORE_PEER_ADDRESS=peer0.academy.certificate.com:7051
       # # the following setting starts chaincode containers on the same
       # # bridge network as the peers
       # # https://docs.docker.com/compose/networking/
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_authdee
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_certificate
       # Use by explorer
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.cluster1.authdee.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.cluster1.authdee.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.academy.certificate.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.academy.certificate.com:7051
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: peer node start
     ports:
-      - "7051:7051"
-      - "7053:7053"
+      - '7051:7051'
+      - '7053:7053'
     volumes:
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/cluster1.authdee.com/peers/peer0.cluster1.authdee.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/cluster1.authdee.com/users:/etc/hyperledger/msp/users
-        - ./channel-artifacts:/etc/hyperledger/configtx
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/msp:/etc/hyperledger/msp/peer
+      - ./crypto-config/peerOrganizations/academy.certificate.com/users:/etc/hyperledger/msp/users
+      - ./channel-artifacts:/etc/hyperledger/configtx
     networks:
-      - authdee
+      - certificate
 
-  peer0.cluster2.authdee.com:
-    container_name: peer0.cluster2.authdee.com
+  peer0.student.certificate.com:
+    container_name: peer0.student.certificate.com
     image: hyperledger/fabric-peer:1.4.0
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer0.cluster2.authdee.com
+      - CORE_PEER_ID=peer0.student.certificate.com
       - FABRIC_LOGGING_SPEC=info
       - CORE_CHAINCODE_LOGGING_LEVEL=info
-      - CORE_PEER_LOCALMSPID=Cluster2MSP
+      - CORE_PEER_LOCALMSPID=StudentMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
-      - CORE_PEER_ADDRESS=peer0.cluster2.authdee.com:7051
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_authdee
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.cluster2.authdee.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.cluster2.authdee.com:7051
+      - CORE_PEER_ADDRESS=peer0.student.certificate.com:7051
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_certificate
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.student.certificate.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.student.certificate.com:7051
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: peer node start
     ports:
-      - "8051:7051"
-      - "8053:7053"
+      - '8051:7051'
+      - '8053:7053'
     volumes:
-        - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/cluster2.authdee.com/peers/peer0.cluster2.authdee.com/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/cluster2.authdee.com/users:/etc/hyperledger/msp/users
-        - ./channel-artifacts:/etc/hyperledger/configtx
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/student.certificate.com/peers/peer0.student.certificate.com/msp:/etc/hyperledger/msp/peer
+      - ./crypto-config/peerOrganizations/student.certificate.com/users:/etc/hyperledger/msp/users
+      - ./channel-artifacts:/etc/hyperledger/configtx
     networks:
-      - authdee
+      - certificate
 
   cli:
     container_name: cli
@@ -131,16 +131,16 @@ services:
       #- FABRIC_LOGGING_SPEC=DEBUG
       - FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer0.cluster1.authdee.com:7051
-      - CORE_PEER_LOCALMSPID=Cluster1MSP
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/cluster1.authdee.com/users/Admin@cluster1.authdee.com/msp
+      - CORE_PEER_ADDRESS=peer0.academy.certificate.com:7051
+      - CORE_PEER_LOCALMSPID=AcademyMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
-        - /var/run/:/host/var/run/
-        - ./../database/:/opt/gopath/src/github.com/chaincode
-        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto
-        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
-        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+      - /var/run/:/host/var/run/
+      - ./../database/:/opt/gopath/src/github.com/chaincode
+      - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto
+      - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+      - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
     networks:
-        - authdee
+      - certificate
