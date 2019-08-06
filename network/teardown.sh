@@ -11,7 +11,7 @@ set -e
 docker-compose -f docker-compose.yaml -f docker-compose-couch.yaml kill && docker-compose -f docker-compose.yaml -f docker-compose-couch.yaml down
 
 # remove chaincode docker images
-docker rm $(docker ps -a | grep authdee | awk '{print $1}')
+docker rm $(docker ps -a | grep certificate | awk '{print $1}')
 docker rmi $(docker images dev-* -q)
 
 # Your system is now clean
