@@ -34,7 +34,8 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 	//var err error
 
 	subjects := []Subject{
-		Subject{SubjectID: "IT01", Name: "Blockchain", Weight: 3},
+		Subject{SubjectID: "00", SubjectCode: "IT00", Name: "Blockchain", Weight: 3},
+		Subject{SubjectID: "01", SubjectCode: "IT01", Name: "Sawtooth", Weight: 3},
 	}
 
 	for i := 0; i < len(subjects); i++{
@@ -42,6 +43,7 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 		keys := []string{subjects[i].SubjectID}
 		compositeKey, _ := stub.CreateCompositeKey("Subject", keys)
 
+		fmt.Println(compositeKey)
 		stub.PutState(compositeKey, subjectAsBytes)
 	}
 
@@ -51,7 +53,7 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 func createStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response{
 	var err error
 
-	fmt.Println("Start Create Student")
+	fmt.Println("Start Create Student!")
 
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -81,7 +83,7 @@ func createStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response{
 func createSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
 
-	fmt.Println("Start Create Subject")
+	fmt.Println("Start Create Subject!")
 
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
@@ -114,7 +116,7 @@ func createSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 func createScores(stub shim.ChaincodeStubInterface, args []string)  sc.Response {
 	var err error
 
-	fmt.Println("Start Create Scores")
+	fmt.Println("Start Create Scores!")
 
 	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 3")
@@ -141,3 +143,14 @@ func createScores(stub shim.ChaincodeStubInterface, args []string)  sc.Response 
 
 	return shim.Success(nil)
 }
+
+/*
+func createCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	var err error
+
+	fmt.Println("Start Create Certificate!")
+
+	if len(args) != 1 {
+		return shim.Error("Incorrecr")
+	}
+} */

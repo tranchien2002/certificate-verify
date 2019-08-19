@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+//	"encoding/json"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -48,9 +49,33 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response{
 		return createStudent(stub, args)
 	}else if function == "createSubject" {
 		return createSubject(stub, args)
+	}else if function == "createScores" {
+		return createScores(stub, args)
+	}else if function == "getListOfSubjects" {
+		return getListOfSubjects(stub, args)
+	}else if function == "querySubject" {
+		return querySubject(stub, args)
+	}else if function == "getListOfSubjects" {
+		return getListOfSubjects(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
+}
+
+func querySubject(stub shim.ChaincodeStubInterface, args []string ) sc.Response{
+
+	compositeKey, _ := stub.CreateCompositeKey("Subject", args)
+	subjectAsBytes , err := stub.GetState(compositeKey)
+
+	if err != nil {
+		return shim.Error("Failed")
+	}
+
+	if subjectAsBytes == nil {
+		return shim.Error("Subject does not exist - " + compositeKey)
+	}
+
+	return shim.Success(subjectAsBytes)
 }
 
 func main() {
