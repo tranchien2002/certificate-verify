@@ -10,15 +10,22 @@ import (
 func TestInstancesCreation(test *testing.T) {
 	stub := InitChaincode(test)
 
-	StudentID := "20156246"
-	SubjectID := "02"
-
-	Invoke(test, stub, "createStudent", StudentID, "Hoang Ngoc Phuc")
-	Invoke(test, stub, "createSubject", SubjectID, "IT02", "Blockchain", "3")
-	Invoke(test, stub, "createSubject", "03", "IT03", "HF", "3")
-	Invoke(test, stub, "createScores", SubjectID, StudentID, "10")
-	Invoke(test, stub, "querySubject", "00")
-	Invoke(test, stub, "getListOfSubjects", "00")
+	Invoke(test, stub, "CreateStudent", "20156426", "Hoang Ngoc Phuc")
+	Invoke(test, stub, "CreateSubject", "02", "IT02", "Blockchain", "3")
+	Invoke(test, stub, "CreateSubject", "03", "IT03", "HF", "3")
+	Invoke(test, stub, "QueryStudent", "20156425")
+	Invoke(test, stub, "QuerySubject", "00")
+	Invoke(test, stub, "GetAllSubjects")
+	Invoke(test, stub, "GetAllStudents" )
+	Invoke(test, stub, "CreateScore", "00", "20156425", "10")
+	Invoke(test, stub, "CreateScore", "01", "20156425", "9.5")
+	Invoke(test, stub, "CreateScore", "02", "20156425", "10")
+	Invoke(test, stub, "CreateScore", "03", "20156425", "9")
+	Invoke(test, stub, "QueryScore", "00", "20156425")
+	Invoke(test, stub, "GetAllScores")
+	Invoke(test, stub, "CreateCertificate", "20156425")
+	Invoke(test, stub, "QueryCertificate", "20156425")
+	Invoke(test, stub, "GetAllCertificates")
 }
 
 func InitChaincode(test *testing.T) *shim.MockStub {

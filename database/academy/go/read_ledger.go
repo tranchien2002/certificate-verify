@@ -7,11 +7,12 @@ import (
 //	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	sc "github.com/hyperledger/fabric/protos/peer"
+//	sc "github.com/hyperledger/fabric/protos/peer"
 //	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
 func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, error){
+
 	var student Student
 
 	studentAsBytes, err := stub.GetState(compoundKey)
@@ -30,6 +31,7 @@ func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, 
 }
 
 func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, error){
+
 	var subject Subject
 
 	subjectAsBytes, err := stub.GetState(compoundKey)
@@ -47,25 +49,27 @@ func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, 
 	return subject, nil
 }
 
-func getScores(stub shim.ChaincodeStubInterface, compoundKey string) (Scores, error){
-	var scores Scores
+func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, error){
 
-	scoresAsBytes, err := stub.GetState(compoundKey)
+	var score Score
+
+	scoreAsBytes, err := stub.GetState(compoundKey)
 
 	if err != nil {
-		return  scores, errors.New("Failed to get scores - " + compoundKey)
+		return  score, errors.New("Failed to get score - " + compoundKey)
 	}
 
-	if scoresAsBytes == nil {
-		return scores, errors.New("Scores does not exist - " + compoundKey)
+	if scoreAsBytes == nil {
+		return score, errors.New("Score does not exist - " + compoundKey)
 	}
 
-	json.Unmarshal(scoresAsBytes, &scores)
+	json.Unmarshal(scoreAsBytes, &score)
 
-	return scores, nil
+	return score, nil
 }
 
 func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certificate, error){
+
 	var certificate Certificate
 
 	certificateAsBytes, err := stub.GetState(compoundKey)
@@ -83,49 +87,54 @@ func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certi
 	return certificate, nil
 }
 
-func getListOfSubjects(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	/*
-	start := []string{"00"}
-	end := []string{"99"}
+func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface , error) {
 
-	startKey, _  := stub.CreateCompositeKey("Subject", start)
-	endKey, _ := stub.CreateCompositeKey("Subject", end)
-	//rs, err:= stub.GetStateByPartialCompositeKey("Subject", start)
-	rs, err := stub.GetStateByRange(startKey, endKey) 
-	
+	startKey := "Subject-"
+	endKey := "Subject-z"
 
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
 	if err != nil {
-		return shim.Error("Failed")
-	} */
-
-	var tlist []Subject
-	var i = 0
-	for i = 0;i <= 9999999;i++ {
-		var key []string
-		if i <=9 {
-			key = []string{"0"+string(i)}
-		}else {
-			key = []string{string(i)}
-		}
-		compositeKey, _ := stub.CreateCompositeKey("Subject", key)
-
-		subjectAsBytes, err := stub.GetState(compositeKey)
-		if err != nil {
-			return shim.Success(nil)
-		}
-		if subjectAsBytes == nil {
-			break
-		}
-		subject := Subject{}
-		json.Unmarshal(subjectAsBytes, &subject)
-		tlist = append(tlist, subject)
+		return nil, err
 	}
 
-	jsonRow, err := json.Marshal(tlist)
-	if err != nil {
-		return shim.Error("failed")
-	}
-
-	return shim.Success(jsonRow)
+	return resultIter , nil
 }
 
+func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Student-"
+	endKey := "Student-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter , nil
+}
+
+func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Score-"
+	endKey := "Score-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return  nil, err
+	}
+
+	return resultIter, nil
+}
+
+func getListOfCertificates(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Certificate-"
+	endKey := "Certificate-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter, nil
+}
