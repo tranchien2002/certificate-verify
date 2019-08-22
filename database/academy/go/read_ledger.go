@@ -12,6 +12,7 @@ import (
 )
 
 func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, error){
+
 	var student Student
 
 	studentAsBytes, err := stub.GetState(compoundKey)
@@ -30,6 +31,7 @@ func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, 
 }
 
 func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, error){
+
 	var subject Subject
 
 	subjectAsBytes, err := stub.GetState(compoundKey)
@@ -47,25 +49,27 @@ func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, 
 	return subject, nil
 }
 
-func getScores(stub shim.ChaincodeStubInterface, compoundKey string) (Scores, error){
-	var scores Scores
+func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, error){
 
-	scoresAsBytes, err := stub.GetState(compoundKey)
+	var score Score
+
+	scoreAsBytes, err := stub.GetState(compoundKey)
 
 	if err != nil {
-		return  scores, errors.New("Failed to get scores - " + compoundKey)
+		return  score, errors.New("Failed to get score - " + compoundKey)
 	}
 
-	if scoresAsBytes == nil {
-		return scores, errors.New("Scores does not exist - " + compoundKey)
+	if scoreAsBytes == nil {
+		return score, errors.New("Score does not exist - " + compoundKey)
 	}
 
-	json.Unmarshal(scoresAsBytes, &scores)
+	json.Unmarshal(scoreAsBytes, &score)
 
-	return scores, nil
+	return score, nil
 }
 
-func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string)(Certificate, error){
+func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certificate, error){
+
 	var certificate Certificate
 
 	certificateAsBytes, err := stub.GetState(compoundKey)
@@ -81,4 +85,56 @@ func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string)(Certif
 	json.Unmarshal(certificateAsBytes, &certificate)
 
 	return certificate, nil
+}
+
+func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface , error) {
+
+	startKey := "Subject-"
+	endKey := "Subject-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter , nil
+}
+
+func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Student-"
+	endKey := "Student-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter , nil
+}
+
+func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Score-"
+	endKey := "Score-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return  nil, err
+	}
+
+	return resultIter, nil
+}
+
+func getListOfCertificates(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+
+	startKey := "Certificate-"
+	endKey := "Certificate-z"
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultIter, nil
 }
