@@ -15,10 +15,10 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.academy.certificate.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/f82e8d88bce8fc90694996fc2c05fccbede42827e710a428a177b13644822335_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/f6d94d9d1a4673f9be3a7f58c7a0dd6206089aaee992f032dd8edceae87e0841_sk
     ports:
       - '7054:7054'
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/f82e8d88bce8fc90694996fc2c05fccbede42827e710a428a177b13644822335_sk -b admin:adminpw'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.academy.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/f6d94d9d1a4673f9be3a7f58c7a0dd6206089aaee992f032dd8edceae87e0841_sk -b admin:adminpw'
     volumes:
       - ./crypto-config/peerOrganizations/academy.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.academy.certificate.com
@@ -31,10 +31,10 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.student.certificate.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/f78ce9f6ef7f0e3dbd1180cdbaede9c947e58e5bd32794d54197e442c41e1c28_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/924c8001669450fef3020d956db68f21262b9843d4d91aab79bd469a23b5245e_sk
     ports:
       - '8054:7054'
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/f78ce9f6ef7f0e3dbd1180cdbaede9c947e58e5bd32794d54197e442c41e1c28_sk -b admin:adminpw'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.student.certificate.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/924c8001669450fef3020d956db68f21262b9843d4d91aab79bd469a23b5245e_sk -b admin:adminpw'
     volumes:
       - ./crypto-config/peerOrganizations/student.certificate.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.student.certificate.com

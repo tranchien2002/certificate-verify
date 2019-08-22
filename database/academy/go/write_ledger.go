@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
-//	"errors"
+	//	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
-//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
+	//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
 func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
@@ -17,10 +17,9 @@ func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 		Student{StudentID: "20156425", Name: "Trinh Van Tan"},
 	}
 
-
 	for i := 0; i < len(students); i++ {
 		studentAsBytes, _ := json.Marshal(students[i])
-		key := "Student-"+students[i].StudentID
+		key := "Student-" + students[i].StudentID
 
 		fmt.Println(key)
 		stub.PutState(key, studentAsBytes)
@@ -36,9 +35,9 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 		Subject{SubjectID: "01", SubjectCode: "IT01", Name: "Sawtooth", Weight: 3},
 	}
 
-	for i := 0; i < len(subjects); i++{
+	for i := 0; i < len(subjects); i++ {
 		subjectAsBytes, _ := json.Marshal(subjects[i])
-		key := "Subject-"+subjects[i].SubjectID
+		key := "Subject-" + subjects[i].SubjectID
 
 		fmt.Println(key)
 		stub.PutState(key, subjectAsBytes)
@@ -47,7 +46,7 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(nil)
 }
 
-func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response{
+func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
 
 	fmt.Println("Start Create Student!")
@@ -59,7 +58,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response{
 	StudentID := args[0]
 	Name := args[1]
 
-	key := "Student-"+StudentID
+	key := "Student-" + StudentID
 	checkStudentExist, err := getStudent(stub, key)
 	if err == nil {
 		fmt.Println(checkStudentExist)
@@ -68,7 +67,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response{
 
 	var student = Student{StudentID: StudentID, Name: Name}
 
-	studentAsBytes, _:= json.Marshal(student)
+	studentAsBytes, _ := json.Marshal(student)
 
 	stub.PutState(key, studentAsBytes)
 
@@ -89,7 +88,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	Name := args[2]
 	Weight, err := strconv.Atoi(args[3])
 
-	key := "Subject-"+SubjectID
+	key := "Subject-" + SubjectID
 	checkSubjectExist, err := getSubject(stub, key)
 	if err == nil {
 		fmt.Println(checkSubjectExist)
@@ -105,7 +104,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	return shim.Success(nil)
 }
 
-func CreateScore(stub shim.ChaincodeStubInterface, args []string)  sc.Response {
+func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
 
 	fmt.Println("Start Create Score!")
@@ -124,13 +123,13 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string)  sc.Response {
 		return shim.Error("Student dose not exist - " + StudentID)
 	}
 
-	checkSubjectExist, err := getSubject(stub, "Subject-" + SubjectID)
+	checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
 	if err != nil {
 		fmt.Println(checkSubjectExist)
 		return shim.Error("Subject does not exist - " + SubjectID)
 	}
 
-	key := "Score-" + " " + "Subject-"+SubjectID+ " " +"Student-"+StudentID
+	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentID
 	checkScoreExist, err := getScore(stub, key)
 	if err == nil {
 		fmt.Println(checkScoreExist)
@@ -145,7 +144,6 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string)  sc.Response {
 
 	return shim.Success(nil)
 }
-
 
 func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	//var err error
@@ -173,7 +171,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		subject := Subject{}
 		json.Unmarshal(record.Value, &subject)
 
-		score, err := getScore(stub, "Score-" + " " + "Subject-" + subject.SubjectID+ " " + "Student-" + StudentID)
+		score, err := getScore(stub, "Score-"+" "+"Subject-"+subject.SubjectID+" "+"Student-"+StudentID)
 		if err != nil {
 			fmt.Println(score)
 			return shim.Error("Score of Subject-" + subject.SubjectID + " does not exist")
