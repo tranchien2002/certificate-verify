@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -13,70 +13,70 @@ type SmartContract struct {
 }
 
 type Subject struct {
-	SubjectID 		string
-	SubjectCode		string
-	Name			string
-	Weight			int
+	SubjectID   string
+	SubjectCode string
+	Name        string
+	Weight      int
 }
 
 type Student struct {
-	StudentID		string
-	Name			string
+	StudentID string
+	Name      string
 }
 
 type Score struct {
-	SubjectID string
+	SubjectID  string
+	StudentID  string
+	ScoreValue float64
+}
+
+type Certificate struct {
 	StudentID string
-	ScoreValue 	  float64
+	Average   float64
 }
 
-type Certificate struct{
-	StudentID 		string
-	Average			float64
-}
-
-func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response{
+func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
 	initStudent(stub)
 	initSubject(stub)
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response{
+func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 
 	function, args := stub.GetFunctionAndParameters()
 
 	if function == "CreateStudent" {
 		return CreateStudent(stub, args)
-	}else if function == "CreateSubject" {
+	} else if function == "CreateSubject" {
 		return CreateSubject(stub, args)
-	}else if function == "CreateScore" {
+	} else if function == "CreateScore" {
 		return CreateScore(stub, args)
-	}else if function == "CreateCertificate" {
+	} else if function == "CreateCertificate" {
 		return CreateCertificate(stub, args)
-	}else if function == "QuerySubject" {
+	} else if function == "QuerySubject" {
 		return QuerySubject(stub, args)
-	}else if function == "QueryScore" {
+	} else if function == "QueryScore" {
 		return QueryScore(stub, args)
-	}else if function == "QueryStudent" {
+	} else if function == "QueryStudent" {
 		return QueryStudent(stub, args)
-	}else if function == "QueryCertificate" {
+	} else if function == "QueryCertificate" {
 		return QueryCertificate(stub, args)
-	}else if function == "GetAllSubjects" {
+	} else if function == "GetAllSubjects" {
 		return GetAllSubjects(stub)
-	}else if function == "GetAllStudents" {
+	} else if function == "GetAllStudents" {
 		return GetAllStudents(stub)
-	}else if function == "GetAllScores" {
+	} else if function == "GetAllScores" {
 		return GetAllScores(stub)
-	}else if function == "GetAllCertificates" {
+	} else if function == "GetAllCertificates" {
 		return GetAllCertificates(stub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name!")
 }
 
-func QuerySubject(stub shim.ChaincodeStubInterface, args []string ) sc.Response{
+func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	key := "Subject-"+args[0]
+	key := "Subject-" + args[0]
 	subjectAsBytes, err := stub.GetState(key)
 
 	if err != nil {
@@ -90,7 +90,7 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string ) sc.Response{
 	return shim.Success(subjectAsBytes)
 }
 
-func QueryStudent(stub shim.ChaincodeStubInterface, args []string ) sc.Response {
+func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	key := "Student-" + args[0]
 	studentAsBytes, err := stub.GetState(key)
@@ -106,7 +106,7 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string ) sc.Response 
 	return shim.Success(studentAsBytes)
 }
 
-func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response{
+func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	key := "Score-" + " " + "Subject-" + args[0] + " " + "Student-" + args[1]
 	scoreAsBytes, err := stub.GetState(key)
@@ -124,7 +124,7 @@ func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response{
 
 func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	key :="Certificate-"+ " " + "Student-" + args[0]
+	key := "Certificate-" + " " + "Student-" + args[0]
 	certificateAsBytes, err := stub.GetState(key)
 
 	if err != nil {
@@ -146,7 +146,7 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 
 	var tlist []Subject
 	var i int
-	for i = 0; allSubjects.HasNext(); i++{
+	for i = 0; allSubjects.HasNext(); i++ {
 
 		record, err := allSubjects.Next()
 		if err != nil {
@@ -174,7 +174,7 @@ func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 
 	var tlist []Student
 	var i int
-	for i = 0; allStudents.HasNext(); i++{
+	for i = 0; allStudents.HasNext(); i++ {
 
 		record, err := allStudents.Next()
 		if err != nil {

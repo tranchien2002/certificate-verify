@@ -3,15 +3,16 @@ package main
 import (
 	"encoding/json"
 	"errors"
-//	"fmt"
-//	"strconv"
+
+	//	"fmt"
+	//	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-//	sc "github.com/hyperledger/fabric/protos/peer"
-//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
+	//	sc "github.com/hyperledger/fabric/protos/peer"
+	//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
-func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, error){
+func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, error) {
 
 	var student Student
 
@@ -21,7 +22,7 @@ func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, 
 		return student, errors.New("Failed to get student - " + compoundKey)
 	}
 
-	if studentAsBytes == nil{
+	if studentAsBytes == nil {
 		return student, errors.New("Student does not exist - " + compoundKey)
 	}
 
@@ -30,7 +31,7 @@ func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, 
 	return student, nil
 }
 
-func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, error){
+func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, error) {
 
 	var subject Subject
 
@@ -49,14 +50,14 @@ func getSubject(stub shim.ChaincodeStubInterface, compoundKey string) (Subject, 
 	return subject, nil
 }
 
-func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, error){
+func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, error) {
 
 	var score Score
 
 	scoreAsBytes, err := stub.GetState(compoundKey)
 
 	if err != nil {
-		return  score, errors.New("Failed to get score - " + compoundKey)
+		return score, errors.New("Failed to get score - " + compoundKey)
 	}
 
 	if scoreAsBytes == nil {
@@ -68,7 +69,7 @@ func getScore(stub shim.ChaincodeStubInterface, compoundKey string) (Score, erro
 	return score, nil
 }
 
-func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certificate, error){
+func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certificate, error) {
 
 	var certificate Certificate
 
@@ -87,7 +88,7 @@ func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certi
 	return certificate, nil
 }
 
-func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface , error) {
+func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
 
 	startKey := "Subject-"
 	endKey := "Subject-z"
@@ -97,7 +98,7 @@ func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIterato
 		return nil, err
 	}
 
-	return resultIter , nil
+	return resultIter, nil
 }
 
 func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
@@ -110,7 +111,7 @@ func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIterato
 		return nil, err
 	}
 
-	return resultIter , nil
+	return resultIter, nil
 }
 
 func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
@@ -120,7 +121,7 @@ func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorI
 
 	resultIter, err := stub.GetStateByRange(startKey, endKey)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	return resultIter, nil

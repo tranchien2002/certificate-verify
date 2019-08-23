@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"testing"
 	"strings"
+	"testing"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -16,7 +17,7 @@ func TestInstancesCreation(test *testing.T) {
 	Invoke(test, stub, "QueryStudent", "20156425")
 	Invoke(test, stub, "QuerySubject", "00")
 	Invoke(test, stub, "GetAllSubjects")
-	Invoke(test, stub, "GetAllStudents" )
+	Invoke(test, stub, "GetAllStudents")
 	Invoke(test, stub, "CreateScore", "00", "20156425", "10")
 	Invoke(test, stub, "CreateScore", "01", "20156425", "9.5")
 	Invoke(test, stub, "CreateScore", "02", "20156425", "10")
@@ -38,15 +39,15 @@ func InitChaincode(test *testing.T) *shim.MockStub {
 	return stub
 }
 
-func Invoke(test *testing.T, stub *shim.MockStub, function string, args ...string){
-	cc_args := make([][]byte, 1 + len(args))
+func Invoke(test *testing.T, stub *shim.MockStub, function string, args ...string) {
+	cc_args := make([][]byte, 1+len(args))
 	cc_args[0] = []byte(function)
 
 	for i, arg := range args {
 		cc_args[i+1] = []byte(arg)
 	}
 	result := stub.MockInvoke("000", cc_args)
-	fmt.Println("Call:	", function,"(", strings.Join(args, ", "),")")
+	fmt.Println("Call:	", function, "(", strings.Join(args, ", "), ")")
 	fmt.Println("RetCode:	", result.Status)
 	fmt.Println("RetMsg:	", result.Message)
 	fmt.Println("Payload:	", string(result.Payload))
