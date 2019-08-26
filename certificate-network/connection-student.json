@@ -30,7 +30,7 @@
     }
   },
   "certificateAuthorities": {
-    "ca.academy.certificate.com": {
+    "ca.student.certificate.com": {
       "url": "http://localhost:8054",
       "caName": "ca.student.certificate.com",
       "tlsCACerts": {
