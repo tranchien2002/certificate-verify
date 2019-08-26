@@ -2,9 +2,9 @@
 node-cli/node-cli
 *.pyc
 /build/*
-/bin
-/network/channel-artifacts
-/network/crypto-config
+/certificate-network/bin
+/certificate-network/network/channel-artifacts
+/certificate-network/network/crypto-config
 .idea
 *.iml
 .DS_Store

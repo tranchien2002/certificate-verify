@@ -35,11 +35,11 @@ CORE_PEER_ADDRESS=peer0.student.certificate.com:8051 CORE_PEER_LOCALMSPID=Studen
 
 CORE_PEER_ADDRESS=peer0.academy.certificate.com:7051 CORE_PEER_LOCALMSPID=AcademyMSP CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/tls/ca.crt peer chaincode install -n mycc -v 1.0 -p github.com/chaincode/academy/go/
 
-## Step 11. Instantiate the chaincode onto the peer0 node in Student
+## Step 10. Instantiate the chaincode onto the peer0 node in Student
 
 CORE_PEER_ADDRESS=peer0.academy.certificate.com:7051 CORE_PEER_LOCALMSPID=AcademyMSP CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/users/Admin@academy.certificate.com/msp CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/academy.certificate.com/peers/peer0.academy.certificate.com/tls/ca.crt peer chaincode instantiate -o orderer.certificate.com:7050 -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":[]}' -P "AND ('AcademyMSP.peer','StudentMSP.peer')"
 
-## Step 10. Install the chaincode onto the peer0 node in Student
+## Step 11. Install the chaincode onto the peer0 node in Student
 
 CORE_PEER_ADDRESS=peer0.student.certificate.com:7051 CORE_PEER_LOCALMSPID=StudentMSP CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/student.certificate.com/users/Admin@student.certificate.com/msp CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/student.certificate.com/peers/peer0.student.certificate.com/tls/ca.crt peer chaincode install -n mycc -v 1.0 -p github.com/chaincode/academy/go/
 
