@@ -6,7 +6,6 @@ import (
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
-	// "github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
 type SmartContract struct {

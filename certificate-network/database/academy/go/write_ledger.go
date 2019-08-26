@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 	sc "github.com/hyperledger/fabric/protos/peer"
-	//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
 func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
@@ -48,6 +48,23 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 
 func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
+
+	id, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	}
+	fmt.Print("ID: ")
+	fmt.Print(id)
+	fmt.Println("\n\n -")
+
+	mspid, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+	fmt.Print("MSPID: ")
+	fmt.Print(mspid)
+	fmt.Println("\n\n -")
 
 	fmt.Println("Start Create Student!")
 
