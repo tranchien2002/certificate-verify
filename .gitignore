@@ -5,6 +5,12 @@ node-cli/node-cli
 /certificate-network/bin
 /certificate-network/network/channel-artifacts
 /certificate-network/network/crypto-config
+/academy-app/package-lock.json
+/academy-app/node_modules
+/academy-app/wallet/admin
+/student-app/package-lock.json
+/student-app/node_modules
+/student-app/wallet/admin
 .idea
 *.iml
 .DS_Store
