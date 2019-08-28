@@ -49,23 +49,6 @@ func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
 
-	id, err := cid.GetID(stub)
-	if err != nil {
-		fmt.Println("Error - cide.GetID()")
-		return shim.Error("GetID Failed!")
-	}
-	fmt.Print("ID: ")
-	fmt.Print(id)
-	fmt.Println("\n\n -")
-
-	mspid, err := cid.GetMSPID(stub)
-	if err != nil {
-		fmt.Println("Error - cide.GetMSPID()")
-	}
-	fmt.Print("MSPID: ")
-	fmt.Print(mspid)
-	fmt.Println("\n\n -")
-
 	fmt.Println("Start Create Student!")
 
 	if len(args) != 2 {
@@ -124,6 +107,26 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	var err error
 
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
+
+	TeacherID, _, err := cid.GetAttributeValue(stub, "TeacherID")
+	if err != nil {
+		fmt.Println("Error - Get TeacherID")
+	}
+
 	fmt.Println("Start Create Score!")
 
 	if len(args) != 3 {
@@ -153,7 +156,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This score already exists.")
 	}
 
-	var score = Score{SubjectID: SubjectID, StudentID: StudentID, ScoreValue: ScoreValue}
+	var score = Score{SubjectID: SubjectID, StudentID: StudentID, ScoreValue: ScoreValue, CreateBy: TeacherID}
 
 	scoreAsBytes, _ := json.Marshal(score)
 
@@ -163,7 +166,26 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 }
 
 func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
-	//var err error
+
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
+
+	TeacherID, _, err := cid.GetAttributeValue(stub, "TeacherID")
+	if err != nil {
+		fmt.Println("Error - Get TeacherID")
+	}
 
 	fmt.Println("Start Create Certificate!")
 
@@ -200,7 +222,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 
 	average := sumScore / float64(sumWeight)
 
-	var certificate = Certificate{StudentID: StudentID, Average: average}
+	var certificate = Certificate{StudentID: StudentID, Average: average, CreateBy: TeacherID}
 
 	key := "Certificate-" + " " + "Student-" + StudentID
 

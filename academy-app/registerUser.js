@@ -14,7 +14,7 @@ const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection
 async function main() {
     try {
         var argv = yargs.argv;
-        var user = argv.user.toString();
+        var teacher_id = argv.teacherid.toString();
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -22,9 +22,9 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists(user);
+        const userExists = await wallet.exists(user_id);
         if (userExists) {
-            console.log(`An identity for the user ${user} already exists in the wallet`);
+            console.log(`An identity for the user ${user_id} already exists in the wallet`);
             return;
         }
 
@@ -50,21 +50,21 @@ async function main() {
 
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register(
-            { affiliation: '', enrollmentID: user, role: 'client' },
+            { affiliation: '', enrollmentID: teacher_id, role: 'client', attrs: [{ name: 'TeacherID', value: teacher_id, ecert: true }] },
             adminIdentity
         );
-        const enrollment = await ca.enroll({ enrollmentID: user, enrollmentSecret: secret });
+        const enrollment = await ca.enroll({ enrollmentID: teacher_id, enrollmentSecret: secret });
         const userIdentity = X509WalletMixin.createIdentity(
             'AcademyMSP',
             enrollment.certificate,
             enrollment.key.toBytes()
         );
-        await wallet.import(user, userIdentity);
+        await wallet.import(teacher_id, userIdentity);
         console.log(
-            `Successfully registered and enrolled admin user ${user} and imported it into the wallet`
+            `Successfully registered and enrolled admin user ${user_id} and imported it into the wallet`
         );
     } catch (error) {
-        console.error(`Failed to register user ${user}: ${error}`);
+        console.error(`Failed to register user ${user_id}: ${error}`);
         process.exit(1);
     }
 }

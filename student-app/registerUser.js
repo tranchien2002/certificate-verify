@@ -11,15 +11,19 @@ const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection
 
 async function main() {
     try {
+        var argv = yargs.argv;
+        var student_id = argv.studentid.toString();
+        var name = argv.name.toString();
+
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists('user1');
+        const userExists = await wallet.exists(student_id);
         if (userExists) {
-            console.log('An identity for the user "user1" already exists in the wallet');
+            console.log(`An identity for the user ${student_id} already exists in the wallet`);
             return;
         }
 
@@ -43,18 +47,26 @@ async function main() {
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('certificatechannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('mycc');
+
+        await contract.submitTransaction('CreateStudent', student_id, name);
+
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register(
-            { affiliation: '', enrollmentID: 'user1', role: 'client' },
+            { affiliation: '', enrollmentID: user_id, role: 'client', attrs: [{ name: 'StudentID', value: student_id, ecert: true }] },
             adminIdentity
         );
-        const enrollment = await ca.enroll({ enrollmentID: 'user1', enrollmentSecret: secret });
+        const enrollment = await ca.enroll({ enrollmentID: student_id, enrollmentSecret: secret });
         const userIdentity = X509WalletMixin.createIdentity(
             'StudentMSP',
             enrollment.certificate,
             enrollment.key.toBytes()
         );
-        await wallet.import('user1', userIdentity);
+        await wallet.import(student_id, userIdentity);
         console.log(
             'Successfully registered and enrolled admin user "user1" and imported it into the wallet'
         );

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
@@ -27,11 +28,13 @@ type Score struct {
 	SubjectID  string
 	StudentID  string
 	ScoreValue float64
+	CreateBy   string
 }
 
 type Certificate struct {
 	StudentID string
 	Average   float64
+	CreateBy  string
 }
 
 func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
@@ -90,6 +93,28 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 }
 
 func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		StudentID, _, err := cid.GetAttributeValue(stub, "StudentID")
+
+		if err != nil {
+			fmt.Println("Error - Get Student")
+		}
+
+		if StudentID != args[0] {
+			return shim.Error("You Are Not Teacher!")
+		}
+	}
 
 	key := "Student-" + args[0]
 	studentAsBytes, err := stub.GetState(key)
@@ -106,6 +131,28 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 }
 
 func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		StudentID, _, err := cid.GetAttributeValue(stub, "StudentID")
+
+		if err != nil {
+			fmt.Println("Error - Get Student")
+		}
+
+		if StudentID != args[1] {
+			return shim.Error("You Are Not Teacher!")
+		}
+	}
 
 	key := "Score-" + " " + "Subject-" + args[0] + " " + "Student-" + args[1]
 	scoreAsBytes, err := stub.GetState(key)
@@ -122,6 +169,22 @@ func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 }
 
 func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		StudentID, _, err := cid.GetAttributeValue(stub, "StudentID")
+
+		if err != nil {
+			fmt.Println("Error - Get Student")
+		}
+
+		if StudentID != args[0] {
+			return shim.Error("You Are Not Teacher!")
+		}
+	}
 
 	key := "Certificate-" + " " + "Student-" + args[0]
 	certificateAsBytes, err := stub.GetState(key)
@@ -138,7 +201,6 @@ func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 }
 
 func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
-
 	allSubjects, _ := getListOfSubjects(stub)
 
 	defer allSubjects.Close()
@@ -166,6 +228,20 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
 
 	allStudents, _ := getListOfStudents(stub)
 
@@ -194,6 +270,20 @@ func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
 
 	allScores, _ := getListOfScores(stub)
 
@@ -222,6 +312,20 @@ func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetAllCertificates(stub shim.ChaincodeStubInterface) sc.Response {
+	/*ID, err := cid.GetID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetID()")
+		return shim.Error("GetID Failed!")
+	} */
+
+	MSPID, err := cid.GetMSPID(stub)
+	if err != nil {
+		fmt.Println("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "AcademyMSP" {
+		return shim.Error("You Are Not Teacher!")
+	}
 
 	allCertificates, _ := getListOfCertificates(stub)
 

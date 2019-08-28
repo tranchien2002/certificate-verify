@@ -13,7 +13,7 @@ const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection
 async function main() {
     try {
         var argv = yargs.argv;
-        var user = argv.user.toString();
+        var teacher_id = argv.teacherid.toString();
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -32,7 +32,7 @@ async function main() {
         const gateway = new Gateway();
         await gateway.connect(ccpPath, {
             wallet,
-            identity: user,
+            identity: teacher_id,
             discovery: { enabled: true, asLocalhost: true }
         });
 
@@ -45,23 +45,19 @@ async function main() {
         // Submit the specified transaction.
         // CreateStudent transaction - requires 2 argument, ex: ('CreateCar', '20156426', 'Hoang Ngoc Phuc')
         var FunctionName = argv.f.toString();
-        if (FunctionName == 'CreateStudent'){
-            var StudentID = argv.id.toString();
-            var StudentName = argv.name.toString();
-            await contract.submitTransaction(FunctionName, StudentID, StudentName);
-        }else if (FunctionName == 'CreateSubject'){
-            var SubjectID = argv.id.toString();
-            var SubjectCode = argv.code.toString();
-            var SubjectName = argv.name.toString();
-            var SubjectWeight = argv.weight.toString();
-            await contract.submitTransaction(FunctionName, SubjectID, SubjectCode, SubjectName, SubjectWeight);
+        if (FunctionName == 'CreateSubject'){
+            var SubjectID = argv.subjectid.toString();
+            var SubjectCode = argv.subjectcode.toString();
+            var Name = argv.name.toString();
+            var Weight = argv.weight.toString();
+            await contract.submitTransaction(FunctionName, SubjectID, SubjectCode, Name, Weight);
         }else if (FunctionName == 'CreateScore'){
-            var SubjectID = argv.subjectId.toString();
-            var StudentID = argv.studentId.toString();
+            var SubjectID = argv.subjectid.toString();
+            var StudentID = argv.studentid.toString();
             var Score = argv.score.toString();
             await contract.submitTransaction(FunctionName, SubjectID, StudentID, Score);
         }else if (FunctionName == 'CreateCertificate'){
-            var StudentID = argv.studentId.toString();
+            var StudentID = argv.studentid.toString();
             await contract.submitTransaction(FunctionName, StudentID);
         }
 
