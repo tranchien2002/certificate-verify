@@ -14,17 +14,17 @@ const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection
 async function main() {
     try {
         var argv = yargs.argv;
-        var teacher_id = argv.teacherid.toString();
+        var teacher_id = argv.userid.toString();
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
+        //console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists(user_id);
+        const userExists = await wallet.exists(teacher_id);
         if (userExists) {
-            console.log(`An identity for the user ${user_id} already exists in the wallet`);
+            console.log(`An identity for the user ${teacher_id} already exists in the wallet`);
             return;
         }
 
@@ -61,10 +61,13 @@ async function main() {
         );
         await wallet.import(teacher_id, userIdentity);
         console.log(
-            `Successfully registered and enrolled admin user ${user_id} and imported it into the wallet`
+            `Successfully registered and enrolled admin user ${teacher_id} and imported it into the wallet`
         );
+
+        // Disconnect from the gateway.
+        await gateway.disconnect();
     } catch (error) {
-        console.error(`Failed to register user ${user_id}: ${error}`);
+        console.error(`Failed to register user ${teacher_id}: ${error}`);
         process.exit(1);
     }
 }

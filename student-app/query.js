@@ -8,23 +8,22 @@ var yargs = require('yargs');
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection-academy.json');
+const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection-student.json');
 
 async function main() {
     try {
         var argv = yargs.argv;
-        var user = argv.userid.toString();
+        var user_id = argv.userid.toString();
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists(user);
+        const userExists = await wallet.exists(user_id);
         if (!userExists) {
-            console.log(`An identity for the user ${user} does not exist in the wallet`);
-            console.log(`Run the registerUser.js --user ${user} application before retrying`);
+            console.log(`An identity for the student ${user_id} does not exist in the wallet`);
+            console.log(`Run the registerUser.js --userid ${user_id} application before retrying`);
             return;
         }
 
@@ -32,7 +31,7 @@ async function main() {
         const gateway = new Gateway();
         await gateway.connect(ccpPath, {
             wallet,
-            identity: user,
+            identity: user_id,
             discovery: { enabled: true, asLocalhost: true }
         });
 
@@ -43,31 +42,36 @@ async function main() {
         const contract = network.getContract('mycc');
 
         // Evaluate the specified transaction.
-        // QueryStudent transaction - requires 1 argument, ex: ('QueryStudent', '20156425')
+        // QueryStudent transaction - requires 1 argument, ex: ('QueryStudent')
         var FunctionName = argv.f.toString();
         if (FunctionName == 'QueryStudent'){
-            var StudentID = argv.studentId.toString();
-            const result = await contract.evaluateTransaction(FunctionName, StudentID);
-            console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+            const result = await contract.evaluateTransaction(FunctionName, "");
+            console.log(`\nStudent:\n\n${result.toString()}\n`);
+            process.exit(0);
         }else if (FunctionName == 'QuerySubject'){
-            var SubjectID = argv.subjectId.toString();
+            var SubjectID = argv.subjectid.toString();
             const result = await contract.evaluateTransaction(FunctionName, SubjectID);
-            console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+            console.log(`\nSubject:\n\n${result.toString()}\n`);
+            process.exit(0);
         }else if (FunctionName == 'QueryCertificate'){
-            var StudentID = argv.studentId.toString();
-            const result = await contract.evaluateTransaction(FunctionName, StudentID);
-            console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+            const result = await contract.evaluateTransaction(FunctionName, "");
+            console.log(`\nCertificate:\n\n${result.toString()}\n`);
+            process.exit(0);
         }else if (FunctionName == 'QueryScore') {
-            var SubjectID = argv.subjectId.toString();
-            var StudentID = argv.studentId.toString();
-            const result = await contract.evaluateTransaction(FunctionName, SubjectID, StudentID);
-            console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+            var SubjectID = argv.subjectid.toString();
+            const result = await contract.evaluateTransaction(FunctionName, SubjectID, "");
+            console.log(`\nScore:\n\n${result.toString()}\n`);
+            process.exit(0);
         }else if (FunctionName == 'GetAllSubjects' || FunctionName == 'GetAllScores') {
             const result = await contract.evaluateTransaction(FunctionName);
-            console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+            console.log(`\nResult:\n\n${result.toString()}\n`);
+            process.exit(0);
+        }else {
+            console.log("Failed!")
+            process.exit(0)
         }
 
-    } catch (error) {
+    } catch (error){
         console.error(`Failed to evaluate transaction: ${error}`);
         process.exit(1);
     }

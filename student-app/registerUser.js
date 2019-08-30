@@ -3,6 +3,7 @@
  */
 
 'use strict';
+var yargs = require('yargs');
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
@@ -12,13 +13,12 @@ const ccpPath = path.resolve(__dirname, '..', 'certificate-network', 'connection
 async function main() {
     try {
         var argv = yargs.argv;
-        var student_id = argv.studentid.toString();
+        var student_id = argv.userid.toString();
         var name = argv.name.toString();
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
         const userExists = await wallet.exists(student_id);
@@ -57,7 +57,7 @@ async function main() {
 
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register(
-            { affiliation: '', enrollmentID: user_id, role: 'client', attrs: [{ name: 'StudentID', value: student_id, ecert: true }] },
+            { affiliation: '', enrollmentID: student_id, role: 'client', attrs: [{ name: 'StudentID', value: student_id, ecert: true }] },
             adminIdentity
         );
         const enrollment = await ca.enroll({ enrollmentID: student_id, enrollmentSecret: secret });
@@ -68,10 +68,13 @@ async function main() {
         );
         await wallet.import(student_id, userIdentity);
         console.log(
-            'Successfully registered and enrolled admin user "user1" and imported it into the wallet'
+            `Successfully registered and enrolled admin student ${student_id} and imported it into the wallet`
         );
+
+        // Disconnect from the gateway.
+        await gateway.disconnect();
     } catch (error) {
-        console.error(`Failed to register user "user2": ${error}`);
+        console.error(`Failed to register student ${student_id}: ${error}`);
         process.exit(1);
     }
 }
