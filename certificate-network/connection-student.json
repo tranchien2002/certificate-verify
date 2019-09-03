@@ -20,7 +20,7 @@
   },
   "peers": {
     "peer0.student.certificate.com": {
-      "url": "grpcs://localhost:8051",
+      "url": "grpc://localhost:8051",
       "tlsCACerts": {
         "path": "network/crypto-config/peerOrganizations/student.certificate.com/tlsca/tlsca.student.certificate.com-cert.pem"
       },

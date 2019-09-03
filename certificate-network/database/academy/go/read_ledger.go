@@ -4,12 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	//	"fmt"
-	//	"strconv"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	//	sc "github.com/hyperledger/fabric/protos/peer"
-	//	"github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
 )
 
 func getStudent(stub shim.ChaincodeStubInterface, compoundKey string) (Student, error) {
@@ -88,7 +83,7 @@ func getCertificate(stub shim.ChaincodeStubInterface, compoundKey string) (Certi
 	return certificate, nil
 }
 
-func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+func getListSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
 
 	startKey := "Subject-"
 	endKey := "Subject-z"
@@ -101,7 +96,7 @@ func getListOfSubjects(stub shim.ChaincodeStubInterface) (shim.StateQueryIterato
 	return resultIter, nil
 }
 
-func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+func getListStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
 
 	startKey := "Student-"
 	endKey := "Student-z"
@@ -114,7 +109,7 @@ func getListOfStudents(stub shim.ChaincodeStubInterface) (shim.StateQueryIterato
 	return resultIter, nil
 }
 
-func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+func getListScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
 
 	startKey := "Score-"
 	endKey := "Score-z"
@@ -127,7 +122,7 @@ func getListOfScores(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorI
 	return resultIter, nil
 }
 
-func getListOfCertificates(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
+func getListCertificates(stub shim.ChaincodeStubInterface) (shim.StateQueryIteratorInterface, error) {
 
 	startKey := "Certificate-"
 	endKey := "Certificate-z"
