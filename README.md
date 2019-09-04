@@ -10,7 +10,7 @@
 
 ## Setup network và cài đặt chaicode
 
-cd certificate-network/network
+cd certificate-network
 
 Làm theo hướng dẫn trong README.md
 
@@ -56,3 +56,5 @@ Phía Student có các quyền:
 - GetAllSubjects
 
 (Các câu lệnh xem thêm trong README.md của từng thư mục)
+
+Xem các structure trong certificate-network/database/academy/go/certificate.go để hiểu rõ hơn.
