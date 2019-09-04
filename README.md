@@ -10,19 +10,33 @@
 
 ## Setup network và cài đặt chaicode
 
-cd certificate-network/nework. Sau đó chạy tất cả câu lệnh trong file README.md trong cùng 1 terminal
+cd certificate-network/network
+
+Làm theo hướng dẫn trong README.md
 
 ## Phía Academy
 
-cd acdemy-app. Thực hiện enroll admin. Sau đó register cho giảng viên tương ứng. Hướng dẫn có trong academy-app/README.md
+cd acdemy-app
 
-Thực hiện các câu lệnh invoke, query như trong hướng dẫn.
+Cài các package
+
+Thực hiện enroll admin. Sau đó register cho giảng viên tương ứng.
+
+Thực hiện các câu lệnh invoke, query.
+
+( Tất cả hướng dẫn có trong academy-app/README.md )
 
 ## Phía Student
 
-cd student-app. Thực hiện enroll admin. Sau đó register cho sinh viên tương ứng. Hướng dẫn có trong student-app/README.md
+cd student-app
 
-Thực hiện các câu lệnh query như trong hướng dẫn.
+Cài các package
+
+Thực hiện enroll admin. Sau đó register cho sinh viên tương ứng.
+
+Thực hiện các câu lệnh query.
+
+( Tất cả hướng dẫn có trong student-app/README.md )
 
 # 3. Chú ý
 
