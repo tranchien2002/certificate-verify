@@ -39,17 +39,17 @@ async function main() {
         const network = await gateway.getNetwork('certificatechannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('mycc');
+        const contract = network.getContract('academy');
 
         // Evaluate the specified transaction.
         // QueryStudent transaction - requires 1 argument, ex: ('QueryStudent')
         var FunctionName = argv.f.toString();
         if (FunctionName == 'QueryStudent'){
-            const result = await contract.evaluateTransaction(FunctionName, "");
+            const result = await contract.evaluateTransaction(FunctionName, '0');
             console.log(`\nStudent:\n\n${result.toString()}\n`);
             process.exit(0);
         }else if (FunctionName == 'QuerySubject'){
-            var SubjectID = argv.subjectid.toString();
+            SubjectID = argv.subjectid.toString();
             const result = await contract.evaluateTransaction(FunctionName, SubjectID);
             console.log(`\nSubject:\n\n${result.toString()}\n`);
             process.exit(0);

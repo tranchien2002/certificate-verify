@@ -14,26 +14,21 @@ LANGUAGE="$3"
 TIMEOUT="$4"
 : ${CHANNEL_NAME:="certificatechannel"}
 : ${DELAY:="3"}
-: ${LANGUAGE:="golang"}
 : ${TIMEOUT:="10"}
 LANGUAGE=`echo "$LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=5
 ORDERER_CA=
 
-CC_SRC_PATH="github.com/chaincode/swiping-card/go"
-if [ "$LANGUAGE" = "node" ]; then
-	CC_SRC_PATH="/opt/gopath/src/github.com/chaincode/swiping-card/node/"
-fi
+CC_SRC_PATH="github.com/chaincode/academy/go"
 
 echo "Channel name : "$CHANNEL_NAME
 
 source ./scripts/common.sh
 
 updateAnchorPeers() {
-    PEER=$1
-    CLUSTER=$2
-    setGlobals $PEER $CLUSTER
+    CLUSTER=$1
+    setGlobals $CLUSTER
 
     if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
             set -x
@@ -47,17 +42,25 @@ updateAnchorPeers() {
             set +x
     fi
     cat log.txt
-    verifyResult $res "Anchor peer update failed"
-    echo "===================== Anchor peers for CLUSTER \"$CORE_PEER_LOCALMSPID\" on \"$CHANNEL_NAME\" is updated successfully ===================== "
-    sleep $DELAY
-    echo
+	if [ $CLUSTER -eq 1 ]; then
+    	verifyResult $res "Anchor peer update failed"
+    	echo "===================== Anchor peers for CLUSTER \"$CORE_PEER_LOCALMSPID\" on \"$CHANNEL_NAME\" is updated successfully ===================== "
+    	sleep $DELAY
+    	echo
+	elif [ $CLUSTER -eq 2 ]; then
+		verifyResult $res "Anchor peer update failed"
+    	echo "===================== Anchor peers for CLUSTER \"$CORE_PEER_LOCALMSPID\" on \"$CHANNEL_NAME\" is updated successfully ===================== "
+    	sleep $DELAY
+    	echo
+	else
+		echo "================== ERROR !!! ORGANIZATION Unknown =================="
+	fi
 }
 
 ## Sometimes Join takes time hence RETRY at least for 5 times
 joinChannelWithRetry () {
-	PEER=$1
-	CLUSTER=$2
-	setGlobals $PEER $CLUSTER
+	CLUSTER=$1
+	setGlobals $CLUSTER
 
         set -x
 	peer channel join -b $CHANNEL_NAME.block  >&log.txt
@@ -97,13 +100,17 @@ createChannel() {
 
 
 joinChannel () {
-	for cluster in "academy" "student"; do
-	    for peer in 0; do
-		joinChannelWithRetry $peer $cluster
-		echo "===================== peer${peer}.${cluster} joined on the channel \"$CHANNEL_NAME\" ===================== "
-		sleep $DELAY
-		echo
-	    done
+	for cluster in 1 2; do
+		joinChannelWithRetry $cluster
+		if [ $CLUSTER -eq 1 ]; then
+			echo "===================== peer0.academy.certificate.com joined on the channel \"$CHANNEL_NAME\" ===================== "
+			sleep $DELAY
+			echo
+		elif  [ $CLUSTER -eq 2 ]; then
+			echo "===================== peer0.student.certificate.com joined on the channel \"$CHANNEL_NAME\" ===================== "
+			sleep $DELAY
+			echo
+		fi
 	done
 }
 
@@ -118,20 +125,21 @@ joinChannel
 
 ## Set the anchor peers for each cluster in the channel
 echo "Updating anchor peers for academy..."
-updateAnchorPeers 0 academy
+updateAnchorPeers 1
 echo "Updating anchor peers for student..."
-updateAnchorPeers 0 student
+updateAnchorPeers 2
+
 
 echo
-echo "========= All GOOD, execution completed =========== "
+echo "========= All GOOD, up-network execution completed =========== "
 echo
 
-echo
-echo " _____   _   _   ____   "
-echo "| ____| | \ | | |  _ \  "
-echo "|  _|   |  \| | | | | | "
-echo "| |___  | |\  | | |_| | "
-echo "|_____| |_| \_| |____/  "
-echo
+#echo
+#echo " _____   _   _   ____   "
+#echo "| ____| | \ | | |  _ \  "
+#echo "|  _|   |  \| | | | | | "
+#echo "| |___  | |\  | | |_| | "
+#echo "|_____| |_| \_| |____/  "
+#echo
 
-exit 0
+#exit 0

@@ -10,19 +10,33 @@
 
 ## Setup network và cài đặt chaicode
 
-cd certificate-network/nework. Sau đó chạy tất cả câu lệnh trong file README.md trong cùng 1 terminal
+cd certificate-network
+
+Làm theo hướng dẫn trong README.md
 
 ## Phía Academy
 
-cd acdemy-app. Thực hiện enroll admin. Sau đó register cho giảng viên tương ứng. Hướng dẫn có trong academy-app/README.md
+cd acdemy-app
 
-Thực hiện các câu lệnh invoke, query như trong hướng dẫn.
+Cài các package
+
+Thực hiện enroll admin. Sau đó register cho giảng viên tương ứng.
+
+Thực hiện các câu lệnh invoke, query.
+
+( Tất cả hướng dẫn có trong academy-app/README.md )
 
 ## Phía Student
 
-cd student-app. Thực hiện enroll admin. Sau đó register cho sinh viên tương ứng. Hướng dẫn có trong student-app/README.md
+cd student-app
 
-Thực hiện các câu lệnh query như trong hướng dẫn.
+Cài các package
+
+Thực hiện enroll admin. Sau đó register cho sinh viên tương ứng.
+
+Thực hiện các câu lệnh query.
+
+( Tất cả hướng dẫn có trong student-app/README.md )
 
 # 3. Chú ý
 
@@ -30,11 +44,11 @@ Thực hiện các câu lệnh query như trong hướng dẫn.
 
 Phía Academy có các quyền:
 - Register giảng viên mới
-- CreateSubject
-- CreateScore, cho một student và một subject đã tồn tại trong ledger
+- CreateSubject, chỉ có admin mới có quyền này
+- CreateScore, nếu một student và một subject đã tồn tại trong ledger
 - CreateCertificate: nếu một student đã hoàn thành tất cả các subject thì mới có thể  cấp certificate
 - QuerySubject, Student, Score, Certificate
-- GetAAllSubjects, Students, Scores, Certificate
+- GetAllSubjects, Students, Scores, Certificates
 
 Phía Student có các quyền:
 - Register student mới
@@ -42,3 +56,5 @@ Phía Student có các quyền:
 - GetAllSubjects
 
 (Các câu lệnh xem thêm trong README.md của từng thư mục)
+
+Xem các structure trong certificate-network/database/academy/go/certificate.go để hiểu rõ hơn.

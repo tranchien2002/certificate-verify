@@ -18,13 +18,12 @@ async function main() {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
-        //console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
         const userExists = await wallet.exists(user_id);
         if (!userExists) {
             console.log(`An identity for the user ${user_id} does not exist in the wallet`);
-            console.log(`Run the registerUser.js --user ${user_id} application before retrying`);
+            console.log(`Run the registerUser.js --userid ${user_id} application before retrying`);
             return;
         }
 
@@ -40,7 +39,7 @@ async function main() {
         const network = await gateway.getNetwork('certificatechannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('mycc');
+        const contract = network.getContract('academy');
 
         // Evaluate the specified transaction.
         // QueryStudent transaction - requires 1 argument, ex: ('QueryStudent', '20156425')
