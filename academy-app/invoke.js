@@ -40,7 +40,7 @@ async function main() {
         const network = await gateway.getNetwork('certificatechannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('mycc');
+        const contract = network.getContract('academy');
 
         // Submit the specified transaction.
         var FunctionName = argv.f.toString();

@@ -17,3 +17,5 @@ export MSYS_NO_PATHCONV=1
 docker-compose -f docker-compose.yaml -f docker-compose-couch.yaml down
 
 docker-compose -f docker-compose.yaml -f docker-compose-couch.yaml up -d 2>&1
+
+docker exec -it cli bash scripts/execution.sh

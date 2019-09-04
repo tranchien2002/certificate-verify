@@ -30,11 +30,11 @@ Thực hiện các câu lệnh query như trong hướng dẫn.
 
 Phía Academy có các quyền:
 - Register giảng viên mới
-- CreateSubject
-- CreateScore, cho một student và một subject đã tồn tại trong ledger
+- CreateSubject, chỉ có admin mới có quyền này
+- CreateScore, nếu một student và một subject đã tồn tại trong ledger
 - CreateCertificate: nếu một student đã hoàn thành tất cả các subject thì mới có thể  cấp certificate
 - QuerySubject, Student, Score, Certificate
-- GetAAllSubjects, Students, Scores, Certificate
+- GetAllSubjects, Students, Scores, Certificates
 
 Phía Student có các quyền:
 - Register student mới

@@ -78,6 +78,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 
 func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
+	var SubjectID string
+
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -92,7 +94,9 @@ func QuerySubject(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		shim.Error("WHO ARE YOU ?")
 	}
 
-	key := "Subject-" + args[0]
+	SubjectID = args[0]
+
+	key := "Subject-" + SubjectID
 	subjectAsBytes, err := stub.GetState(key)
 
 	if err != nil {
