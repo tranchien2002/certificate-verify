@@ -6,10 +6,9 @@ node-cli/node-cli
 /certificate-network/network/channel-artifacts
 /certificate-network/network/crypto-config
 web-app/package-lock.json
-web-app/academy/node_modules
-web-app/academy/wallet
-web-app/student/node_modules
-web-app/student/wallet
+web-app/server/node_modules
+web-app/server/academy/wallet
+web-app/server/student/wallet
 .idea
 *.iml
 .DS_Store
