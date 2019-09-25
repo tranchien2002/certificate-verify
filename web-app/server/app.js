@@ -6,7 +6,6 @@ const authRoutes = require('./routes/auth');
 
 require('dotenv').config();
 
-// set up mongodb
 mongoose.connect(
   process.env.MONGODB_URI,
   { useUnifiedTopology: true, useNewUrlParser: true },

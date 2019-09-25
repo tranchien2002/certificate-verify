@@ -36,3 +36,6 @@ sdk/node/lib/protos/*
 # yarn.lock
 yarn.lock
 
+.nyc_output
+fabric-samples
+coverage/*
