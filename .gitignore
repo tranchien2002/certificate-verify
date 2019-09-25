@@ -5,7 +5,9 @@ node-cli/node-cli
 /certificate-network/bin
 /certificate-network/network/channel-artifacts
 /certificate-network/network/crypto-config
-web-app/package-lock.json
+web-app/server/.env
+web-app/server/package-lock.json
+web-app/server/yarn.lock
 web-app/server/node_modules
 web-app/server/academy/wallet
 web-app/server/student/wallet
