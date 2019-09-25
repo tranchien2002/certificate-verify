@@ -38,8 +38,8 @@ type Certificate struct {
 }
 
 func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
-	//initStudent(stub)
-	//initSubject(stub)
+	initStudent(stub)
+	initSubject(stub)
 	return shim.Success(nil)
 }
 
