@@ -22,9 +22,9 @@
     "express-session": "^1.16.2",
     "fabric-ca-client": "~1.4.0",
     "fabric-network": "~1.4.0",
-    "file-system": "^2.2.2",
     "mongodb": "^3.3.2",
     "mongoose": "^5.7.1",
+    "mongoose-unique-validator": "^2.0.3",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.2",
     "passport": "^0.4.0",
@@ -34,13 +34,13 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "chai-http": "^2.0.1",
     "eslint": "^5.9.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "sinon": "^7.1.1",
-    "sinon-chai": "^3.3.0",
-    "chai-as-promised": "^7.1.1"
+    "sinon-chai": "^3.3.0"
   },
   "nyc": {
     "exclude": [
