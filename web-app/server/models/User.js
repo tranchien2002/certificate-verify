@@ -14,7 +14,8 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: [true, "can't be blank"]
-  }
+  },
+  name: String
 });
 
 UserSchema.pre('save', function(next) {
@@ -39,6 +40,6 @@ UserSchema.pre('save', function(next) {
   });
 });
 
-const User = mongoose.model('user', UserSchema);
+const User = mongoose.model('User', UserSchema);
 
 module.exports = User;

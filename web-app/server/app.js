@@ -1,22 +1,24 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
-require('dotenv').config();
+const mongoose = require('mongoose');
 
 const app = express();
+
+require('dotenv').config();
 
 // API auth
 const authRoutes = require('./routes/auth');
 
+// Connect database
 mongoose.connect(
   process.env.MONGODB_URI,
   { useUnifiedTopology: true, useNewUrlParser: true },
-  () => {
-    console.log('connected to mongo db');
+  (error) => {
+    if (error) console.log(error);
+    else console.log('connection successful');
   }
 );
 mongoose.set('useCreateIndex', true);
@@ -30,7 +32,7 @@ app.use(cookieParser());
 
 app.use(
   require('express-session')({
-    secret: 'keyboard cat',
+    secret: process.env.EXPRESS_SESSION,
     resave: false,
     saveUninitialized: false
   })
