@@ -3,6 +3,8 @@ const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const authController = require('../controllers/auth.controller');
+const teacherRoutes = require('./routes/teacher.route');
 
 require('dotenv').config();
 
@@ -25,6 +27,8 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
+
+app.use('/teacher', authController.requireAuth, )
 
 app.get('/', async (req, res) => {
   res.json({
