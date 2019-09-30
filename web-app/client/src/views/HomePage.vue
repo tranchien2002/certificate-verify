@@ -10,7 +10,7 @@
           <div class="col-lg-12">
             <nav class="navbar navbar-expand-lg navbar-light">
               <a class="navbar-brand" href="#">
-                <img id="logo-aa" src="img/AWACA_Logo_sun-02.png" alt="logo" />
+                <!-- <img id="logo-aa" src="img/AWACA_Logo_sun-02.png" alt="logo" /> -->
               </a>
               <button
                 class="navbar-toggler"
