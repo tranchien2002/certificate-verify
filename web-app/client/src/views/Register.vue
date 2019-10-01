@@ -3,54 +3,71 @@
     <div class="row justify-content-center">
       <div class="col-md-6 login-form-2">
         <h3>Sign Up</h3>
-        <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-          <b-form-group id="input-group-0" label-for="input-0" class>
-            <b-form-input
-              id="input-0"
-              v-model="form.name"
-              type="text"
-              required
-              placeholder="Name *"
-            ></b-form-input>
-          </b-form-group>
+        <ValidationObserver ref="observer" v-slot="{ passes }">
+          <b-form @submit.prevent="passes(onSubmit);" @reset="onReset">
+            <div v-if="alert.message" :class="`text-center alert ${alert.type}`">{{alert.message}}</div>
+            <ValidationProvider rules="required" name="Name" v-slot="{ valid, errors }">
+              <b-form-group label="Name:" label-for="Name">
+                <b-form-input
+                  type="text"
+                  v-model="form.name"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                  placeholder="Enter Name"
+                ></b-form-input>
+                <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              </b-form-group>
+            </ValidationProvider>
 
-          <b-form-group id="input-group-1" label-for="input-1" class>
-            <b-form-input
-              id="input-1"
-              v-model="form.email"
-              type="email"
-              required
-              placeholder="Email *"
-            ></b-form-input>
-          </b-form-group>
+            <ValidationProvider rules="required|email" name="Email" v-slot="{ valid, errors }">
+              <b-form-group label="Email address:" label-for="Email">
+                <b-form-input
+                  type="email"
+                  v-model="form.email"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                  placeholder="Enter email"
+                ></b-form-input>
+                <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              </b-form-group>
+            </ValidationProvider>
 
-          <b-form-group id="input-group-2" label-for="input-2">
-            <b-form-input
-              id="input-2"
-              v-model="form.password"
-              required
-              placeholder="Password *"
-              type="password"
-            ></b-form-input>
-          </b-form-group>
+            <ValidationProvider
+              rules="required|min:6"
+              name="Password"
+              vid="password"
+              v-slot="{ valid, errors }"
+            >
+              <b-form-group label="Password:" label-for="password">
+                <b-form-input
+                  type="password"
+                  v-model="form.password"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                  placeholder="Enter password"
+                ></b-form-input>
+                <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              </b-form-group>
+            </ValidationProvider>
 
-          <b-form-group id="input-group-3" label-for="input-3">
-            <b-form-input
-              id="input-3"
-              v-model="form.repassword"
-              required
-              placeholder="Re Enter Password *"
-              type="password"
-            ></b-form-input>
-          </b-form-group>
+            <ValidationProvider
+              rules="required|confirmed:password|min:6"
+              name="Password confirmation"
+              v-slot="{ valid, errors }"
+            >
+              <b-form-group label="Confirm Password:" label-for="repassword">
+                <b-form-input
+                  type="password"
+                  v-model="form.repassword"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                  placeholder="Confirm Password"
+                ></b-form-input>
+                <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+              </b-form-group>
+            </ValidationProvider>
+            <hr />
 
-          <b-form-group id="input-group-4">
-            <b-form-checkbox-group id="checkboxes-4">
-              <div class="form-group"></div>
-            </b-form-checkbox-group>
             <button type="submit" class="col-6 btnSubmit">Create account</button>
-          </b-form-group>
-        </b-form>
+            <b-button type="reset" variant="danger" class="ml-4 border-radius-20">Reset</b-button>
+          </b-form>
+        </ValidationObserver>
       </div>
     </div>
     <div class="row justify-content-center mt-2">
@@ -64,29 +81,44 @@
   </div>
 </template>
 <script>
+import { mapState, mapActions } from "vuex";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
   name: "login",
+  components: {
+    ValidationObserver,
+    ValidationProvider
+  },
   data() {
     return {
-      form: { name, email: "", password: "", repassword: "" },
-      show: true
+      form: { name, email: "", password: "", repassword: "" }
     };
   },
+  computed: {
+    ...mapState("account", ["status"]),
+    ...mapState({
+      alert: state => state.alert
+    })
+  },
   methods: {
-    onSubmit(evt) {
-      evt.preventDefault();
-      console.log(JSON.stringify(this.form));
+    ...mapActions("account", ["register"]),
+    onSubmit() {
+      this.register(this.form);
     },
-    onReset(evt) {
-      evt.preventDefault();
+    onReset() {
+      this.form.name = "";
       this.form.email = "";
       this.form.password = "";
       this.form.repassword = "";
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
+      requestAnimationFrame(() => {
+        this.$refs.observer.reset();
       });
     }
   }
 };
 </script>
+<style>
+.border-radius-20 {
+  border-radius: 20px;
+}
+</style>

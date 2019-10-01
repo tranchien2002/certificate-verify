@@ -24,6 +24,7 @@ router.post(
   ],
   async (req, res, next) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
+    console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -47,17 +48,17 @@ router.post(
         // Save data
         await user.save();
 
-        var token = jwt.sign(
-          {
-            user: user
-          },
-          'supersecret123'
-        );
+        // var token = jwt.sign(
+        //   {
+        //     user: user
+        //   },
+        //   'supersecret123'
+        // );
 
         res.json({
           success: true,
-          msg: 'Register success',
-          token: token
+          msg: 'Register success'
+          // token: token
         });
       }
     });
