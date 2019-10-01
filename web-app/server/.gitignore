@@ -76,8 +76,5 @@ typings/
 # Serverless directories
 .serverless
 
-# wallet student 
-/student/wallet
-
-# wallet academy
-/academy/wallet
+# wallet
+/cli/wallet-*
