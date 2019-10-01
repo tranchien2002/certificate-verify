@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
-const networkAcademy = require('../fabric/networkAcademy');
+const network = require('../fabric/network');
 const User = require('../models/User');
 
 router.get('/create', async (req, res) => {
@@ -44,7 +44,7 @@ router.post('/create',
                     });
                 } else {
                     await teacher.save();
-                    await networkAcademy.registerTeacher(teacher.username);
+                    await network.registerUser(teacher.username, 'academy');
                 }
             })
 
