@@ -54,7 +54,8 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
-app.user('/teacher', checkJWT, teacherRouter);
+
+app.use('/teacher', checkJWT, teacherRouter);
 
 app.get('/', (req, res, next) => {
   res.json({ title: 'Hello' });
