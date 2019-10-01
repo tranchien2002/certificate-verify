@@ -2,6 +2,7 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const User = require('../models/User');
+const { check, validationResult } = require('express-validator');
 
 router.get('/create', async (req, res) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -22,6 +23,12 @@ router.post('/create',
         check('name').isLength({min: 5}),
     ],
     async (req, res, next) => {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
         if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
             res.json({
                 success: false,
@@ -45,6 +52,10 @@ router.post('/create',
                 } else {
                     await teacher.save();
                     await network.registerUser(teacher.username, 'academy');
+                    res.json({
+                        success: true,
+                        msg: 'Create Success'
+                    });
                 }
             })
 
@@ -52,7 +63,7 @@ router.post('/create',
     }
 );
 
-router.get('/', async (req, res, next) => {
+router.get('/all', async (req, res, next) => {
     if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
         res.json({
             success: false,
