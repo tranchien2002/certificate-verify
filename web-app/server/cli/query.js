@@ -4,6 +4,14 @@ const argv = require('yargs').argv;
 const path = require('path');
 const conn = require('../fabric/network');
 
+/**
+ * Query function of chaincode
+ * @param  {String} orgid  Org Name (default: student)
+ * @param  {String} func  Function Name (required)
+ * @param  {String} userid User Name (required)
+ * @param  {String} args argument of function (optional)
+ */
+
 async function main() {
   try {
     if (!argv.func || !argv.userid) {
