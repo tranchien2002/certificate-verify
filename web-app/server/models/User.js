@@ -15,7 +15,8 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "can't be blank"]
   },
-  name: String
+  name: String,
+  role: Number
 });
 
 UserSchema.pre('save', function(next) {
