@@ -5,22 +5,27 @@ const request = require('supertest');
 const User = require('../models/User');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const sinon = require('sinon');
+const network = require('../fabric/network');
+const test = require('sinon-test')(sinon, { useFakeTimers: false });
 
 const app = require('../app');
 
 describe('Route /teacher', () => {
   describe('#POST /teacher/create', () => {
-    var findOneUserStub;
-    var saveUserStub;
+    let findOneUserStub;
+    let saveUserStub;
+    let registerTeacherStub;
 
     beforeEach(() => {
       findOneUserStub = sinon.stub(User, 'findOne');
       saveUserStub = sinon.stub(User.prototype, 'save');
+      registerTeacherStub = sinon.stub(network, 'registerTeacherOnBlockchain');
     });
 
     afterEach(() => {
       findOneUserStub.restore();
       saveUserStub.restore();
+      registerTeacherStub.restore();
     });
 
     it('should be invalid if username and name is empty', (done) => {
@@ -32,7 +37,9 @@ describe('Route /teacher', () => {
         )
         .send({
           username: '',
-          name: ''
+          fullname: '',
+          phoneNumber: '',
+          address: ''
         })
         .then((res) => {
           expect(res.status).equal(422);
@@ -52,10 +59,12 @@ describe('Route /teacher', () => {
         )
         .send({
           username: 'thienthangaycanh',
-          name: 'thien than gay canh'
+          fullname: 'thien than gay canh',
+          phonenumber: '0987456321',
+          address: 'Kien Giang'
         })
         .then((res) => {
-          expect(res.body.msg).equal('Create Success');
+          expect(res.status).equal(200);
           done();
         });
     });
@@ -74,10 +83,12 @@ describe('Route /teacher', () => {
         )
         .send({
           username: 'thienthangaycanh',
-          name: 'thien than gay canh'
+          fullname: 'thien than gay canh',
+          phonenumber: '0987456321',
+          address: 'Kien Giang'
         })
         .then((res) => {
-          expect(res.body.msg).equal('Account is exist');
+          expect(res.status).equal(409);
           done();
         });
     });
@@ -126,4 +137,151 @@ describe('Route /teacher', () => {
         });
     });
   });
+});
+
+describe('#POST /teacher/score', () => {
+  let connect;
+  let query;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    query = sinon.stub(network, 'query');
+
+    query.withArgs('QueryStudent', '20156425');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    query.restore();
+  });
+
+  it(
+    'success create score with role teacher',
+    test((done) => {
+      connect.returns({ error: null });
+      request(app)
+        .post('/teacher/score')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoyfSwiaWF0IjoxNTcwNDMxNDM2fQ.UHMvFI3zHDFncCr6ZodNjSZsPhji3ut2Z583iYLa6fs'
+        )
+        .send({
+          subjectid: '02',
+          studentusername: 'tan',
+          score: 9.5
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+    })
+  );
+
+  it(
+    'do not success create score with req.body.score is not Float',
+    test((done) => {
+      connect.returns({ error: null });
+      request(app)
+        .post('/teacher/score')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoyfSwiaWF0IjoxNTcwNDMxNDM2fQ.UHMvFI3zHDFncCr6ZodNjSZsPhji3ut2Z583iYLa6fs'
+        )
+        .send({
+          subjectid: '02',
+          studentusername: 'tan',
+          score: '<script>alert("hacked");</script>'
+        })
+        .expect(422)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+    })
+  );
+
+  it(
+    'do not success create score with req.body is empty',
+    test((done) => {
+      connect.returns({ error: null });
+      request(app)
+        .post('/teacher/score')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoyfSwiaWF0IjoxNTcwNDMxNDM2fQ.UHMvFI3zHDFncCr6ZodNjSZsPhji3ut2Z583iYLa6fs'
+        )
+        .send({
+          subjectid: '02',
+          studentusername: '',
+          score: ''
+        })
+        .expect(422)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+    })
+  );
+
+  it(
+    'do not success create score with role admin academy',
+    test((done) => {
+      connect.returns({ error: null });
+      request(app)
+        .post('/teacher/score')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
+        )
+        .send({
+          subjectid: '02',
+          studentusername: 'tan',
+          score: 10
+        })
+        .expect(403)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+    })
+  );
+
+  it(
+    'do not success create score with role student',
+    test((done) => {
+      connect.returns({ error: null });
+      request(app)
+        .post('/teacher/score')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjozfSwiaWF0IjoxNTcwNDMxNjA0fQ.z_wj2Vbj6O7sw4n9Jk6QpcUUHnAnYXULScCZSe7c5Zg'
+        )
+        .send({
+          subjectid: '02',
+          studentusername: 'tantv',
+          score: 10.0
+        })
+        .expect(403)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+    })
+  );
 });
