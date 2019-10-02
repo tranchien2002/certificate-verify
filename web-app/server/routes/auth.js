@@ -15,12 +15,12 @@ router.get('/', async (req, res) => {
 router.post(
   '/register',
   [
-    // username must be an email
-    check('username').isLength({ min: 6 }),
+    // email must be an email
+    check('email').isEmail(),
     // password must be at least 5 chars long
-    check('password').isLength({ min: 5 }),
+    check('password').isLength({ min: 6 }),
     // name must be at least 5 chars long
-    check('name').isLength({ min: 5 })
+    check('name').isLength({ min: 1 })
   ],
   async (req, res, next) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
@@ -32,11 +32,11 @@ router.post(
     // After the validation
     let user = new User({
       name: req.body.name,
-      username: req.body.username,
+      email: req.body.email,
       password: req.body.password
     });
 
-    User.findOne({ username: user.username }, async (err, existing) => {
+    User.findOne({ email: user.email }, async (err, existing) => {
       if (err) throw next(err);
       if (existing) {
         res.json({
@@ -68,10 +68,10 @@ router.post(
 router.post(
   '/login',
   [
-    // username must be an email
-    check('username').isLength({ min: 6 }),
-    // password must be at least 5 chars long
-    check('password').isLength({ min: 5 })
+    // email must be an email
+    check('email').isEmail(),
+    // password must be at least 6 chars long
+    check('password').isLength({ min: 6 })
   ],
   (req, res, next) => {
     const errors = validationResult(req);
@@ -80,12 +80,12 @@ router.post(
     }
 
     // After the validation
-    User.findOne({ username: req.body.username }, async (err, user) => {
+    User.findOne({ email: req.body.email }, async (err, user) => {
       if (err) throw next(err);
       if (!user) {
         res.json({
           success: false,
-          msg: 'Username not exits'
+          msg: 'email not exits'
         });
       } else if (user) {
         var validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -119,7 +119,7 @@ router
   .route('/profile')
   .get(checkJWT, (req, res, next) => {
     // get profile if send Authorization : token in headers of request
-    User.findOne({ username: req.decoded.user.username }, (err, user) => {
+    User.findOne({ email: req.decoded.user.email }, (err, user) => {
       if (err) return next(err);
 
       res.json({
@@ -130,7 +130,7 @@ router
     });
   })
   .post(checkJWT, (req, res, next) => {
-    User.findOne({ username: req.decoded.user.username }, async (err, user) => {
+    User.findOne({ email: req.decoded.user.email }, async (err, user) => {
       if (err) return next(err);
 
       // test change name of user
