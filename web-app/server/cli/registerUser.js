@@ -4,6 +4,12 @@ const argv = require('yargs').argv;
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
 
+/**
+ * Register user for org
+ * @param  {String} orgid  Org Name (default: student)
+ * @param  {String} userid User Name (required)
+ */
+
 async function main() {
   try {
     let userId;

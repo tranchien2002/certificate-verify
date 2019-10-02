@@ -6,6 +6,11 @@ const fs = require('fs');
 const path = require('path');
 const argv = require('yargs').argv;
 
+/**
+ * Create admin for Org
+ * @param  {String} orgid  Org Name (default: student)
+ */
+
 async function main() {
   try {
     let orgId = 'student';
