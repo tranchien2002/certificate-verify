@@ -18,13 +18,13 @@
               </b-form-group>
             </ValidationProvider>
 
-            <ValidationProvider rules="required|email" name="Email" v-slot="{ valid, errors }">
-              <b-form-group label="Email address:" label-for="Email">
+            <ValidationProvider rules="required" name="Username" v-slot="{ valid, errors }">
+              <b-form-group label="Username:" label-for="Username">
                 <b-form-input
-                  type="email"
-                  v-model="form.email"
+                  type="text"
+                  v-model="form.username"
                   :state="errors[0] ? false : (valid ? true : null)"
-                  placeholder="Enter email"
+                  placeholder="Username"
                 ></b-form-input>
                 <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
               </b-form-group>
@@ -91,7 +91,7 @@ export default {
   },
   data() {
     return {
-      form: { name, email: "", password: "", repassword: "" }
+      form: { name, username: "", password: "", repassword: "" }
     };
   },
   computed: {
@@ -107,7 +107,7 @@ export default {
     },
     onReset() {
       this.form.name = "";
-      this.form.email = "";
+      this.form.username = "";
       this.form.password = "";
       this.form.repassword = "";
       requestAnimationFrame(() => {

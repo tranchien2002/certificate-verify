@@ -95,14 +95,14 @@ router.post(
       if (!user) {
         res.json({
           success: false,
-          msg: 'username not exits'
+          msg: 'Username or Password incorrect'
         });
       } else if (user) {
         var validPassword = await bcrypt.compare(req.body.password, user.password);
         if (!validPassword) {
           res.json({
             success: false,
-            msg: 'Wrong password'
+            msg: 'Username or Password incorrect'
           });
         } else {
           var token = jwt.sign(
