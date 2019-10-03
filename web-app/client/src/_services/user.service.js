@@ -5,32 +5,27 @@ export const userService = {
   register
 };
 
-function login(email, password) {
-  return axios
-    .post(
-      `${process.env.VUE_APP_API_BACKEND}/auth/login`,
-      {
-        email: email,
-        password: password
-      },
-      { 'content-type': 'application/x-www-form-urlencoded' }
-    )
-    .then(handleResponse)
-    .then((user) => {
-      if (user.token) {
-        localStorage.setItem('user', JSON.stringify(user));
-      }
+async function login(username, password) {
+  let respone = await axios.post(
+    `${process.env.VUE_APP_API_BACKEND}/auth/login`,
+    {
+      username: username,
+      password: password
+    },
+    { 'content-type': 'application/x-www-form-urlencoded' }
+  );
 
-      return Promise.resolve(user);
-    })
-    .catch(function(error) {
-      return Promise.reject(error);
-    });
+  let user = await handleResponse(respone);
+  if (user.token) {
+    localStorage.setItem('user', JSON.stringify(user));
+    return user;
+  }
+  return new Error(user);
 }
 
 async function register(user) {
   let response = await axios.post(`${process.env.VUE_APP_API_BACKEND}/auth/register`, {
-    email: user.email,
+    username: user.username,
     name: user.name,
     password: user.password
   });

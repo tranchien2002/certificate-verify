@@ -6,13 +6,13 @@
         <ValidationObserver ref="observer" v-slot="{ passes }">
           <b-form @submit="passes(onSubmit)" @reset="onReset">
             <div v-if="alert.message" :class="`text-center alert ${alert.type}`">{{alert.message}}</div>
-            <ValidationProvider rules="required|email" name="Email" v-slot="{ valid, errors }">
-              <b-form-group label-for="Email">
+            <ValidationProvider rules="required" name="Username" v-slot="{ valid, errors }">
+              <b-form-group label-for="Username">
                 <b-form-input
-                  type="email"
-                  v-model="form.email"
+                  type="text"
+                  v-model="form.username"
                   :state="errors[0] ? false : (valid ? true : null)"
-                  placeholder="Enter email"
+                  placeholder="Enter username"
                 ></b-form-input>
                 <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
               </b-form-group>
@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       form: {
-        email: "",
+        username: "",
         password: ""
       }
     };
@@ -81,13 +81,13 @@ export default {
   methods: {
     ...mapActions("account", ["login"]),
     onSubmit() {
-      const { email, password } = this.form;
-      if (email && password) {
-        this.login({ email, password });
+      const { username, password } = this.form;
+      if (username && password) {
+        this.login({ username, password });
       }
     },
     onReset() {
-      this.form.email = "";
+      this.form.username = "";
       this.form.password = "";
     }
   }
