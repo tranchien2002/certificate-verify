@@ -4,7 +4,6 @@ const expect = require('chai').expect;
 const request = require('supertest');
 const User = require('../models/User');
 const sinon = require('sinon');
-const httpMocks = require('node-mocks-http');
 
 const app = require('../app');
 

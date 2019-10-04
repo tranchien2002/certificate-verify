@@ -17,6 +17,9 @@ const authRoutes = require('./routes/auth');
 // API teacher
 const teacherRouter = require('./routes/teacher');
 
+// API Subject
+const subjectRoutes = require('./routes/subject')
+
 // Connect database
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -56,6 +59,8 @@ app.use(
 app.use('/auth', authRoutes);
 
 app.use('/teacher', checkJWT, teacherRouter);
+
+app.use('/subject', teacherRouter);
 
 app.get('/', (req, res, next) => {
   res.json({ title: 'Hello' });

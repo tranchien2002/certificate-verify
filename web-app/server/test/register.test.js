@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 const request = require('supertest');
 const User = require('../models/User');
 const sinon = require('sinon');
+const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 const app = require('../app');
 
@@ -142,7 +143,7 @@ describe('Route : /auth', () => {
         username: 'hoangdd',
         password: '$2a$10$hqZtIwFcl8SLaUbxkuPOEeKqvTknWFodjVaYVdXoZ0EeIb3SjT/dG',
         name: 'alibaba',
-        role: 1
+        role: USER_ROLES.ADMIN_ACADEMY
       });
 
       request(app)

@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -14,12 +15,29 @@ import (
 func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 
 	students := []Student{
-		Student{StudentID: "20156425", Name: "Trinh Van Tan"},
+		Student{Username: "20156425", Fullname: "Trinh Van Tan", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
 	}
 
 	for i := 0; i < len(students); i++ {
 		studentAsBytes, _ := json.Marshal(students[i])
-		key := "Student-" + students[i].StudentID
+		key := "Student-" + students[i].Username
+
+		fmt.Println(key)
+		stub.PutState(key, studentAsBytes)
+	}
+
+	return shim.Success(nil)
+}
+
+func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
+
+	students := []Student{
+		Student{Username: "GV00", Fullname: "ABC", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
+	}
+
+	for i := 0; i < len(students); i++ {
+		studentAsBytes, _ := json.Marshal(students[i])
+		key := "Teacher-" + students[i].Username
 
 		fmt.Println(key)
 		stub.PutState(key, studentAsBytes)
@@ -31,8 +49,8 @@ func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 
 	subjects := []Subject{
-		Subject{SubjectID: "00", SubjectCode: "IT00", Name: "Blockchain", Weight: 3},
-		Subject{SubjectID: "01", SubjectCode: "IT01", Name: "Sawtooth", Weight: 3},
+		Subject{SubjectID: "00", Name: "Blockchain", TeacherUsername: "GV00"},
+		Subject{SubjectID: "01", Name: "Sawtooth", TeacherUsername: "GV01"},
 	}
 
 	for i := 0; i < len(subjects); i++ {
@@ -64,20 +82,60 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 	fmt.Println("Start Create Student!")
 
-	StudentID := args[0]
-	Name := args[1]
+	Username := args[0]
+	Fullname := args[1]
 
-	key := "Student-" + StudentID
+	key := "Student-" + Username
 	checkStudentExist, err := getStudent(stub, key)
 
 	if err == nil {
 		fmt.Println(checkStudentExist)
-		return shim.Error("This student already exists - " + StudentID)
+		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{StudentID: StudentID, Name: Name}
+	var student = Student{Username: Username, Fullname: Fullname}
 
 	studentAsBytes, _ := json.Marshal(student)
+
+	stub.PutState(key, studentAsBytes)
+
+	return shim.Success(nil)
+}
+
+func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	MSPID, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		shim.Error("Error - cide.GetMSPID()")
+	}
+
+	if MSPID != "StudentMSP" {
+		shim.Error("WHO ARE YOU")
+	}
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	fmt.Println("Start Create Student!")
+
+	Username := args[0]
+	Fullname := args[1]
+	Address := args[2]
+	PhoneNumber := args[3]
+
+	key := "Teacher-" + Username
+	checkTeacherExist, err := getTeacher(stub, key)
+
+	if err == nil {
+		fmt.Println(checkTeacherExist)
+		return shim.Error("This teacher already exists - " + Username)
+	}
+
+	var teacher = Teacher{Username: Username, Fullname: Fullname, Address: Address, PhoneNumber: PhoneNumber}
+
+	studentAsBytes, _ := json.Marshal(teacher)
 
 	stub.PutState(key, studentAsBytes)
 
@@ -102,23 +160,30 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	fmt.Println("Start Create Subject!")
 
 	SubjectID := args[0]
-	SubjectCode := args[1]
 	Name := args[2]
-	Weight, err := strconv.Atoi(args[3])
+	TeacherUsername := args[3]
 
-	key := "Subject-" + SubjectID
-	checkSubjectExist, err := getSubject(stub, key)
+	keyTeacher := "Teacher-" + TeacherUsername
+	checkTeacherExist, err := getTeacher(stub, keyTeacher)
+
+	if err != nil {
+		fmt.Println(checkTeacherExist)
+		return shim.Error("This teacher not exists - " + TeacherUsername)
+	}
+
+	keySubject := "Subject-" + SubjectID
+	checkSubjectExist, err := getSubject(stub, keySubject)
 
 	if err == nil {
 		fmt.Println(checkSubjectExist)
 		return shim.Error("This subject already exists - " + SubjectID)
 	}
 
-	var subject = Subject{SubjectID: SubjectID, SubjectCode: SubjectCode, Name: Name, Weight: Weight}
+	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: TeacherUsername}
 
 	subjectAsBytes, _ := json.Marshal(subject)
 
-	stub.PutState(key, subjectAsBytes)
+	stub.PutState(keySubject, subjectAsBytes)
 
 	return shim.Success(nil)
 }
@@ -134,7 +199,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("You Are Not Teacher!")
 	}
 
-	TeacherID, found, err := cid.GetAttributeValue(stub, "TeacherID")
+	TeacherUsername, found, err := cid.GetAttributeValue(stub, "TeacherUsername")
 
 	if err != nil {
 		shim.Error("Error - cide.GetMSPID()?")
@@ -151,14 +216,14 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	}
 
 	SubjectID := args[0]
-	StudentID := args[1]
+	StudentUsername := args[1]
 	ScoreValue, err := strconv.ParseFloat(args[2], 64)
 
-	checkStudentExist, err := getStudent(stub, "Student-"+StudentID)
+	checkStudentExist, err := getStudent(stub, "Student-"+StudentUsername)
 
 	if err != nil {
 		fmt.Println(checkStudentExist)
-		return shim.Error("Student dose not exist - " + StudentID)
+		return shim.Error("Student dose not exist - " + StudentUsername)
 	}
 
 	checkSubjectExist, err := getSubject(stub, "Subject-"+SubjectID)
@@ -168,7 +233,11 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Subject does not exist - " + SubjectID)
 	}
 
-	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentID
+	if checkSubjectExist.TeacherUsername != TeacherUsername {
+		shim.Error("WHO ARE YOU ?")
+	}
+
+	key := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
 	checkScoreExist, err := getScore(stub, key)
 
 	if err == nil {
@@ -176,7 +245,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This score already exists.")
 	}
 
-	var score = Score{SubjectID: SubjectID, StudentID: StudentID, ScoreValue: ScoreValue, CreateBy: TeacherID}
+	var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue}
 
 	scoreAsBytes, _ := json.Marshal(score)
 
@@ -196,57 +265,67 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("You Are Not Teacher!")
 	}
 
-	TeacherID, found, err := cid.GetAttributeValue(stub, "TeacherID")
+	// TeacherUsername, found, err := cid.GetAttributeValue(stub, "TeacherUsername")
 
-	if err != nil {
-		shim.Error("Error - Get TeacherID")
-	}
+	// if err != nil {
+	// 	shim.Error("Error - Get TeacherID")
+	// }
 
-	if found == false {
-		shim.Error("WHO ARE YOU ?")
-	}
+	// if found == false {
+	// 	shim.Error("WHO ARE YOU ?")
+	// }
 
 	fmt.Println("Start Create Certificate!")
 
-	if len(args) != 1 {
+	if len(args) != 2 {
 		return shim.Error("Incorrecr")
 	}
 
-	StudentID := args[0]
+	SubjectID := args[0]
+	StudentUsername := args[1]
 
-	allSubjects, _ := getListSubjects(stub)
+	IssueDate := time.Now().String()
 
-	var i int
-	var sumScore float64
-	var sumWeight int
+	checkScoreExist, err := getScore(stub, "Score-"+" "+"Subject-"+SubjectID+" "+"Student-"+StudentUsername)
 
-	for i = 0; allSubjects.HasNext(); i++ {
-
-		record, err := allSubjects.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		subject := Subject{}
-		json.Unmarshal(record.Value, &subject)
-
-		score, err := getScore(stub, "Score-"+" "+"Subject-"+subject.SubjectID+" "+"Student-"+StudentID)
-
-		if err != nil {
-			fmt.Println(score)
-			return shim.Error("Score of Subject-" + subject.SubjectID + " does not exist")
-		}
-
-		sumWeight += subject.Weight
-		sumScore += (score.ScoreValue * float64(subject.Weight))
+	if err != nil {
+		fmt.Println(checkScoreExist)
+		return shim.Error("Score dose not exist")
 	}
 
-	average := sumScore / float64(sumWeight)
+	// allSubjects, _ := getListSubjects(stub)
 
-	var certificate = Certificate{StudentID: StudentID, Average: average, CreateBy: TeacherID}
+	// var i int
+	// var sumScore float64
+	// var sumWeight int
 
-	key := "Certificate-" + " " + "Student-" + StudentID
+	// for i = 0; allSubjects.HasNext(); i++ {
+
+	// 	record, err := allSubjects.Next()
+
+	// 	if err != nil {
+	// 		return shim.Success(nil)
+	// 	}
+
+	// 	subject := Subject{}
+	// 	json.Unmarshal(record.Value, &subject)
+
+	// 	score, err := getScore(stub, "Score-"+" "+"Subject-"+subject.SubjectID+" "+"Student-"+StudentID)
+
+	// 	if err != nil {
+	// 		fmt.Println(score)
+	// 		return shim.Error("Score of Subject-" + subject.SubjectID + " does not exist")
+	// 	}
+
+	// 	sumWeight += subject.Weight
+	// 	sumScore += (score.ScoreValue * float64(subject.Weight))
+	// }
+
+	// average := sumScore / float64(sumWeight)
+
+	var certificate = Certificate{StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
+
+	key := "Certificate-" + " " + " " + "Subject-" + SubjectID + "Student-" + StudentUsername
 
 	certificateAsBytes, _ := json.Marshal(certificate)
 
