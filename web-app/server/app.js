@@ -7,10 +7,15 @@ const mongoose = require('mongoose');
 
 const app = express();
 
+const checkJWT = require('./middlewares/check-jwt');
+
 require('dotenv').config();
 
 // API auth
 const authRoutes = require('./routes/auth');
+
+// API teacher
+const teacherRouter = require('./routes/teacher');
 
 // Connect database
 mongoose.connect(
@@ -49,6 +54,8 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
+
+app.use('/teacher', checkJWT, teacherRouter);
 
 app.get('/', (req, res, next) => {
   res.json({ title: 'Hello' });

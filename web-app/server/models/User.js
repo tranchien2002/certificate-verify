@@ -18,7 +18,8 @@ const UserSchema = new Schema({
   name: {
     type: String,
     trim: true
-  }
+  },
+  role: Number
 });
 
 UserSchema.pre('save', function(next) {
