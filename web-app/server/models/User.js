@@ -15,7 +15,10 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "can't be blank"]
   },
-  name: String,
+  name: {
+    type: String,
+    trim: true
+  },
   role: Number
 });
 

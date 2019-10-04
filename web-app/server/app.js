@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-const checkJWT = require('../middlerwares/check-jwt');
+const checkJWT = require('./middlewares/check-jwt');
 
 require('dotenv').config();
 

@@ -39,7 +39,8 @@ router.post(
     let user = new User({
       name: req.body.name,
       username: req.body.username,
-      password: req.body.password
+      password: req.body.password,
+      role: 4
     });
 
     User.findOne({ username: user.username }, async (err, existing) => {
