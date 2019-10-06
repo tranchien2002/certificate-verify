@@ -336,7 +336,6 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
-          console.log("deleted", item);
           this.$swal("Deleted!", "Your file has been deleted.", "success");
         }
       });

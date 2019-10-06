@@ -17,6 +17,11 @@ export default new Router({
           path: '/home',
           name: 'homepage',
           component: () => import('./views/HomePage.vue')
+        },
+        {
+          path: '/cert/:id',
+          name: 'cert',
+          component: () => import('./views/CertPage.vue')
         }
       ]
     },
