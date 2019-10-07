@@ -3,91 +3,89 @@
 const argv = require('yargs').argv;
 const path = require('path');
 const conn = require('../fabric/network');
+const User = require('../models/User');
+const USER_ROLES = require('../configs/constant').USER_ROLES;
+const Certificate = require('../models/Certificate');
 
 /**
  * Invoke function of chaincode
- * @param  {String} orgid  Org Name (default: student)
+ * @param  {String} orgMSP  Org Name (default: student)
  * @param  {String} func  Function Name (required)
- * @param  {String} userid User Name (required)
+ * @param  {String} username User Name (required)
  */
 
 async function main() {
   try {
-    if (!argv.func || !argv.userid) {
+    if (!argv.func || !argv.admin) {
       console.log(`Parameter func or userid cannot undefined`);
       return;
     }
 
-    let FunctionName = argv.func.toString();
-    let userId = argv.userid.toString();
-    let orgId = 'student';
+    let functionName = argv.func.toString();
+    let username = argv.username.toString();
 
-    if (argv.orgid) {
-      orgId = argv.orgid.toString();
-    }
+    await User.findOne({ username: username }, async (err, user) => {
+      if (err) throw next(err);
+      if (user) {
+        const networkObj = await conn.connectToNetwork(user, true);
+        if (functionName === 'CreateSubject' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Create Subject
+           * @param  {String} subjectid Subject Id (required)
+           * @param  {String} subjectname Subject Name (required)
+           * @param  {String} teacher Teacher Username (required)
+           */
 
-    const networkObj = await conn.connectToNetwork(userId, orgId, true);
+          let SubjectID = argv.subjectid.toString();
+          let Name = argv.subjectname.toString();
+          let Teacher = argv.teacher.toString();
 
-    /**
-     * Create Student
-     * @param  {String} studentid Student Id (required)
-     * @param  {String} studentname  Student Name (required)
-     */
-    if (FunctionName === 'CreateStudent') {
-      let StudentId = argv.studentid.toString();
-      let StudentName = argv.studentname.toString();
+          await conn.createSubject(networkObj, SubjectID, Name, Teacher);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'CreateScore' && user.role === USER_ROLES.TEACHER) {
+          /**
+           * Create Score
+           * @param  {String} subjectid Subject Id (required)
+           * @param  {String} student Student Username (required)
+           * @param  {String} score Point of Subject (required)
+           *
+           */
+          let SubjectID = argv.subjectid.toString();
+          let Student = argv.student.toString();
+          let Score = argv.score.toString();
 
-      await conn.createStudent(networkObj, StudentId, StudentName);
-    } else if (FunctionName == 'CreateSubject' && userId == 'admin') {
-      /**
-       * Create Subject
-       * @param  {String} subjectid Subject Id (required)
-       * @param  {String} subjectcode Subject code (required)
-       * @param  {String} subjectname Subject Name (required)
-       * @param  {String} weight số tín chỉ (required)
-       */
+          await conn.createScore(networkObj, SubjectID, Student, Score);
+          console.log('Transaction has been submitted');
+          process.exit(0);
+        } else if (functionName === 'CreateCertificate' && user.role === USER_ROLES.ADMIN_ACADEMY) {
+          /**
+           * Create Certificate
+           * @param  {String} subjectid Subject Id (required)
+           * @param  {String} student Student Username (required)
+           */
+          let Student = argv.student.toString();
+          let SubjectID = argv.subjectid.toString();
+          var certificate = new Certificate({
+            subjectID: SubjectID,
+            username: Student
+          });
 
-      let SubjectID = argv.subjectid.toString();
-      let SubjectCode = argv.subjectcode.toString();
-      let Name = argv.subjectname.toString();
-      let Weight = argv.weight.toString();
+          await certificate.save(async (err, certificate) => {
+            certificate.certificateID = certificate._id;
+            await conn.createCertificate(networkObj, certificate);
+            console.log('Transaction has been submitted');
+          });
+          process.exit(0);
+        } else {
+          console.log('Failed!');
+          process.exit(0);
+        }
 
-      await conn.createSubject(networkObj, SubjectID, SubjectCode, Name, Weight);
-      console.log('Transaction has been submitted');
-      process.exit(0);
-    } else if (FunctionName == 'CreateScore') {
-      /**
-       * Create Score
-       * @param  {String} subjectid Subject Id (required)
-       * @param  {String} subjectid Subject Id (required)
-       * @param  {String} score Point of Subject (required)
-       *
-       */
-      let SubjectID = argv.subjectid.toString();
-      let StudentID = argv.studentid.toString();
-      let Score = argv.score.toString();
-
-      await conn.createScore(networkObj, SubjectID, StudentID, Score);
-      console.log('Transaction has been submitted');
-      process.exit(0);
-    } else if (FunctionName == 'CreateCertificate') {
-      /**
-       * Create Certificate
-       * @param  {String} subjectid Subject Id (required)
-       *
-       */
-      let StudentID = argv.studentid.toString();
-
-      await conn.createCertificate(networkObj, StudentID);
-      console.log('Transaction has been submitted');
-      process.exit(0);
-    } else {
-      console.log('Failed!');
-      process.exit(0);
-    }
-
-    // Disconnect from the gateway.
-    await networkObj.gateway.disconnect();
+        // Disconnect from the gateway.
+        await networkObj.gateway.disconnect();
+      }
+    });
   } catch (error) {
     console.error(`Failed to submit transaction: ${error}`);
     process.exit(1);

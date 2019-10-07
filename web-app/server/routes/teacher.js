@@ -36,11 +36,17 @@ router.post('/create',
             });
         } else {
             let teacher = new User({
-                name: req.body.name,
                 username: req.body.username,
                 password: '123456',
                 role: USER_ROLES.TEACHER
             });
+
+            let identityOnBlockChain = {
+                username: req.body.username,
+                fullname: req.body.fullname,
+                phoneNumber: req.body.phoneNumber,
+                address: req.body.address
+            }
 
             User.findOne({username: teacher.username}, async (err, existing) => {
                 if (err) throw next(err);
@@ -51,7 +57,7 @@ router.post('/create',
                     });
                 } else {
                     await teacher.save();
-                    await network.registerUser(teacher.username, 'academy');
+                    await network.registerTeacherOnBlockchain(identityOnBlockChain);
                     res.json({
                         success: true,
                         msg: 'Create Success'
@@ -96,7 +102,7 @@ router.get('/:username', async (req, res, next) => {
         var username = req.params.username;
         console.log(username);
 
-        User.findOne({username: username, role: USER_ROLES.TEACHER}, async (err, teacher) => {
+        User.findOne({username: username}, async (err, teacher) => {
             if (err) {
                 res.json({
                     success: false,

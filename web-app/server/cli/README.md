@@ -3,7 +3,7 @@
 - orgid {String} (default: student}
 
 ```bash
-node enrollAdmin.js --orgid=[OrgName]
+node enrollAdmin.js --orgMSP=[OrgName] --username=[username]
 ```
 
 #### Example:
@@ -11,13 +11,13 @@ node enrollAdmin.js --orgid=[OrgName]
 enrollAdmin Org student:
 
 ```bash
-	node enrollAdmin.js
+	node enrollAdmin.js --username=trinh
 ```
 
 enrollAdmin Org academy:
 
 ```bash
-	node enrollAdmin.js --orgid=academy
+	node enrollAdmin.js --orgMSP=academy --username=tan
 ```
 
 ## 2. Register user
@@ -26,21 +26,21 @@ enrollAdmin Org academy:
 - userid {String} (required)
 
 ```bash
-	node registerUser.js --userid=[user-id] --orgid=[OrgName]
+	node registerUser.js --username=[username] --orgMSP=[OrgName] --fullname=[Fullname] --address=[address] --phonenumber=[phonenumber] --admin=[adminUsername]
 ```
 
 #### Example:
 
-Register user1 in academy:
+Register 20156425 in studen (student):
 
 ```bash
-	node registerUser.js --userid=user1 --orgid=academy
+	node registerUser.js --username=20156425 --orgMSP=student --fullname=TrinhVanTan --address=TruongDinh --phonenumber=0382794668 --password=123456
 ```
 
-Register user1 in student:
+Register GV00 in academy (teacher):
 
 ```bash
-	node registerUser.js --userid=user1
+	node registerUser.js --username=GV00 --orgMSP=academy --fullname=ABC --address=ABC --phonenumber=123 --password=123456
 ```
 
 ## Enroll admin and register user with `intit.sh`
@@ -58,7 +58,7 @@ chmod +x ./init.sh
 - args {String} argument of function (optional)
 
 ```bash
-	node query.js --userid=[UserId] --orgid=[OrgName] --func=[FunctionName] --args=[Argument]
+	node query.js --userid=[UserId] --org=[OrgName] --func=[FunctionName] --args=[Argument]
 ```
 
 #### Example:
@@ -66,31 +66,31 @@ chmod +x ./init.sh
 Query student id is 1 with role academy admin:
 
 ```bash
-	node query.js --userid=admin --orgid=academy --func=QueryStudent --args=1
+	node query.js --username=admin --orgMSP=academy --func=QueryStudent --args=1
 ```
 
 Query All student with role academy admin:
 
 ```bash
-	node query.js --userid=admin --orgid=academy --func=GetAllStudents
+	node query.js --username=tan --func=GetAllStudents
 ```
 
 Query Score with role admin student with studentId and subjectId
 
 ```bash
 	// arguments = [StudentId, SubjectId]
-	node query.js --userid=admin --orgid=student --func=QueryScore --args=10 --args=160212
+	node query.js --username=trinh --orgMSP=student --func=QueryScore --args=10 --args=160212
 ```
 
 ## Invoke Ledger
 
-- orgid {String} (default: student)
+- orgMSP {String} (default: student)
 - func {String} Function Name (required)
-- userid {String} (required)
+- username {String} (required)
 - argument {String} (optional: depend of function call)
 
 #### Example:
 
 ```bash
-	node invoke.js --userid=admin --func=CreateCertificate --studentid=1
+	node invoke.js --username=tan --func=CreateCertificate --student=1
 ```
