@@ -24,6 +24,14 @@ export default {
 };
 </script>
 <style >
+.btnSubmit {
+  width: 50%;
+  border-radius: 1rem;
+  padding: 1.5%;
+  border: none;
+  cursor: pointer;
+}
+
 .login-container {
   margin-top: 5%;
   margin-bottom: 5%;
@@ -67,14 +75,6 @@ export default {
 
 .login-form-2 label {
   color: #fff;
-}
-
-.btnSubmit {
-  width: 50%;
-  border-radius: 1rem;
-  padding: 1.5%;
-  border: none;
-  cursor: pointer;
 }
 </style>
 
