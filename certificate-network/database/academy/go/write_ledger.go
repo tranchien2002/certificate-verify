@@ -5,7 +5,6 @@ import (
 
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -284,7 +283,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	CertificateID := args[0]
 	SubjectID := args[1]
 	StudentUsername := args[2]
-	IssueDate := time.Now().String()
+	IssueDate := args[3]
 
 	key := "Certificate-" + CertificateID
 

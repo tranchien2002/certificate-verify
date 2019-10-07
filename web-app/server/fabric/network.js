@@ -1,29 +1,47 @@
 'use strict';
+const User = require('../models/User');
+const Certificate = require('../models/Certificate');
+const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
 
-exports.connectToNetwork = async function(userName, orgId = 'student', cli = false) {
+exports.connectToNetwork = async function(user, cli = false) {
   const gateway = new Gateway();
+
+  var orgMSP;
+
+  if (user.role == USER_ROLES.ADMIN_ACADEMY || user.role == USER_ROLES.TEACHER) {
+    orgMSP = 'academy';
+  } else if (user.role == USER_ROLES.ADMIN_STUDENT || user.role == USER_ROLES.STUDENT) {
+    orgMSP = 'student';
+  } else {
+    let response = {};
+    response.error =
+      'An identity for the user ' +
+      username +
+      ' does not exist in the wallet. Register ' +
+      username +
+      ' first';
+    return response;
+  }
 
   try {
     const ccpPath = path.resolve(
       __dirname,
       '../../..',
       'certificate-network',
-      `connection-${orgId}.json`
+      `connection-${orgMSP}.json`
     );
-    let walletPath = path.join(process.cwd(), `./cli/wallet-${orgId}`);
+    let walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}`);
 
     if (cli) {
-      walletPath = path.join(process.cwd(), `wallet-${orgId}`);
+      walletPath = path.join(process.cwd(), `wallet-${orgMSP}`);
     }
 
     const wallet = new FileSystemWallet(walletPath);
 
-    const userExists = await wallet.exists(userName);
-
-    let isAdmin = false;
+    const userExists = await wallet.exists(user.username);
 
     let networkObj;
 
@@ -31,19 +49,15 @@ exports.connectToNetwork = async function(userName, orgId = 'student', cli = fal
       let response = {};
       response.error =
         'An identity for the user ' +
-        userName +
+        username +
         ' does not exist in the wallet. Register ' +
-        userName +
+        username +
         ' first';
       return response;
     } else {
-      if (userName === 'admin') {
-        isAdmin = true;
-      }
-
       await gateway.connect(ccpPath, {
         wallet: wallet,
-        identity: userName,
+        identity: user.username,
         discovery: { enabled: true, asLocalhost: true }
       });
 
@@ -54,7 +68,7 @@ exports.connectToNetwork = async function(userName, orgId = 'student', cli = fal
         contract: contract,
         network: network,
         gateway: gateway,
-        isAdmin: isAdmin
+        user: user
       };
     }
 
@@ -86,33 +100,45 @@ exports.query = async function(networkObj, func, args) {
   }
 };
 
-exports.createStudent = async function(networkObj, studentId, studentName) {
-  try {
-    let response = await networkObj.contract.submitTransaction(
-      'CreateStudent',
-      studentId,
-      studentName
-    );
-    await networkObj.gateway.disconnect();
-    return response;
-  } catch (error) {
-    return error;
-  }
-};
+// exports.createStudent = async function(networkObj, username, fullname, address, phoneNumber) {
+//   try {
+//     let response = await networkObj.contract.submitTransaction(
+//       'CreateStudent',
+//       username,
+//       fullname,
+//       address,
+//       phoneNumber
+//     );
+//     await networkObj.gateway.disconnect();
+//     return response;
+//   } catch (error) {
+//     return error;
+//   }
+// };
 
-exports.createSubject = async function(networkObj, Name ) {
+// exports.createTeacher = async function(networkObj, username, fullname, address, phoneNumber) {
+//   try {
+//     let response = await networkObj.contract.submitTransaction(
+//       'CreateTeacher',
+//       username,
+//       fullname,
+//       address,
+//       phoneNumber
+//     );
+//     await networkObj.gateway.disconnect();
+//     return response;
+//   }catch (error) {
+//     return error;
+//   }
+// }
+
+exports.createSubject = async function(networkObj, subjectID, name, teacherUsername) {
   try {
-    if (!networkObj.isAdmin) {
-      return 'Permission denied';
-    }
-    var SubjectID = function () {
-      return '_' + Math.random().toString(36).substr(2, 9);
-    };
     let response = await networkObj.contract.submitTransaction(
       'CreateSubject',
-      SubjectID,
-      Name,
-      Weight
+      subjectID,
+      name,
+      teacherUsername
     );
     await networkObj.gateway.disconnect();
     return response;
@@ -121,13 +147,13 @@ exports.createSubject = async function(networkObj, Name ) {
   }
 };
 
-exports.createScore = async function(networkObj, SubjectID, StudentID, Score) {
+exports.createScore = async function(networkObj, subjectID, studentUsername, score) {
   try {
     let response = await networkObj.contract.submitTransaction(
       'CreateScore',
-      SubjectID,
-      StudentID,
-      Score
+      subjectID,
+      studentUsername,
+      score
     );
     await networkObj.gateway.disconnect();
     return response;
@@ -136,9 +162,16 @@ exports.createScore = async function(networkObj, SubjectID, StudentID, Score) {
   }
 };
 
-exports.createCertificate = async function(networkObj, StudentID) {
+exports.createCertificate = async function(networkObj, certificate) {
   try {
-    let response = await networkObj.contract.submitTransaction('CreateCertificate', StudentID);
+    let response = await networkObj.contract.submitTransaction(
+      'CreateCertificate',
+      certificate.certificateID,
+      certificate.subjectID,
+      certificate.studentUsername,
+      certificate.issueDate
+    );
+
     await networkObj.gateway.disconnect();
     return response;
   } catch (error) {
@@ -146,37 +179,90 @@ exports.createCertificate = async function(networkObj, StudentID) {
   }
 };
 
-exports.registerUser = async function(userId, orgId = 'student') {
-  if (!userId) {
+exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
+  if (!createdUser.username || createdUser.role != USER_ROLES.TEACHER) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
 
+  var orgMSP = 'academy';
+
   try {
-    const ccpPath = path.resolve(
-      __dirname,
-      '../../..',
-      'certificate-network',
-      `connection-${orgId}.json`
-    );
-    const walletPath = path.join(process.cwd(), `./cli/wallet-${orgId}/`);
+    const walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}/`);
     const wallet = new FileSystemWallet(walletPath);
-    const orgMSP = await changeCaseFirstLetter(orgId);
 
-    const userExists = await wallet.exists(userId);
+    const userExists = await wallet.exists(createdUser.username);
     if (userExists) {
-      console.log(`An identity for the user ${userId} already exists in the wallet`);
+      console.log(`An identity for the user ${createdUser.username} already exists in the wallet`);
       return;
     }
 
-    const adminExists = await wallet.exists('admin');
-    if (!adminExists) {
-      console.log('An identity for the admin user "admin" does not exist in the wallet');
-      console.log('Run the enrollAdmin.js application before retrying');
+    const ca = networkObj.gateway.getClient().getCertificateAuthority();
+    const adminIdentity = networkObj.gateway.getCurrentIdentity();
+
+    const secret = await ca.register(
+      {
+        affiliation: '',
+        enrollmentID: createdUser.username,
+        role: 'client',
+        attrs: [{ name: 'username', value: createdUser.username, ecert: true }]
+      },
+      adminIdentity
+    );
+
+    const enrollment = await ca.enroll({
+      enrollmentID: createdUser.username,
+      enrollmentSecret: secret
+    });
+    const userIdentity = X509WalletMixin.createIdentity(
+      `${changeCaseFirstLetter(orgMSP)}`,
+      enrollment.certificate,
+      enrollment.key.toBytes()
+    );
+    await wallet.import(createdUser.username, userIdentity);
+    console.log(
+      `Successfully registered and enrolled admin user ${createdUser.username} and imported it into the wallet`
+    );
+
+    networkObj.contract.submitTransaction(
+      'CreateTeacher',
+      createdUser.username,
+      createdUser.fullname,
+      createdUser.address.createdUser.phoneNumber
+    );
+
+    await networkObj.gateway.disconnect();
+    let response = `Successfully registered!`;
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {};
+    response.error = error;
+    return response;
+  }
+};
+
+exports.registerStudentOnBlockchain = async function(createdUser) {
+  if (!createdUser.username || createdUser.role != USER_ROLES.STUDENT) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  var orgMSP = 'academy';
+
+  try {
+    const walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}/`);
+    const wallet = new FileSystemWallet(walletPath);
+
+    const userExists = await wallet.exists(createdUser.username);
+    if (userExists) {
+      console.log(`An identity for the user ${createdUser.username} already exists in the wallet`);
       return;
     }
 
+    // Create a new gateway for connecting to our peer node.
     const gateway = new Gateway();
     await gateway.connect(ccpPath, {
       wallet,
@@ -184,30 +270,48 @@ exports.registerUser = async function(userId, orgId = 'student') {
       discovery: { enabled: true, asLocalhost: true }
     });
 
+    // Get the CA client object from the gateway for interacting with the CA.
     const ca = gateway.getClient().getCertificateAuthority();
     const adminIdentity = gateway.getCurrentIdentity();
+    const network = await gateway.getNetwork('certificatechannel');
+    const contract = await network.getContract('academy');
 
     const secret = await ca.register(
-      { affiliation: '', enrollmentID: userId, role: 'client' },
+      {
+        affiliation: '',
+        enrollmentID: createdUser.username,
+        role: 'client',
+        attrs: [{ name: 'username', value: createdUser.username, ecert: true }]
+      },
       adminIdentity
     );
 
-    const enrollment = await ca.enroll({ enrollmentID: userId, enrollmentSecret: secret });
+    const enrollment = await ca.enroll({
+      enrollmentID: createdUser.username,
+      enrollmentSecret: secret
+    });
     const userIdentity = X509WalletMixin.createIdentity(
-      `${orgMSP}MSP`,
+      `${changeCaseFirstLetter(orgMSP)}`,
       enrollment.certificate,
       enrollment.key.toBytes()
     );
-    await wallet.import(userId, userIdentity);
+    await wallet.import(createdUser.username, userIdentity);
     console.log(
-      `Successfully registered and enrolled admin user ${userId} and imported it into the wallet`
+      `Successfully registered and enrolled admin user ${createdUser.username} and imported it into the wallet`
+    );
+
+    contract.submitTransaction(
+      'CreateTeacher',
+      createdUser.username,
+      createdUser.fullname,
+      createdUser.address.createdUser.phoneNumber
     );
 
     await gateway.disconnect();
-    let response = `Successfully registered student`;
+    let response = `Successfully registered!`;
     return response;
   } catch (error) {
-    console.error(`Failed to register student`);
+    console.error(`Failed to register!`);
     let response = {};
     response.error = error;
     return response;
