@@ -12,7 +12,7 @@
                   type="text"
                   v-model="form.username"
                   :state="errors[0] ? false : (valid ? true : null)"
-                  placeholder="Enter username"
+                  placeholder="Username"
                 ></b-form-input>
                 <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
               </b-form-group>
@@ -28,7 +28,7 @@
                   type="password"
                   v-model="form.password"
                   :state="errors[0] ? false : (valid ? true : null)"
-                  placeholder="Enter password"
+                  placeholder="Password"
                 ></b-form-input>
                 <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
               </b-form-group>
