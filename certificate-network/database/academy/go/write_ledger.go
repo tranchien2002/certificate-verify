@@ -277,16 +277,18 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 
 	fmt.Println("Start Create Certificate!")
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 		return shim.Error("Incorrecr")
 	}
 
-	SubjectID := args[0]
-	StudentUsername := args[1]
-
+	CertificateID := args[0]
+	SubjectID := args[1]
+	StudentUsername := args[2]
 	IssueDate := time.Now().String()
 
-	checkScoreExist, err := getScore(stub, "Score-"+" "+"Subject-"+SubjectID+" "+"Student-"+StudentUsername)
+	key := "Certificate-" + CertificateID
+
+	checkScoreExist, err := getScore(stub, key)
 
 	if err != nil {
 		fmt.Println(checkScoreExist)
@@ -323,9 +325,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 
 	// average := sumScore / float64(sumWeight)
 
-	var certificate = Certificate{StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
-
-	key := "Certificate-" + " " + " " + "Subject-" + SubjectID + "Student-" + StudentUsername
+	var certificate = Certificate{CertificateID: CertificateID, StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
 
 	certificateAsBytes, _ := json.Marshal(certificate)
 

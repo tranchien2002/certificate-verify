@@ -24,4 +24,28 @@ describe('Route /subject', () => {
                 });
         });
     });
+
+    describe('#GET /subject/all', () => {
+        it('should return all subjects', (done) => {
+            request(app)
+                .get('/subject/all')
+                .then((res) => {
+                    console.log(res);
+                    expect(res.body.success).equal(true);
+                    done();
+                });
+        });
+    });
+
+    describe('#GET /subject/:subjectid', () => {
+        it('should return all subjects', (done) => {
+            request(app)
+                .get('/subject/00')
+                .then((res) => {
+                    console.log(res);
+                    expect(res.body.success).equal(true);
+                    done();
+                });
+        });
+    });
 });

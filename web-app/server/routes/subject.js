@@ -42,4 +42,25 @@ router.post('/create',
     }
 );
 
+router.get('/all', async (req, res, next) => {
+
+    //allSubjects = await network.getAllSubjects();
+
+    res.json({
+        success: true
+        //subjects: allSubjects
+    });
+});
+
+router.get('/:subjectid',  async (req, res, next) => {
+    var subjectid = req.params.subjectid;
+
+    //subject = await network.getSubject(subjectid);
+
+    res.json({
+        success: true
+        // subject: subject
+    });
+})
+
 module.exports = router;

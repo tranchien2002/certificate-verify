@@ -252,35 +252,24 @@ func QueryScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	var StudentUsername string
-	var SubjectID string
-
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		shim.Error("Error - cid.GetMSPID()")
 	}
 
-	if MSPID == "StudentMSP" {
-		StudentUsername, _, err = cid.GetAttributeValue(stub, "Username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		StudentUsername = args[0]
-	} else {
+	if MSPID != "StudentMSP" && MSPID == "AcademyMSP" {
 		shim.Error("WHO ARE YOU ?")
 	}
 
-	SubjectID = args[1]
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
 
-	key := "Certificate-" + " " + "Subject-" + SubjectID + "Student-" + StudentUsername
+	CertificateID := args[0]
+
+	key := "Certificate-" + CertificateID
+
 	certificateAsBytes, err := stub.GetState(key)
 
 	if err != nil {
@@ -296,33 +285,29 @@ func QueryCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respon
 
 func VerifyCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 1 {
+	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
 	CertificateID := args[0]
+	StudentUsername := args[1]
+	SubjectID := args[2]
 
-	allCertificates, _ := getListCertificates(stub)
+	key := "Certificate-" + CertificateID
 
-	var i int
+	certificate, err := getCertificate(stub, key)
+	certificateAsBytes, _ := json.Marshal(certificate)
 
-	for i = 0; allCertificates.HasNext(); i++ {
-
-		record, err := allCertificates.Next()
-
-		if err != nil {
-			return shim.Success(nil)
-		}
-
-		certificate := Certificate{}
-		json.Unmarshal(record.Value, &certificate)
-
-		if certificate.CertificateID == CertificateID {
-			return shim.Success(record.Value)
+	if err != nil {
+		fmt.Println(certificate)
+		return shim.Error("Certificate does not exist !")
+	} else {
+		if certificate.StudentUsername == StudentUsername && certificate.SubjectID == SubjectID {
+			return shim.Success(certificateAsBytes)
+		} else {
+			return shim.Error("Not Right!")
 		}
 	}
-
-	return shim.Error("Certificate-" + CertificateID + " does not exist")
 }
 
 func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
@@ -373,7 +358,7 @@ func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
 		shim.Error("Error - cide.GetMSPID()")
 	}
 
-	if MSPID != "AcademyMSP" {
+	if MSPID != "AcademyMSP" && MSPID != "StudentMSP" {
 		return shim.Error("WHO ARE YOU ?")
 	}
 
