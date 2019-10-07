@@ -15,7 +15,10 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 
 // API teacher
-const teacherRouter = require('./routes/teacher');
+const teacherRoutes = require('./routes/teacher');
+
+// API Subject
+const subjectRoutes = require('./routes/subject')
 
 // Connect database
 mongoose.connect(
@@ -55,7 +58,9 @@ app.use(
 // Set up routes
 app.use('/auth', authRoutes);
 
-app.use('/teacher', checkJWT, teacherRouter);
+app.use('/teacher', checkJWT, teacherRoutes);
+
+app.use('/subject', subjectRoutes);
 
 app.get('/', (req, res, next) => {
   res.json({ title: 'Hello' });

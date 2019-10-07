@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 let checkJWT = require('../middlewares/check-jwt');
 let secretJWT = require('../config/index').secret;
+const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 router.get('/', async (req, res) => {
   res.json({
@@ -40,7 +41,7 @@ router.post(
       name: req.body.name,
       username: req.body.username,
       password: req.body.password,
-      role: 4
+      role: USER_ROLES.STUDENT
     });
 
     User.findOne({ username: user.username }, async (err, existing) => {

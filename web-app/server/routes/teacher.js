@@ -94,8 +94,9 @@ router.get('/:username', async (req, res, next) => {
         });
     } else {
         var username = req.params.username;
+        console.log(username);
 
-        User.findOne({username: username}, async (err, teacher) => {
+        User.findOne({username: username, role: USER_ROLES.TEACHER}, async (err, teacher) => {
             if (err) {
                 res.json({
                     success: false,

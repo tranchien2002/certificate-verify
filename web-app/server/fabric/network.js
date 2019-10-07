@@ -100,15 +100,17 @@ exports.createStudent = async function(networkObj, studentId, studentName) {
   }
 };
 
-exports.createSubject = async function(networkObj, SubjectID, SubjectCode, Name, Weight) {
+exports.createSubject = async function(networkObj, Name ) {
   try {
     if (!networkObj.isAdmin) {
       return 'Permission denied';
     }
+    var SubjectID = function () {
+      return '_' + Math.random().toString(36).substr(2, 9);
+    };
     let response = await networkObj.contract.submitTransaction(
       'CreateSubject',
       SubjectID,
-      SubjectCode,
       Name,
       Weight
     );
