@@ -263,11 +263,8 @@ export default {
       this.newSubject.subject_name = "";
       this.newSubject.total = 0;
     },
-    handleUpdate() {
-      console.log(this.form);
-    },
+    handleUpdate() {},
     handleCreate() {
-      console.log(this.newSubject);
       resetInfoModalCreate();
     },
     deleteSubject(item) {
@@ -282,7 +279,6 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
-          console.log("deleted", item);
           this.$swal("Deleted!", "Your file has been deleted.", "success");
         }
       });

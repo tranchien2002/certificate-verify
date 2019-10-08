@@ -153,7 +153,6 @@ describe('Route : /auth', () => {
           password: '654321'
         })
         .then((res) => {
-          console.log(res.body.token);
           expect(res.status).equal(200);
           expect(res.body.msg).equal('Login success');
           done();

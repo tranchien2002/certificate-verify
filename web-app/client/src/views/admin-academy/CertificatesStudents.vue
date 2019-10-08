@@ -350,7 +350,6 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
-          console.log("confirmed", item);
           this.$swal(
             "Confirmed!",
             "The certificate has been confirmed .",
