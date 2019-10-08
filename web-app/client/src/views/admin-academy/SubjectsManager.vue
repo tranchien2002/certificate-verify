@@ -6,7 +6,7 @@
       <div class="card shadow mb-4">
         <div class="card-header py-3">
           <h6 class="m-0 font-weight-bold text-primary">
-            <button class="btn btn-success" @click="createSubject" v-b-modal.modal-create>
+            <button class="btn btn-success" @click="btnCreate" v-b-modal.modal-create>
               <i class="fas fa-plus"></i>
             </button>
           </h6>
@@ -16,27 +16,25 @@
             <b-table
               show-empty
               stacked="md"
-              :items="blogPosts"
+              :items="listSubjects"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
             >
-              <template slot="id" slot-scope="row">{{ row.item.id }}</template>
+              <template slot="SubjectID" slot-scope="row">{{ row.item.SubjectID }}</template>
 
-              <template slot="subject_name" slot-scope="row">{{ row.item.subject_name }}</template>
+              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
 
-              <template slot="total" slot-scope="row">{{ row.item.total }}</template>
-
-              <template slot="delete" slot-scope="row">
+              <template slot="actions" slot-scope="row">
                 <div class="row justify-content-center">
                   <b-button
                     variant="info"
                     class="mr-1 btn-circle btn-sm"
-                    :to="`subjects/${row.item.id}/students`"
-                    :id="`popover-info-${row.item.id}`"
+                    :to="`subjects/${row.item.SubjectID}/students`"
+                    :id="`popover-info-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-info-${row.item.id}`"
+                      :target="`popover-info-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Chi Tiết</b-popover>
@@ -46,10 +44,10 @@
                     @click="info(row.item, row.index, $event.target)"
                     class="text-center btn-circle btn-sm"
                     variant="warning"
-                    :id="`popover-edit-${row.item.id}`"
+                    :id="`popover-edit-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-edit-${row.item.id}`"
+                      :target="`popover-edit-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Chỉnh sửa</b-popover>
@@ -57,12 +55,12 @@
                   </b-button>
                   <b-button
                     variant="danger"
-                    @click="deleteSubject(row.item)"
+                    @click="delSubject(row.item)"
                     class="ml-1 btn-circle btn-sm"
-                    :id="`popover-del-${row.item.id}`"
+                    :id="`popover-del-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-del-${row.item.id}`"
+                      :target="`popover-del-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Xóa</b-popover>
@@ -76,7 +74,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="blogPosts.length"
+                :total-rows="listSubjects ? listSubjects.length: 0"
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -87,183 +85,90 @@
       </div>
     </div>
 
-    <b-modal
-      :id="infoModal.id"
-      :total="infoModal.total"
-      @hide="resetInfoModalEdit"
-      ok-title="Update"
-      @ok="handleUpdate"
-      title="Cập Nhật Môn Học"
-    >
-      <b-form>
-        <b-form-group id="input-group-1" label-for="input-1" class>
-          <b-form-input
-            id="input-1"
-            v-model="form.subject_name"
-            type="text"
-            required
-            placeholder="subject name *"
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group id="input-group-2" label-for="input-2">
-          <b-form-input
-            id="input-2"
-            v-model="form.total"
-            required
-            placeholder="total *"
-            type="number"
-          ></b-form-input>
-        </b-form-group>
-      </b-form>
-    </b-modal>
+    <ValidationObserver ref="observer" v-slot="{ passes }">
+      <b-modal
+        :id="infoModal.SubjectID"
+        ref="modal-edit"
+        ok-title="Update"
+        @ok.prevent="passes(handleUpdate)"
+        title="Cập Nhật Môn Học"
+      >
+        <b-form>
+          <ValidationProvider rules="required" name="Subject Name" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="editSubject.Name"
+                :state="errors[0] ? false : (valid ? true : null)"
+                placeholder="Subject Name"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+        </b-form>
+      </b-modal>
+    </ValidationObserver>
 
-    <b-modal
-      id="modal-create"
-      title="Tạo Mới Môn Học"
-      @ok="handleCreate"
-      @cancel="resetInfoModalCreate"
-    >
-      <b-form-group id="input-group-1" label-for="input-1" class>
-        <b-form-input
-          id="input-1"
-          v-model="newSubject.subject_name"
-          type="text"
-          required
-          placeholder="subject name *"
-        ></b-form-input>
-      </b-form-group>
-      <b-form-group id="input-group-2" label-for="input-2">
-        <b-form-input
-          id="input-2"
-          v-model="newSubject.total"
-          required
-          placeholder="total *"
-          type="number"
-        ></b-form-input>
-      </b-form-group>
-    </b-modal>
+    <ValidationObserver ref="observer" v-slot="{ passes }">
+      <b-modal
+        id="modal-create"
+        ref="modal-create"
+        title="Tạo Mới Môn Học"
+        @ok.prevent="passes(handleCreate)"
+        @cancel="resetInfoModalCreate"
+      >
+        <b-form>
+          <ValidationProvider rules="required" name="Subject Name" v-slot="{ valid, errors }">
+            <b-form-group>
+              <b-form-input
+                type="text"
+                v-model="newSubject.Name"
+                :state="errors[0] ? false : (valid ? true : null)"
+                placeholder="Subject Name"
+              ></b-form-input>
+              <b-form-invalid-feedback id="inputLiveFeedback">{{ errors[0] }}</b-form-invalid-feedback>
+            </b-form-group>
+          </ValidationProvider>
+        </b-form>
+      </b-modal>
+    </ValidationObserver>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
+  components: {
+    ValidationObserver,
+    ValidationProvider
+  },
   data() {
     return {
-      form: {
-        subject_name: "",
-        total: 0
+      editSubject: {
+        Name: ""
       },
       newSubject: {
-        subject_name: "",
-        total: 0
+        Name: ""
       },
       infoModal: {
-        id: "info-modal",
-        total: ""
+        SubjectID: "info-modal"
       },
-      blogPosts: [
-        {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 4,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 5,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 6,
-          subject_name: "Subject06",
-          total: 10
-        },
-        {
-          id: 7,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 8,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 9,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 10,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 11,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 12,
-          subject_name: "Subject06",
-          total: 10
-        },
-        {
-          id: 13,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 14,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 15,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 16,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 17,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 18,
-          subject_name: "Subject06",
-          total: 10
-        }
-      ],
       fields: [
-        { key: "id", label: "id", class: "text-center", sortable: true },
         {
-          key: "subject_name",
+          key: "SubjectID",
+          label: "SubjectID",
+          class: "text-center",
+          sortable: true
+        },
+        {
+          key: "Name",
           label: "Name Subject",
           class: "text-center",
           sortable: true
         },
-        { key: "total", label: "total", class: "text-center", sortable: true },
         {
-          key: "delete",
+          key: "actions",
           label: "Actions",
           class: "text-center",
           sortable: true
@@ -275,25 +180,36 @@ export default {
     };
   },
   methods: {
+    ...mapActions("adminAcademy", [
+      "getAllSubjects",
+      "createSubject",
+      "updateSubject",
+      "deleteSubject"
+    ]),
     info(item, index, button) {
-      this.infoModal.total = `Row index: ${index}`;
-      this.form.subject_name = item.subject_name;
-      this.form.total = item.total;
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      this.editSubject.Name = item.Name;
+      this.$root.$emit("bv::show::modal", this.infoModal.SubjectID, button);
+    },
+    async handleCreate(bvModalEvt) {
+      this.$refs["modal-create"].hide();
+      await this.createSubject(this.newSubject);
+      await this.resetInfoModalCreate();
+    },
+    async handleUpdate() {
+      this.$refs["modal-edit"].hide();
+      await this.updateSubject(this.editSubject);
+      await this.resetInfoModalEdit();
     },
     resetInfoModalEdit() {
-      this.form.subject_name = "";
-      this.form.total = 0;
+      this.editSubject.Name = "";
     },
     resetInfoModalCreate() {
-      this.newSubject.subject_name = "";
-      this.newSubject.total = 0;
+      this.newSubject.Name = "";
+      requestAnimationFrame(() => {
+        this.$refs.observer.reset();
+      });
     },
-    handleUpdate() {},
-    handleCreate() {
-      resetInfoModalCreate();
-    },
-    deleteSubject(item) {
+    delSubject(subject) {
       this.$swal({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -305,13 +221,20 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
+          this.deleteSubject(subject);
           this.$swal("Deleted!", "Your file has been deleted.", "success");
         }
       });
     },
-    createSubject(item, button) {
+    btnCreate(item, button) {
       this.$root.$emit("bv::show::modal", button);
     }
+  },
+  computed: {
+    ...mapState("adminAcademy", ["listSubjects"])
+  },
+  created() {
+    this.getAllSubjects();
   }
 };
 </script>

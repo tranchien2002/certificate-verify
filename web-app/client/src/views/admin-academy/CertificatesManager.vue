@@ -16,27 +16,25 @@
             <b-table
               show-empty
               stacked="md"
-              :items="blogPosts"
+              :items="listSubjects ? listSubjects : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
             >
-              <template slot="id" slot-scope="row">{{ row.item.id }}</template>
+              <template slot="id" slot-scope="row">{{ row.item.SubjectID }}</template>
 
-              <template slot="subject_name" slot-scope="row">{{ row.item.subject_name }}</template>
-
-              <template slot="total" slot-scope="row">{{ row.item.total }}</template>
+              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
 
               <template slot="delete" slot-scope="row">
                 <div class="row justify-content-center">
                   <b-button
                     variant="info"
                     class="mr-1 btn-circle btn-sm"
-                    :to="`certificates/${row.item.id}/students`"
-                    :id="`popover-info-${row.item.id}`"
+                    :to="`certificates/${row.item.SubjectID}/students`"
+                    :id="`popover-info-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-info-${row.item.id}`"
+                      :target="`popover-info-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Chi Tiết</b-popover>
@@ -50,7 +48,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="blogPosts.length"
+                :total-rows="listSubjects ? listSubjects.length : 0 "
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -62,8 +60,7 @@
     </div>
 
     <b-modal
-      :id="infoModal.id"
-      :total="infoModal.total"
+      :id="infoModal.SubjectID"
       @hide="resetInfoModalEdit"
       ok-title="Update"
       @ok="handleUpdate"
@@ -73,19 +70,10 @@
         <b-form-group id="input-group-1" label-for="input-1" class>
           <b-form-input
             id="input-1"
-            v-model="form.subject_name"
+            v-model="form.Name"
             type="text"
             required
             placeholder="subject name *"
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group id="input-group-2" label-for="input-2">
-          <b-form-input
-            id="input-2"
-            v-model="form.total"
-            required
-            placeholder="total *"
-            type="number"
           ></b-form-input>
         </b-form-group>
       </b-form>
@@ -100,19 +88,10 @@
       <b-form-group id="input-group-1" label-for="input-1" class>
         <b-form-input
           id="input-1"
-          v-model="newSubject.subject_name"
+          v-model="newSubject.Name"
           type="text"
           required
           placeholder="subject name *"
-        ></b-form-input>
-      </b-form-group>
-      <b-form-group id="input-group-2" label-for="input-2">
-        <b-form-input
-          id="input-2"
-          v-model="newSubject.total"
-          required
-          placeholder="total *"
-          type="number"
         ></b-form-input>
       </b-form-group>
     </b-modal>
@@ -124,118 +103,96 @@ export default {
   data() {
     return {
       form: {
-        subject_name: "",
-        total: 0
+        Name: ""
       },
       newSubject: {
-        subject_name: "",
-        total: 0
+        Name: ""
       },
       infoModal: {
-        id: "info-modal",
-        total: ""
+        SubjectID: "info-modal"
       },
-      blogPosts: [
+      listSubjects: [
         {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject01"
         },
         {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject02"
         },
         {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject03"
         },
         {
-          id: 4,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 4,
+          Name: "Subject04"
         },
         {
-          id: 5,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 5,
+          Name: "Subject05"
         },
         {
-          id: 6,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 6,
+          Name: "Subject06"
         },
         {
-          id: 7,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 7,
+          Name: "Subject01"
         },
         {
-          id: 8,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 8,
+          Name: "Subject02"
         },
         {
-          id: 9,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 9,
+          Name: "Subject03"
         },
         {
-          id: 10,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 10,
+          Name: "Subject04"
         },
         {
-          id: 11,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 11,
+          Name: "Subject05"
         },
         {
-          id: 12,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 12,
+          Name: "Subject06"
         },
         {
-          id: 13,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 13,
+          Name: "Subject01"
         },
         {
-          id: 14,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 14,
+          Name: "Subject02"
         },
         {
-          id: 15,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 15,
+          Name: "Subject03"
         },
         {
-          id: 16,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 16,
+          Name: "Subject04"
         },
         {
-          id: 17,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 17,
+          Name: "Subject05"
         },
         {
-          id: 18,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 18,
+          Name: "Subject06"
         }
       ],
       fields: [
         { key: "id", label: "id", class: "text-center", sortable: true },
         {
-          key: "subject_name",
+          key: "Name",
           label: "Name Subject",
           class: "text-center",
           sortable: true
         },
-        { key: "total", label: "total", class: "text-center", sortable: true },
         {
           key: "delete",
           label: "Actions",
@@ -250,18 +207,14 @@ export default {
   },
   methods: {
     info(item, index, button) {
-      this.infoModal.total = `Row index: ${index}`;
-      this.form.subject_name = item.subject_name;
-      this.form.total = item.total;
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      this.form.Name = item.Name;
+      this.$root.$emit("bv::show::modal", this.infoModal.SubjectID, button);
     },
     resetInfoModalEdit() {
-      this.form.subject_name = "";
-      this.form.total = 0;
+      this.form.Name = "";
     },
     resetInfoModalCreate() {
-      this.newSubject.subject_name = "";
-      this.newSubject.total = 0;
+      this.newSubject.Name = "";
     },
     handleUpdate() {},
     handleCreate() {

@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 
 import { account } from './account.module';
 import { alert } from './alert.module';
+import { adminAcademy } from './admin.module';
 
 Vue.use(Vuex);
 
@@ -22,6 +23,7 @@ export default new Vuex.Store({
   },
   modules: {
     account,
-    alert
+    alert,
+    adminAcademy
   }
 });

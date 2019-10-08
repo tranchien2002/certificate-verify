@@ -116,7 +116,8 @@ router.post(
             username: req.body.username,
             user: user.name,
             msg: 'Login success',
-            token: token
+            token: token,
+            role: user.role
           });
         }
       }

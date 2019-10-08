@@ -16,27 +16,25 @@
             <b-table
               show-empty
               stacked="md"
-              :items="blogPosts"
+              :items="blogPosts ? blogPosts : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
             >
-              <template slot="id" slot-scope="row">{{ row.item.id }}</template>
+              <template slot="SubjectID" slot-scope="row">{{ row.item.SubjectID }}</template>
 
-              <template slot="subject_name" slot-scope="row">{{ row.item.subject_name }}</template>
+              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
 
-              <template slot="total" slot-scope="row">{{ row.item.total }}</template>
-
-              <template slot="delete" slot-scope="row">
+              <template slot="actions" slot-scope="row">
                 <div class="row justify-content-center">
                   <b-button
                     variant="danger"
                     @click="deleteSubject(row.item)"
                     class="ml-1 btn-circle btn-sm"
-                    :id="`popover-del-${row.item.id}`"
+                    :id="`popover-del-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-del-${row.item.id}`"
+                      :target="`popover-del-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Xóa</b-popover>
@@ -50,7 +48,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="blogPosts.length"
+                :total-rows="blogPosts ? blogPosts.length : 0"
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -61,14 +59,7 @@
       </div>
     </div>
 
-    <b-modal
-      id="modal-create"
-      title="Thêm Môn Học"
-      ok-title="Thêm"
-      @ok="handleAddSubject"
-      ok-only
-      @cancel="resetInfoModalAdd"
-    >
+    <b-modal id="modal-create" title="Thêm Môn Học" ok-title="Thêm" @ok="handleAddSubject" ok-only>
       <b-form-select class="mb-3">
         <template v-slot:first>
           <option :value="null" disabled>-- Chọn lớp --</option>
@@ -86,120 +77,103 @@ export default {
   data() {
     return {
       form: {
-        subject_name: "",
-        total: 0
+        Name: ""
       },
       newSubject: {
-        subject_name: "",
-        total: 0
+        Name: ""
       },
       infoModal: {
-        id: "info-modal",
-        total: ""
+        SubjectID: "info-modal"
       },
       blogPosts: [
         {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject01"
         },
         {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject02"
         },
         {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject03"
         },
         {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject04"
         },
         {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject05"
         },
         {
-          id: 3,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject06"
         },
         {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject01"
         },
         {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject02"
         },
         {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject03"
         },
         {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject04"
         },
         {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject05"
         },
         {
-          id: 3,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject06"
         },
         {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject01"
         },
         {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject02"
         },
         {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject03"
         },
         {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
+          SubjectID: 1,
+          Name: "Subject04"
         },
         {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
+          SubjectID: 2,
+          Name: "Subject05"
         },
         {
-          id: 3,
-          subject_name: "Subject06",
-          total: 10
+          SubjectID: 3,
+          Name: "Subject06"
         }
       ],
       fields: [
-        { key: "id", label: "id", class: "text-center", sortable: true },
         {
-          key: "subject_name",
+          key: "SubjectID",
+          label: "SubjectID",
+          class: "text-center",
+          sortable: true
+        },
+        {
+          key: "Name",
           label: "Name Subject",
           class: "text-center",
           sortable: true
         },
-        { key: "total", label: "total", class: "text-center", sortable: true },
         {
-          key: "delete",
+          key: "actions",
           label: "Actions",
           class: "text-center",
           sortable: true
@@ -212,22 +186,11 @@ export default {
   },
   methods: {
     info(item, index, button) {
-      this.infoModal.total = `Row index: ${index}`;
-      this.form.subject_name = item.subject_name;
-      this.form.total = item.total;
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
+      this.form.Name = item.Name;
+      this.$root.$emit("bv::show::modal", this.infoModal.SubjectID, button);
     },
-    resetInfoModalEdit() {
-      this.form.subject_name = "";
-      this.form.total = 0;
-    },
-    resetInfoModalAdd() {
-      this.newSubject.subject_name = "";
-      this.newSubject.total = 0;
-    },
-    handleUpdate() {},
-    handleCreate() {
-      resetInfoModalAdd();
+    handleAddSubject() {
+      this.newSubject.Name = "";
     },
     deleteSubject(item) {
       this.$swal({
