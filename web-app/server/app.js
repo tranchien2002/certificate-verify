@@ -18,7 +18,9 @@ const authRoutes = require('./routes/auth');
 const teacherRoutes = require('./routes/teacher');
 
 // API Subject
-const subjectRoutes = require('./routes/subject')
+const subjectRoutes = require('./routes/subject');
+
+const certificateRoutes = require('./routes/certificate');
 
 // API cert
 const certRouter = require('./routes/cert');

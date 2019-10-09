@@ -6,6 +6,7 @@ const { check, validationResult } = require('express-validator');
 let checkJWT = require('../middlewares/check-jwt');
 let secretJWT = require('../config/index').secret;
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const network = require('../fabric/network');
 
 router.get('/', async (req, res) => {
   res.json({
@@ -26,7 +27,7 @@ router.post(
     // password must be at least 5 chars long
     check('password').isLength({ min: 6 }),
     // name must be at least 5 chars long
-    check('name').isLength({ min: 1 })
+    check('fullname').isLength({ min: 6 })
   ],
   async (req, res, next) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
@@ -37,7 +38,6 @@ router.post(
 
     // After the validation
     let user = new User({
-      name: req.body.name,
       username: req.body.username,
       password: req.body.password,
       role: USER_ROLES.STUDENT
@@ -52,7 +52,13 @@ router.post(
         });
       } else {
         // Save data
-        await user.save();
+        await user.save(async (err, createdUser) => {
+          createdUser = createdUser.toObject();
+          createdUser.fullname = req.body.fullname;
+          createdUser.address = req.body.address;
+          createdUser.phonenumber = req.body.phonenumber;
+          await network.registerStudentOnBlockchain(createdUser);
+        });
 
         // var token = jwt.sign(
         //   {

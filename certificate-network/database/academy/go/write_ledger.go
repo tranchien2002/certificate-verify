@@ -5,7 +5,6 @@ import (
 
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -31,16 +30,16 @@ func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 
 func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
 
-	students := []Student{
-		Student{Username: "GV00", Fullname: "ABC", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
+	teachers := []Teacher{
+		Teacher{Username: "GV00", Fullname: "ABC", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
 	}
 
-	for i := 0; i < len(students); i++ {
-		studentAsBytes, _ := json.Marshal(students[i])
-		key := "Teacher-" + students[i].Username
+	for i := 0; i < len(teachers); i++ {
+		teacherAsBytes, _ := json.Marshal(teachers[i])
+		key := "Teacher-" + teachers[i].Username
 
 		fmt.Println(key)
-		stub.PutState(key, studentAsBytes)
+		stub.PutState(key, teacherAsBytes)
 	}
 
 	return shim.Success(nil)
@@ -76,7 +75,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 2 {
+	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
@@ -84,6 +83,8 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 	Username := args[0]
 	Fullname := args[1]
+	Address := args[2]
+	PhoneNumber := args[3]
 
 	key := "Student-" + Username
 	checkStudentExist, err := getStudent(stub, key)
@@ -93,7 +94,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{Username: Username, Fullname: Fullname}
+	var student = Student{Username: Username, Fullname: Fullname, Address: Address, PhoneNumber: PhoneNumber}
 
 	studentAsBytes, _ := json.Marshal(student)
 
@@ -284,7 +285,7 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	CertificateID := args[0]
 	SubjectID := args[1]
 	StudentUsername := args[2]
-	IssueDate := time.Now().String()
+	IssueDate := args[3]
 
 	key := "Certificate-" + CertificateID
 

@@ -50,7 +50,6 @@ describe('Route /teacher', () => {
           'authorization',
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
         )
-        .set('req.decoded.user.role', '1')
         .send({
           username: 'thienthangaycanh',
           name: 'thien than gay canh'
@@ -82,50 +81,49 @@ describe('Route /teacher', () => {
           done();
         });
     });
+  });
+  describe('#GET /all', () => {
+    var allUserStub;
 
-    describe('#GET /all', () => {
-      var allUserStub;
+    beforeEach(() => {
+      allUserStub = sinon.stub(User, 'find');
+    });
 
-      beforeEach(() => {
-        allUserStub = sinon.stub(User, 'find');
-      });
+    afterEach(() => {
+      allUserStub.restore();
+    });
 
-      afterEach(() => {
-        allUserStub.restore();
-      });
+    it('should return all teachers.', (done) => {
+      allUserStub.yields(undefined, [
+        {
+          id: 1,
+          username: 'GV01',
+          role: USER_ROLES.TEACHER
+        },
+        {
+          id: 2,
+          username: 'GV02',
+          role: USER_ROLES.TEACHER
+        },
+        {
+          id: 3,
+          username: 'GV03',
+          role: USER_ROLES.TEACHER
+        }
+      ]);
 
-      it('should return all teachers.', (done) => {
-        allUserStub.yields(undefined, [
-          {
-            id: 1,
-            username: 'GV01',
-            role: USER_ROLES.TEACHER
-          },
-          {
-            id: 2,
-            username: 'GV02',
-            role: USER_ROLES.TEACHER
-          },
-          {
-            id: 3,
-            username: 'GV03',
-            role: USER_ROLES.TEACHER
-          }
-        ]);
-
-        request(app)
-          .get('/teacher/all')
-          .set(
-            'authorization',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
-          )
-          .then((res) => {
-            //console.log(res.body)
-            expect(res.body.success).equal(true);
-            expect(res.body.teachers.length).eql(3);
-            done();
-          });
-      });
+      request(app)
+        .get('/teacher/all')
+        .set(
+          'authorization',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
+        )
+        .then((res) => {
+          //console.log(res.body)
+          expect(res.body.success).equal(true);
+          expect(res.body.teachers.length).eql(3);
+          done();
+        });
     });
   });
 });

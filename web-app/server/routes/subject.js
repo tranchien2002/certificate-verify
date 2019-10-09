@@ -21,10 +21,10 @@ router.get('/create', checkJWT, async (req, res) => {
 router.post('/create',
     checkJWT,
     [
-        check('subjectName').isLength({min: 6}),
+        check('subjectName').isLength({ min: 6 }),
+        check('teacherUsername').isLength({min: 6})
     ],
     async (req, res, next) => {
-
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
@@ -36,7 +36,13 @@ router.post('/create',
                 msg: 'Failed'
             });
         } else {
-            //await network.createSubject(req.body.subjectName);
+            let networkObj = await network.connectToNetwork(req.decoded.user);
+            let response = await network.createSubject(networkObj, req.body.subjectid, req.body.name, req.body.teacherUsername);
+            let parsedResponse = await JSON.parse(response);
+            res.json({
+                success: true,
+                msg:  parsedResponse
+            })
             next();
         }
     }
@@ -44,23 +50,25 @@ router.post('/create',
 
 router.get('/all', async (req, res, next) => {
 
-    //allSubjects = await network.getAllSubjects();
+    allSubjects = await network.query({}, 'GetAllSubjects', []);
 
     res.json({
-        success: true
-        //subjects: allSubjects
+        success: true,
+        subjects: allSubjects
     });
+    next();
 });
 
 router.get('/:subjectid',  async (req, res, next) => {
     var subjectid = req.params.subjectid;
 
-    //subject = await network.getSubject(subjectid);
+    subject = await network.query({}, 'QuerySubject', subjectid);
 
     res.json({
-        success: true
-        // subject: subject
+        success: true,
+        subject: subject
     });
+    next();
 })
 
 module.exports = router;

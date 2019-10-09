@@ -352,15 +352,15 @@ func GetAllSubjects(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetAllStudents(stub shim.ChaincodeStubInterface) sc.Response {
-	MSPID, err := cid.GetMSPID(stub)
+	// MSPID, err := cid.GetMSPID(stub)
 
-	if err != nil {
-		shim.Error("Error - cide.GetMSPID()")
-	}
+	// if err != nil {
+	// 	shim.Error("Error - cide.GetMSPID()")
+	// }
 
-	if MSPID != "AcademyMSP" && MSPID != "StudentMSP" {
-		return shim.Error("WHO ARE YOU ?")
-	}
+	// if MSPID != "AcademyMSP" && MSPID != "StudentMSP" {
+	// 	return shim.Error("WHO ARE YOU ?")
+	// }
 
 	allStudents, _ := getListStudents(stub)
 
