@@ -11,57 +11,57 @@ import (
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
-func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
+// func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 
-	students := []Student{
-		Student{Username: "20156425", Fullname: "Trinh Van Tan", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
-	}
+// 	students := []Student{
+// 		Student{Username: "20156425", Fullname: "Trinh Van Tan"},
+// 	}
 
-	for i := 0; i < len(students); i++ {
-		studentAsBytes, _ := json.Marshal(students[i])
-		key := "Student-" + students[i].Username
+// 	for i := 0; i < len(students); i++ {
+// 		studentAsBytes, _ := json.Marshal(students[i])
+// 		key := "Student-" + students[i].Username
 
-		fmt.Println(key)
-		stub.PutState(key, studentAsBytes)
-	}
+// 		fmt.Println(key)
+// 		stub.PutState(key, studentAsBytes)
+// 	}
 
-	return shim.Success(nil)
-}
+// 	return shim.Success(nil)
+// }
 
-func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
+// func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
 
-	teachers := []Teacher{
-		Teacher{Username: "GV00", Fullname: "ABC", Address: "38 Hoang Mai", PhoneNumber: "0382794668"},
-	}
+// 	teachers := []Teacher{
+// 		Teacher{Username: "GV00", Fullname: "ABC"},
+// 	}
 
-	for i := 0; i < len(teachers); i++ {
-		teacherAsBytes, _ := json.Marshal(teachers[i])
-		key := "Teacher-" + teachers[i].Username
+// 	for i := 0; i < len(teachers); i++ {
+// 		teacherAsBytes, _ := json.Marshal(teachers[i])
+// 		key := "Teacher-" + teachers[i].Username
 
-		fmt.Println(key)
-		stub.PutState(key, teacherAsBytes)
-	}
+// 		fmt.Println(key)
+// 		stub.PutState(key, teacherAsBytes)
+// 	}
 
-	return shim.Success(nil)
-}
+// 	return shim.Success(nil)
+// }
 
-func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
+// func initSubject(stub shim.ChaincodeStubInterface) sc.Response {
 
-	subjects := []Subject{
-		Subject{SubjectID: "00", Name: "Blockchain", TeacherUsername: "GV00"},
-		Subject{SubjectID: "01", Name: "Sawtooth", TeacherUsername: "GV01"},
-	}
+// 	subjects := []Subject{
+// 		Subject{SubjectID: "00", Name: "Blockchain", TeacherUsername: "GV00"},
+// 		Subject{SubjectID: "01", Name: "Sawtooth", TeacherUsername: "GV01"},
+// 	}
 
-	for i := 0; i < len(subjects); i++ {
-		subjectAsBytes, _ := json.Marshal(subjects[i])
-		key := "Subject-" + subjects[i].SubjectID
+// 	for i := 0; i < len(subjects); i++ {
+// 		subjectAsBytes, _ := json.Marshal(subjects[i])
+// 		key := "Subject-" + subjects[i].SubjectID
 
-		fmt.Println(key)
-		stub.PutState(key, subjectAsBytes)
-	}
+// 		fmt.Println(key)
+// 		stub.PutState(key, subjectAsBytes)
+// 	}
 
-	return shim.Success(nil)
-}
+// 	return shim.Success(nil)
+// }
 
 func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 
@@ -75,7 +75,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 4 {
+	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
@@ -83,8 +83,6 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 	Username := args[0]
 	Fullname := args[1]
-	Address := args[2]
-	PhoneNumber := args[3]
 
 	key := "Student-" + Username
 	checkStudentExist, err := getStudent(stub, key)
@@ -94,7 +92,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{Username: Username, Fullname: Fullname, Address: Address, PhoneNumber: PhoneNumber}
+	var student = Student{Username: Username, Fullname: Fullname}
 
 	studentAsBytes, _ := json.Marshal(student)
 
@@ -123,8 +121,6 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 
 	Username := args[0]
 	Fullname := args[1]
-	Address := args[2]
-	PhoneNumber := args[3]
 
 	key := "Teacher-" + Username
 	checkTeacherExist, err := getTeacher(stub, key)
@@ -134,7 +130,7 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This teacher already exists - " + Username)
 	}
 
-	var teacher = Teacher{Username: Username, Fullname: Fullname, Address: Address, PhoneNumber: PhoneNumber}
+	var teacher = Teacher{Username: Username, Fullname: Fullname}
 
 	studentAsBytes, _ := json.Marshal(teacher)
 

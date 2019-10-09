@@ -14,7 +14,6 @@ mongoose.connect(
   { useUnifiedTopology: true, useNewUrlParser: true },
   (error) => {
     if (error) console.log(error);
-    else console.log('connection successful');
   }
 );
 mongoose.set('useCreateIndex', true);
@@ -38,17 +37,20 @@ exports.connectToNetwork = async function(user, cli = false) {
       return response;
     }
 
-    const ccpPath = path.resolve('../../..', 'certificate-network', `connection-${orgMSP}.json`);
-    let walletPath = path.join(process.cwd(), `/wallet-${orgMSP}`);
+    const ccpPath = path.resolve(
+      __dirname,
+      '../../..',
+      'certificate-network',
+      `connection-${orgMSP}.json`
+    );
+    let walletPath = path.join(process.cwd(), `cli/wallet-${orgMSP}`);
 
-    // if (cli) {
-    //   walletPath = path.join(process.cwd(), `wallet-${orgMSP}`);
-    // }
-    console.log(ccpPath);
+    if (cli == true) {
+      walletPath = path.join(process.cwd(), `/wallet-${orgMSP}`);
+    }
 
     const wallet = new FileSystemWallet(walletPath);
-    //const userExists = await wallet.exists(user.username);
-    const userExists = true;
+    const userExists = await wallet.exists(user.username);
 
     let networkObj;
 
@@ -63,7 +65,6 @@ exports.connectToNetwork = async function(user, cli = false) {
       return response;
     } else {
       const gateway = new Gateway();
-      console.log(user.username);
 
       await gateway.connect(ccpPath, {
         wallet: wallet,
@@ -80,7 +81,6 @@ exports.connectToNetwork = async function(user, cli = false) {
         gateway: gateway,
         user: user
       };
-      console.log(networkObj);
     }
 
     return networkObj;
@@ -161,16 +161,23 @@ exports.createCertificate = async function(networkObj, certificate) {
 };
 
 exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
-  if (!createdUser.username || createdUser.role != USER_ROLES.TEACHER) {
+  if (!createdUser.username) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
 
   var orgMSP = 'academy';
+  var nameMSP = 'Academy';
 
   try {
-    const walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}/`);
+    const ccpPath = path.resolve(
+      __dirname,
+      '../../..',
+      'certificate-network',
+      `connection-${orgMSP}.json`
+    );
+    const walletPath = path.join(process.cwd(), `/cli/wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
 
     const userExists = await wallet.exists(createdUser.username);
@@ -179,48 +186,62 @@ exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
       return;
     }
 
-    const ca = networkObj.gateway.getClient().getCertificateAuthority();
-    const adminIdentity = networkObj.gateway.getCurrentIdentity();
+    // Get the CA client object from the gateway for interacting with the CA.
+    const ca = await networkObj.gateway.getClient().getCertificateAuthority();
+    const adminIdentity = await networkObj.gateway.getCurrentIdentity();
 
-    const secret = await ca.register(
-      {
-        affiliation: '',
-        enrollmentID: createdUser.username,
-        role: 'client',
-        attrs: [{ name: 'username', value: createdUser.username, ecert: true }]
-      },
-      adminIdentity
-    );
-
-    const enrollment = await ca.enroll({
-      enrollmentID: createdUser.username,
-      enrollmentSecret: secret
-    });
-    const userIdentity = X509WalletMixin.createIdentity(
-      `${changeCaseFirstLetter(orgMSP)}`,
-      enrollment.certificate,
-      enrollment.key.toBytes()
-    );
-    await wallet.import(createdUser.username, userIdentity);
-    console.log(
-      `Successfully registered and enrolled admin user ${createdUser.username} and imported it into the wallet`
-    );
-
-    networkObj.contract.submitTransaction(
+    await networkObj.contract.submitTransaction(
       'CreateTeacher',
       createdUser.username,
-      createdUser.fullname,
-      createdUser.address,
-      createdUser.phonenumber
+      createdUser.fullname
     );
 
+    let teacher = new User({
+      username: createdUser.username,
+      password: process.env.TEACHER_DEFAULT_PASSWORD,
+      role: USER_ROLES.TEACHER
+    });
+
+    await teacher.save(async (err, user) => {
+      if (err) throw err;
+      if (user) {
+        const secret = await ca.register(
+          {
+            affiliation: '',
+            enrollmentID: user.username,
+            role: 'client',
+            attrs: [{ name: 'username', value: user.username, ecert: true }]
+          },
+          adminIdentity
+        );
+
+        const enrollment = await ca.enroll({
+          enrollmentID: user.username,
+          enrollmentSecret: secret
+        });
+
+        const userIdentity = X509WalletMixin.createIdentity(
+          `${nameMSP}MSP`,
+          enrollment.certificate,
+          enrollment.key.toBytes()
+        );
+
+        await wallet.import(user.username, userIdentity);
+      }
+    });
+    let response = {
+      success: true,
+      msg: 'Register success!'
+    };
+
     await networkObj.gateway.disconnect();
-    let response = `Successfully registered!`;
     return response;
   } catch (error) {
     console.error(`Failed to register!`);
-    let response = {};
-    response.error = error;
+    let response = {
+      success: false,
+      msg: error
+    };
     return response;
   }
 };
@@ -242,7 +263,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
       'certificate-network',
       `connection-${orgMSP}.json`
     );
-    const walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}`);
+    const walletPath = path.join(process.cwd(), `/cli/wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
 
     const userExists = await wallet.exists(createdUser.username);
@@ -265,13 +286,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     const network = await gateway.getNetwork('certificatechannel');
     const contract = await network.getContract('academy');
 
-    await contract.submitTransaction(
-      'CreateStudent',
-      createdUser.username,
-      createdUser.fullname,
-      createdUser.address,
-      createdUser.phonenumber
-    );
+    await contract.submitTransaction('CreateStudent', createdUser.username, createdUser.fullname);
 
     let user = new User({
       username: createdUser.username,

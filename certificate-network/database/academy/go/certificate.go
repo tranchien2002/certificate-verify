@@ -21,15 +21,11 @@ type Subject struct {
 type Teacher struct {
 	Username    string
 	Fullname    string
-	Address     string
-	PhoneNumber string
 }
 
 type Student struct {
 	Username    string
 	Fullname    string
-	Address     string
-	PhoneNumber string
 }
 
 type Score struct {
@@ -46,8 +42,8 @@ type Certificate struct {
 }
 
 func (s *SmartContract) Init(stub shim.ChaincodeStubInterface) sc.Response {
-	initStudent(stub)
-	initSubject(stub)
+	// initStudent(stub)
+	// initSubject(stub)
 	return shim.Success(nil)
 }
 

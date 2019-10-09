@@ -32,7 +32,6 @@ mongoose.connect(
   { useUnifiedTopology: true, useNewUrlParser: true },
   (error) => {
     if (error) console.log(error);
-    else console.log('connection successful');
   }
 );
 mongoose.set('useCreateIndex', true);

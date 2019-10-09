@@ -19,26 +19,15 @@ router.get('/create', async (req, res) => {
 
 router.post(
   '/create',
-  check('username')
-    .not()
-    .isEmpty()
-    .trim()
-    .escape(),
-  check('fullname')
-    .not()
-    .isEmpty()
-    .trim()
-    .escape(),
-  check('address')
-    .not()
-    .isEmpty()
-    .trim()
-    .escape(),
-  check('phonenumber')
-    .not()
-    .isEmpty()
-    .trim()
-    .escape(),
+  [
+    check('username')
+      .not()
+      .isEmpty()
+      .trim()
+      .escape(),
+
+    check('fullname').isLength({ min: 6 })
+  ],
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -51,20 +40,7 @@ router.post(
         msg: 'Failed'
       });
     } else {
-      let teacher = new User({
-        username: req.body.username,
-        password: '123456',
-        role: USER_ROLES.TEACHER
-      });
-
-      let identityOnBlockChain = {
-        username: req.body.username,
-        fullname: req.body.fullname,
-        phonenumber: req.body.phonenumber,
-        address: req.body.address
-      };
-
-      User.findOne({ username: teacher.username }, async (err, existing) => {
+      User.findOne({ username: req.body.username }, async (err, existing) => {
         if (err) throw next(err);
         if (existing) {
           res.status(409).json({
@@ -72,12 +48,26 @@ router.post(
             msg: 'Account is exist'
           });
         } else {
-          await teacher.save();
-          await network.registerTeacherOnBlockchain(identityOnBlockChain);
-          res.json({
-            success: true,
-            msg: 'Create Success'
-          });
+          let createdUser = {
+            username: req.body.username,
+            password: req.body.password,
+            fullname: req.body.fullname
+          };
+          const networkObj = await network.connectToNetwork(req.decoded.user);
+          const response = await network.registerTeacherOnBlockchain(networkObj, createdUser);
+          if (response.success == true) {
+            res.json({
+              success: true,
+              msg: response.msg
+              // token: token
+            });
+          } else {
+            res.json({
+              success: false,
+              msg: response.msg
+              // token: token
+            });
+          }
         }
       });
     }
