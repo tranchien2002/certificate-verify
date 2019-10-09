@@ -3,7 +3,6 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const User = require('../models/User');
 const { check, validationResult } = require('express-validator');
-require('dotenv').config();
 
 router.get('/create', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -20,7 +19,26 @@ router.get('/create', async (req, res) => {
 
 router.post(
   '/create',
-  [check('username').isLength({ min: 6 }), check('name').isLength({ min: 5 })],
+  check('username')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  check('fullname')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  check('address')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  check('phonenumber')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -35,21 +53,21 @@ router.post(
     } else {
       let teacher = new User({
         username: req.body.username,
-        password: process.env.TEACHER_DEFAULT_PASSWORD,
+        password: '123456',
         role: USER_ROLES.TEACHER
       });
 
       let identityOnBlockChain = {
         username: req.body.username,
         fullname: req.body.fullname,
-        phoneNumber: req.body.phoneNumber,
+        phonenumber: req.body.phonenumber,
         address: req.body.address
       };
 
       User.findOne({ username: teacher.username }, async (err, existing) => {
         if (err) throw next(err);
         if (existing) {
-          res.json({
+          res.status(409).json({
             success: false,
             msg: 'Account is exist'
           });
@@ -62,6 +80,66 @@ router.post(
           });
         }
       });
+    }
+  }
+);
+
+router.post(
+  '/score',
+  check('subjectid')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  check('studentusername')
+    .not()
+    .isEmpty()
+    .trim()
+    .escape(),
+  check('score')
+    .not()
+    .isEmpty()
+    .isFloat(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    if (req.decoded.user.role !== USER_ROLES.TEACHER) {
+      res.status(403).json({
+        success: false,
+        msg: 'Permission Denied'
+      });
+    } else {
+      const user = req.decoded.user;
+
+      const studentusername = req.body.studentusername;
+      const subjectid = req.body.subjectid;
+      const score = req.body.score;
+
+      let networkObj = await network.connectToNetwork(user);
+
+      if (networkObj.error) {
+        res.status(500).json({
+          success: false,
+          msg: 'Failed'
+        });
+      }
+
+      let response = await network.createScore(networkObj, subjectid, studentusername, score);
+
+      if (!response) {
+        res.status(500).json({
+          success: false,
+          msg: 'Error create score'
+        });
+      } else {
+        res.json({
+          success: true,
+          msg: 'Create score success'
+        });
+      }
     }
   }
 );
@@ -99,16 +177,28 @@ router.get('/:username', async (req, res, next) => {
     var username = req.params.username;
     console.log(username);
 
-    User.findOne({ username: username }, async (err, teacher) => {
+    User.findOne({ username: username, role: USER_ROLES.TEACHER }, async (err, teacher) => {
       if (err) {
         res.json({
           success: false,
           msg: err
         });
       } else {
-        res.json({
-          success: true,
-          teacher: teacher
+        var username = req.params.username;
+        console.log(username);
+
+        User.findOne({ username: username }, async (err, teacher) => {
+          if (err) {
+            res.json({
+              success: false,
+              msg: err
+            });
+          } else {
+            res.json({
+              success: true,
+              teacher: teacher
+            });
+          }
         });
       }
     });

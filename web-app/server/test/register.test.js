@@ -46,11 +46,12 @@ describe('Route : /auth', () => {
         .send({
           username: 'hoangdd',
           password: '123456',
-          name: 'Do Duc Hoang'
+          fullname: 'Do Duc Hoang',
+          address: 'Vinh Yen',
+          phone: '0123456789'
         })
         .then((res) => {
           expect(res.status).equal(200);
-          expect(res.body.msg).equal('Register success');
           done();
         });
     });
@@ -60,15 +61,17 @@ describe('Route : /auth', () => {
       findOneUserStub.yields(undefined, {
         username: 'hoangdd',
         password: '1234567',
-        name: 'aasddd'
+        fullname: 'aasddd'
       });
 
       request(app)
         .post('/auth/register')
         .send({
           username: 'hoangdd',
-          password: '1234567',
-          name: 'aasddd'
+          password: '123456',
+          fullname: 'Do Duc Hoang',
+          address: 'Vinh Yen',
+          phone: '0123456789'
         })
         .then((res) => {
           //expect(res.status).equal(200);
@@ -143,7 +146,7 @@ describe('Route : /auth', () => {
         username: 'hoangdd',
         password: '$2a$10$hqZtIwFcl8SLaUbxkuPOEeKqvTknWFodjVaYVdXoZ0EeIb3SjT/dG',
         name: 'alibaba',
-        role: USER_ROLES.ADMIN_ACADEMY
+        role: USER_ROLES.ADMIN_STUDENT
       });
 
       request(app)

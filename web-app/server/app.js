@@ -4,10 +4,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const checkJWT = require('./middlewares/check-jwt');
 
 const app = express();
-
-const checkJWT = require('./middlewares/check-jwt');
 
 require('dotenv').config();
 
@@ -21,6 +20,8 @@ const teacherRoutes = require('./routes/teacher');
 const subjectRoutes = require('./routes/subject');
 
 const certificateRoutes = require('./routes/certificate');
+// API student
+const studentRoutes = require('./routes/student');
 
 // API cert
 const certRouter = require('./routes/cert');
@@ -62,10 +63,9 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
-
+app.use('/student', checkJWT, studentRoutes);
 app.use('/teacher', checkJWT, teacherRoutes);
-
-app.use('/subject', subjectRoutes);
+app.use('/subject', checkJWT, subjectRoutes);
 
 app.use('/cert', certRouter);
 
