@@ -67,14 +67,14 @@ async function main() {
       phoneNumber = argv.phonenumber.toString();
     }
 
-    if (!argv.admin) {
-      console.log(`Must have admin account`);
-    } else {
-      admin = argv.admin.toString();
-    }
-
     if (argv.orgMSP) {
       orgMSP = argv.orgMSP.toString();
+    }
+    if (orgMSP === 'student') {
+      admin = process.env.ADMIN_STUDENT_USERNAME;
+    }
+    if (orgMSP === 'academy') {
+      admin = process.env.ADMIN_ACADEMY_USERNAME;
     }
 
     let nameMSP = await changeCaseFirstLetter(orgMSP);
@@ -89,7 +89,6 @@ async function main() {
     // Create a new file system based wallet for managing identities.
     const walletPath = path.join(process.cwd(), `wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the user.
     const userExists = await wallet.exists(username);
@@ -101,7 +100,7 @@ async function main() {
     // Check to see if we've already enrolled the admin user.
     const adminExists = await wallet.exists(admin);
     if (!adminExists) {
-      console.log(`An identity for the admin user ${admin} does not exist in the wallet`);
+      console.log(`Admin user ${admin} does not exist in the wallet`);
       console.log('Run the enrollAdmin.js application before retrying');
       return;
     }
@@ -117,48 +116,19 @@ async function main() {
     // Get the CA client object from the gateway for interacting with the CA.
     const ca = gateway.getClient().getCertificateAuthority();
     const adminIdentity = gateway.getCurrentIdentity();
-
-    //Register the user, enroll the user, and import the new identity into the wallet.
-    const secret = await ca.register(
-      {
-        affiliation: '',
-        enrollmentID: username,
-        role: 'client',
-        attrs: [{ name: 'username', value: username, ecert: true }]
-      },
-      adminIdentity
-    );
-
-    const enrollment = await ca.enroll({
-      enrollmentID: username,
-      enrollmentSecret: secret
-    });
-
-    const userIdentity = X509WalletMixin.createIdentity(
-      `${nameMSP}MSP`,
-      enrollment.certificate,
-      enrollment.key.toBytes()
-    );
-
-    await wallet.import(username, userIdentity);
-
-    await console.log(
-      `Successfully registered and enrolled admin user ${userId} and imported it into the wallet`
-    );
-
     const network = await gateway.getNetwork('certificatechannel');
     const contract = await network.getContract('academy');
 
-    var user;
+    let user;
 
-    if (orgMSP == 'student') {
+    if (orgMSP === 'student') {
       await contract.submitTransaction('CreateStudent', username, fullname, address, phoneNumber);
       user = new User({
         username: username,
         password: password,
         role: USER_ROLES.STUDENT
       });
-    } else if (orgMSP == 'academy') {
+    } else if (orgMSP === 'academy') {
       await contract.submitTransaction('CreateTeacher', username, fullname, address, phoneNumber);
       user = new User({
         username: username,
@@ -167,10 +137,40 @@ async function main() {
       });
     }
 
-    await user.save();
+    await user.save(async (err, user) => {
+      if (err) throw err;
+      if (user) {
+        //Register the user, enroll the user, and import the new identity into the wallet.
+        const secret = await ca.register(
+          {
+            affiliation: '',
+            enrollmentID: user.username,
+            role: 'client',
+            attrs: [{ name: 'username', value: user.username, ecert: true }]
+          },
+          adminIdentity
+        );
 
-    // Disconnect from the gateway.
-    await gateway.disconnect();
+        const enrollment = await ca.enroll({
+          enrollmentID: user.username,
+          enrollmentSecret: secret
+        });
+
+        const userIdentity = X509WalletMixin.createIdentity(
+          `${nameMSP}MSP`,
+          enrollment.certificate,
+          enrollment.key.toBytes()
+        );
+
+        await wallet.import(user.username, userIdentity);
+
+        console.log(
+          `Successfully registered and enrolled admin user ${user.username} and imported it into the wallet`
+        );
+      }
+      await gateway.disconnect();
+      process.exit(0);
+    });
   } catch (error) {
     process.exit(1);
   }

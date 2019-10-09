@@ -26,7 +26,7 @@ enrollAdmin Org academy:
 - userid {String} (required)
 
 ```bash
-	node registerUser.js --username=[username] --orgMSP=[OrgName] --fullname=[Fullname] --address=[address] --phonenumber=[phonenumber] --admin=[adminUsername]
+	node registerUser.js --username=[username] --orgMSP=[OrgName] --fullname=[Fullname] --address=[address] --phonenumber=[phonenumber]
 ```
 
 #### Example:
