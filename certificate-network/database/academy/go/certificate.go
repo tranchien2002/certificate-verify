@@ -126,26 +126,17 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	var Username string
-
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		shim.Error("Error - cid.GetMSPID()")
 	}
 
-	if MSPID == "StudentMSP" {
-		Username, _, err = cid.GetAttributeValue(stub, "Username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		Username = args[0]
-	} else {
+	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
 		shim.Error("WHO ARE YOU ?")
 	}
+
+	Username := args[0]
 
 	key := "Student-" + Username
 	studentAsBytes, err := stub.GetState(key)
@@ -167,26 +158,17 @@ func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	var Username string
-
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		shim.Error("Error - cid.GetMSPID()")
 	}
 
-	if MSPID == "StudentMSP" {
-		Username, _, err = cid.GetAttributeValue(stub, "Username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		Username = args[0]
-	} else {
+	if MSPID != "AcademyMSP" {
 		shim.Error("WHO ARE YOU ?")
 	}
+
+	Username := args[0]
 
 	key := "Teacher-" + Username
 	studentAsBytes, err := stub.GetState(key)

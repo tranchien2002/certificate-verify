@@ -91,25 +91,34 @@ exports.connectToNetwork = async function(user, cli = false) {
 };
 
 exports.query = async function(networkObj, func, args) {
+  let response = {
+    success: false,
+    msg: ''
+  };
   try {
     if (Array.isArray(args)) {
-      let response = await networkObj.contract.evaluateTransaction(func, ...args);
+      response.msg = await networkObj.contract.evaluateTransaction(func, ...args);
 
       await networkObj.gateway.disconnect();
+      response.success = true;
       return response;
     } else if (args) {
-      let response = await networkObj.contract.evaluateTransaction(func, args);
+      response.msg = await networkObj.contract.evaluateTransaction(func, args);
 
       await networkObj.gateway.disconnect();
+      response.success = true;
       return response;
     } else {
-      let response = await networkObj.contract.evaluateTransaction(func);
+      response.msg = await networkObj.contract.evaluateTransaction(func);
 
       await networkObj.gateway.disconnect();
+      response.success = true;
       return response;
     }
   } catch (error) {
-    return error;
+    response.success = false;
+    response.msg = error;
+    return response;
   }
 };
 
@@ -328,6 +337,38 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     };
 
     await gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.createSubject = async function(networkObj, subject) {
+  if (!subject.subjectID || !subject.subjectName || !subject.teacherUsername) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'CreateSubject',
+      subject.subjectID,
+      subject.subjectName,
+      'aa',
+      subject.teacherUsername
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
     return response;
   } catch (error) {
     console.error(`Failed to register!`);
