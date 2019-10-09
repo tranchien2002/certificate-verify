@@ -13,7 +13,6 @@ mongoose.connect(
   { useUnifiedTopology: true, useNewUrlParser: true },
   (error) => {
     if (error) console.log(error);
-    else console.log('connection successful');
   }
 );
 mongoose.set('useCreateIndex', true);
@@ -49,12 +48,11 @@ async function main() {
           result = await networkObj.contract.evaluateTransaction(func, args);
         } else {
           result = await networkObj.contract.evaluateTransaction(func);
-          console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+          console.log(`Transaction has been evaluated, result is a: ${result.toString()}`);
         }
         process.exit(0);
       }
     });
-    console.log(`Transaction has been evaluated, result is: ${result}`);
   } catch (error) {
     console.error(`Failed to evaluate transaction: ${error}`);
     process.exit(1);

@@ -31,8 +31,6 @@ async function main() {
     let username;
     let password;
     let fullname;
-    let address;
-    let phoneNumber;
     let orgMSP = 'student';
     let admin;
 
@@ -53,18 +51,6 @@ async function main() {
       console.log(`Fullname cannot undefined`);
     } else {
       fullname = argv.fullname.toString();
-    }
-
-    if (!argv.address) {
-      console.log(`Address cannot undefined`);
-    } else {
-      address = argv.address.toString();
-    }
-
-    if (!argv.phonenumber) {
-      console.log(`Phonenumber cannot undefined`);
-    } else {
-      phoneNumber = argv.phonenumber.toString();
     }
 
     if (argv.orgMSP) {
@@ -122,7 +108,7 @@ async function main() {
     let user;
 
     if (orgMSP === 'student') {
-      await contract.submitTransaction('CreateStudent', username, fullname, address, phoneNumber);
+      await contract.submitTransaction('CreateStudent', username, fullname);
       user = new User({
         username: username,
         password: password,

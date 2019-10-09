@@ -48,9 +48,7 @@ router.post(
         let createdUser = {
           username: req.body.username,
           password: req.body.password,
-          fullname: req.body.fullname,
-          address: req.body.address,
-          phonenumber: req.body.phonenumber
+          fullname: req.body.fullname
         };
         const response = await network.registerStudentOnBlockchain(createdUser);
         if (response.success == true) {

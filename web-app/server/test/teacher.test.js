@@ -33,13 +33,11 @@ describe('Route /teacher', () => {
         .post('/teacher/create')
         .set(
           'authorization',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjVkOWQ3MDEzOGUzZTA3NDJkN2Y3MWE5NiIsInVzZXJuYW1lIjoiYWRtaW5hY2FkZW15IiwicGFzc3dvcmQiOiIkMmEkMTAkL0EzMElGVC5yUTNPNWQ3MlNvMU45dWFTSEhpdGp4MWRIYm80ZlYxYnNtdTlzUktmMXl0YW0iLCJyb2xlIjoxLCJfX3YiOjB9LCJpYXQiOjE1NzA1OTg5NzZ9.wgo4M3881WRudU4YTGtThJvUIduisO5YGXPkT940qCQ'
         )
         .send({
           username: '',
-          fullname: '',
-          phoneNumber: '',
-          address: ''
+          fullname: ''
         })
         .then((res) => {
           expect(res.status).equal(422);
@@ -55,13 +53,11 @@ describe('Route /teacher', () => {
         .post('/teacher/create')
         .set(
           'authorization',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjVkOWQ3MDEzOGUzZTA3NDJkN2Y3MWE5NiIsInVzZXJuYW1lIjoiYWRtaW5hY2FkZW15IiwicGFzc3dvcmQiOiIkMmEkMTAkL0EzMElGVC5yUTNPNWQ3MlNvMU45dWFTSEhpdGp4MWRIYm80ZlYxYnNtdTlzUktmMXl0YW0iLCJyb2xlIjoxLCJfX3YiOjB9LCJpYXQiOjE1NzA1OTg5NzZ9.wgo4M3881WRudU4YTGtThJvUIduisO5YGXPkT940qCQ'
         )
         .send({
           username: 'thienthangaycanh',
-          fullname: 'thien than gay canh',
-          phonenumber: '0987456321',
-          address: 'Kien Giang'
+          fullname: 'thien than gay canh'
         })
         .then((res) => {
           expect(res.status).equal(200);
@@ -83,9 +79,7 @@ describe('Route /teacher', () => {
         )
         .send({
           username: 'thienthangaycanh',
-          fullname: 'thien than gay canh',
-          phonenumber: '0987456321',
-          address: 'Kien Giang'
+          fullname: 'thien than gay canh'
         })
         .then((res) => {
           expect(res.status).equal(409);
@@ -127,7 +121,7 @@ describe('Route /teacher', () => {
         .get('/teacher/all')
         .set(
           'authorization',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjVkOWQ3MDEzOGUzZTA3NDJkN2Y3MWE5NiIsInVzZXJuYW1lIjoiYWRtaW5hY2FkZW15IiwicGFzc3dvcmQiOiIkMmEkMTAkL0EzMElGVC5yUTNPNWQ3MlNvMU45dWFTSEhpdGp4MWRIYm80ZlYxYnNtdTlzUktmMXl0YW0iLCJyb2xlIjoxLCJfX3YiOjB9LCJpYXQiOjE1NzA1OTg5NzZ9.wgo4M3881WRudU4YTGtThJvUIduisO5YGXPkT940qCQ'
         )
         .then((res) => {
           //console.log(res.body)
