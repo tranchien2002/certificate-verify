@@ -36,14 +36,7 @@ router.post(
       return res.status(422).json({ errors: errors.array() });
     }
 
-    // After the validation
-    let user = new User({
-      username: req.body.username,
-      password: req.body.password,
-      role: USER_ROLES.STUDENT
-    });
-
-    User.findOne({ username: user.username }, async (err, existing) => {
+    User.findOne({ username: req.body.username }, async (err, existing) => {
       if (err) throw next(err);
       if (existing) {
         res.json({
@@ -52,26 +45,27 @@ router.post(
         });
       } else {
         // Save data
-        await user.save(async (err, createdUser) => {
-          createdUser = createdUser.toObject();
-          createdUser.fullname = req.body.fullname;
-          createdUser.address = req.body.address;
-          createdUser.phonenumber = req.body.phonenumber;
-          await network.registerStudentOnBlockchain(createdUser);
-        });
-
-        // var token = jwt.sign(
-        //   {
-        //     user: user
-        //   },
-        //   'supersecret123'
-        // );
-
-        res.json({
-          success: true,
-          msg: 'Register success'
-          // token: token
-        });
+        let createdUser = {
+          username: req.body.username,
+          password: req.body.password,
+          fullname: req.body.fullname,
+          address: req.body.address,
+          phonenumber: req.body.phonenumber
+        };
+        const response = await network.registerStudentOnBlockchain(createdUser);
+        if (response.success == true) {
+          res.json({
+            success: true,
+            msg: response.msg
+            // token: token
+          });
+        } else {
+          res.json({
+            success: false,
+            msg: response.msg
+            // token: token
+          });
+        }
       }
     });
   }

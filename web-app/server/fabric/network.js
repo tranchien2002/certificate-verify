@@ -4,8 +4,20 @@ const Certificate = require('../models/Certificate');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
-const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+// Connect database
+mongoose.connect(
+  process.env.MONGODB_URI,
+  { useUnifiedTopology: true, useNewUrlParser: true },
+  (error) => {
+    if (error) console.log(error);
+    else console.log('connection successful');
+  }
+);
+mongoose.set('useCreateIndex', true);
 
 exports.connectToNetwork = async function(user, cli = false) {
   try {
@@ -75,9 +87,6 @@ exports.connectToNetwork = async function(user, cli = false) {
   } catch (error) {
     console.error(`Failed to evaluate transaction: ${error}`);
     process.exit(1);
-    // let response = {};
-    // response.error = error;
-    // return response;
   }
 };
 
@@ -100,38 +109,6 @@ exports.query = async function(networkObj, func, args) {
     return error;
   }
 };
-
-// exports.createStudent = async function(networkObj, username, fullname, address, phoneNumber) {
-//   try {
-//     let response = await networkObj.contract.submitTransaction(
-//       'CreateStudent',
-//       username,
-//       fullname,
-//       address,
-//       phoneNumber
-//     );
-//     await networkObj.gateway.disconnect();
-//     return response;
-//   } catch (error) {
-//     return error;
-//   }
-// };
-
-// exports.createTeacher = async function(networkObj, username, fullname, address, phoneNumber) {
-//   try {
-//     let response = await networkObj.contract.submitTransaction(
-//       'CreateTeacher',
-//       username,
-//       fullname,
-//       address,
-//       phoneNumber
-//     );
-//     await networkObj.gateway.disconnect();
-//     return response;
-//   }catch (error) {
-//     return error;
-//   }
-// }
 
 exports.createSubject = async function(networkObj, subjectID, name, teacherUsername) {
   try {
@@ -231,7 +208,7 @@ exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
       createdUser.username,
       createdUser.fullname,
       createdUser.address,
-      createdUser.phoneNumber
+      createdUser.phonenumber
     );
 
     await networkObj.gateway.disconnect();
@@ -246,13 +223,14 @@ exports.registerTeacherOnBlockchain = async function(networkObj, createdUser) {
 };
 
 exports.registerStudentOnBlockchain = async function(createdUser) {
-  if (!createdUser.username || createdUser.role !== USER_ROLES.STUDENT) {
+  if (!createdUser.username) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
 
   var orgMSP = 'student';
+  var nameMSP = 'Student';
 
   try {
     const ccpPath = path.resolve(
@@ -263,8 +241,6 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     );
     const walletPath = path.join(process.cwd(), `./cli/wallet-${orgMSP}`);
     const wallet = new FileSystemWallet(walletPath);
-    console.log(walletPath);
-    console.log(createdUser);
 
     const userExists = await wallet.exists(createdUser.username);
     if (userExists) {
@@ -276,7 +252,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     const gateway = new Gateway();
     await gateway.connect(ccpPath, {
       wallet,
-      identity: 'admin',
+      identity: process.env.ADMIN_STUDENT_USERNAME,
       discovery: { enabled: true, asLocalhost: true }
     });
 
@@ -286,31 +262,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
     const network = await gateway.getNetwork('certificatechannel');
     const contract = await network.getContract('academy');
 
-    const secret = await ca.register(
-      {
-        affiliation: '',
-        enrollmentID: createdUser.username,
-        role: 'client',
-        attrs: [{ name: 'username', value: createdUser.username, ecert: true }]
-      },
-      adminIdentity
-    );
-
-    const enrollment = await ca.enroll({
-      enrollmentID: createdUser.username,
-      enrollmentSecret: secret
-    });
-    const userIdentity = X509WalletMixin.createIdentity(
-      `${changeCaseFirstLetter(orgMSP)}`,
-      enrollment.certificate,
-      enrollment.key.toBytes()
-    );
-    await wallet.import(createdUser.username, userIdentity);
-    console.log(
-      `Successfully registered and enrolled admin user ${createdUser.username} and imported it into the wallet`
-    );
-
-    contract.submitTransaction(
+    await contract.submitTransaction(
       'CreateStudent',
       createdUser.username,
       createdUser.fullname,
@@ -318,13 +270,53 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
       createdUser.phonenumber
     );
 
+    let user = new User({
+      username: createdUser.username,
+      password: createdUser.password,
+      role: USER_ROLES.STUDENT
+    });
+
+    await user.save(async (err, user) => {
+      if (err) throw err;
+      if (user) {
+        const secret = await ca.register(
+          {
+            affiliation: '',
+            enrollmentID: user.username,
+            role: 'client',
+            attrs: [{ name: 'username', value: user.username, ecert: true }]
+          },
+          adminIdentity
+        );
+
+        const enrollment = await ca.enroll({
+          enrollmentID: user.username,
+          enrollmentSecret: secret
+        });
+
+        const userIdentity = X509WalletMixin.createIdentity(
+          `${nameMSP}MSP`,
+          enrollment.certificate,
+          enrollment.key.toBytes()
+        );
+
+        await wallet.import(user.username, userIdentity);
+      }
+    });
+
+    let response = {
+      success: true,
+      msg: 'Register success!'
+    };
+
     await gateway.disconnect();
-    let response = `Successfully registered!`;
     return response;
   } catch (error) {
     console.error(`Failed to register!`);
-    let response = {};
-    response.error = error;
+    let response = {
+      success: false,
+      msg: error
+    };
     return response;
   }
 };
