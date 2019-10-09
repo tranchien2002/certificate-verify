@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-export const userService = {
+export const authService = {
   login,
-  register
+  register,
+  logout
 };
 
 async function login(username, password) {
@@ -32,6 +33,10 @@ async function register(user) {
   return handleResponse(response);
 }
 
+async function logout() {
+  await localStorage.removeItem('user');
+}
+
 async function handleResponse(response) {
   return new Promise((resolve, reject) => {
     let data = response.data;
@@ -45,6 +50,7 @@ async function handleResponse(response) {
         reject(errors);
       }
     } else if (response.status === 401) {
+      logout();
       location.reload(true);
     } else {
       const error = (data && data.msg) || response.statusText;

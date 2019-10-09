@@ -59,8 +59,7 @@
               </em>
             </template>
             <b-dropdown-item to="/profile">Profile</b-dropdown-item>
-            <b-dropdown-item to="/">Settings</b-dropdown-item>
-            <b-dropdown-item to="/">Sign Out</b-dropdown-item>
+            <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -78,7 +77,8 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["changeStatusSidebar"])
+    ...mapActions(["changeStatusSidebar"]),
+    ...mapActions("account", ["logout"])
   }
 };
 </script>

@@ -16,14 +16,14 @@
             <b-table
               show-empty
               stacked="md"
-              :items="blogPosts"
+              :items="subjectsOfTeacher ? subjectsOfTeacher : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
             >
-              <template slot="id" slot-scope="row">{{ row.item.id }}</template>
+              <template slot="SubjectID" slot-scope="row">{{ row.item.SubjectID }}</template>
 
-              <template slot="subject_name" slot-scope="row">{{ row.item.subject_name }}</template>
+              <template slot="Name" slot-scope="row">{{ row.item.Name }}</template>
 
               <template slot="total" slot-scope="row">{{ row.item.total }}</template>
 
@@ -33,10 +33,10 @@
                     variant="danger"
                     @click="deleteSubject(row.item)"
                     class="ml-1 btn-circle btn-sm"
-                    :id="`popover-del-${row.item.id}`"
+                    :id="`popover-del-${row.item.SubjectID}`"
                   >
                     <b-popover
-                      :target="`popover-del-${row.item.id}`"
+                      :target="`popover-del-${row.item.SubjectID}`"
                       triggers="hover"
                       placement="top"
                     >Xóa</b-popover>
@@ -50,7 +50,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="blogPosts.length"
+                :total-rows="subjectsOfTeacher ? subjectsOfTeacher.length : 0"
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -61,15 +61,8 @@
       </div>
     </div>
 
-    <b-modal
-      id="modal-create"
-      title="Thêm Môn Học"
-      ok-title="Thêm"
-      @ok="handleAddSubject"
-      ok-only
-      @hide="resetInfoModalAdd"
-    >
-      <b-form-select class="mb-3">
+    <b-modal id="modal-create" title="Thêm Môn Học" ok-title="Thêm" @ok="handleAddSubject" ok-only>
+      <b-form-select class="mb-3" v-model="newSubjectId">
         <template v-slot:first>
           <option :value="null" disabled>-- Chọn môn học --</option>
         </template>
@@ -82,117 +75,27 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
-      form: {
-        subject_name: "",
-        total: 0
-      },
-      newSubject: {
-        subject_name: "",
-        total: 0
-      },
-      infoModal: {
-        id: "info-modal",
-        total: ""
-      },
-      blogPosts: [
+      newSubjectId: null,
+      subjectsOfTeacher1: [
         {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject06",
-          total: 10
-        },
-        {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject06",
-          total: 10
-        },
-        {
-          id: 1,
-          subject_name: "Subject01",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject02",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject03",
-          total: 10
-        },
-        {
-          id: 1,
-          subject_name: "Subject04",
-          total: 10
-        },
-        {
-          id: 2,
-          subject_name: "Subject05",
-          total: 10
-        },
-        {
-          id: 3,
-          subject_name: "Subject06",
+          SubjectID: 1,
+          Name: "Subject01",
           total: 10
         }
       ],
       fields: [
-        { key: "id", label: "id", class: "text-center", sortable: true },
         {
-          key: "subject_name",
+          key: "SubjectID",
+          label: "SubjectID",
+          class: "text-center",
+          sortable: true
+        },
+        {
+          key: "Name",
           label: "Name Subject",
           class: "text-center",
           sortable: true
@@ -210,26 +113,20 @@ export default {
       pageOptions: [12, 24, 36]
     };
   },
+  computed: {
+    ...mapState("adminAcademy", ["subjectsOfTeacher"])
+  },
   methods: {
-    info(item, index, button) {
-      this.infoModal.total = `Row index: ${index}`;
-      this.form.subject_name = item.subject_name;
-      this.form.total = item.total;
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
-    },
-    resetInfoModalAdd() {
-      this.form.subject_name = "";
-      this.form.total = 0;
-    },
-    resetInfoModalCreate() {
-      this.newSubject.subject_name = "";
-      this.newSubject.total = 0;
-    },
-    handleUpdate() {},
+    ...mapActions("adminAcademy", [
+      "getSubjectsOfTeacher",
+      "deleteSubjectOfTeacher",
+      "addSubjectOfTeacher"
+    ]),
     handleAddSubject() {
-      resetInfoModalCreate();
+      this.addSubjectOfTeacher(this.newSubjectId);
+      this.newSubjectId = null;
     },
-    deleteSubject(item) {
+    deleteSubject(subjectId) {
       this.$swal({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -241,6 +138,11 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
+          const Username = this.$route.params.id;
+          this.deleteSubjectOfTeacher({
+            Username: Username,
+            subjectId: subjectId.SubjectID
+          });
           this.$swal("Deleted!", "Your file has been deleted.", "success");
         }
       });
@@ -248,6 +150,9 @@ export default {
     createSubject(item, button) {
       this.$root.$emit("bv::show::modal", button);
     }
+  },
+  created() {
+    this.getSubjectsOfTeacher(this.$route.params.id);
   }
 };
 </script>

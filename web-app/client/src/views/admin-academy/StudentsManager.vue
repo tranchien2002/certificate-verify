@@ -18,9 +18,9 @@
             >
               <template slot="id" slot-scope="row">{{ row.item.id }}</template>
 
-              <template slot="name" slot-scope="row">{{ row.item.name }}</template>
+              <template slot="Fullname" slot-scope="row">{{ row.item.Fullname }}</template>
 
-              <template slot="username" slot-scope="row">{{ row.item.username }}</template>
+              <template slot="Username" slot-scope="row">{{ row.item.Username }}</template>
               <template slot="more">...</template>
 
               <template slot="delete" slot-scope="row">
@@ -96,10 +96,10 @@
         <b-form-group id="input-group-1" label-for="input-1">
           <div class="row">
             <div class="col-4">
-              <h6>Name:</h6>
+              <h6>Fullname:</h6>
             </div>
             <div class="col-8 text-left">
-              <h5>{{student.name}}</h5>
+              <h5>{{student.Fullname}}</h5>
             </div>
           </div>
         </b-form-group>
@@ -109,28 +109,7 @@
               <h6>Username:</h6>
             </div>
             <div class="col-8 text-left">
-              <h5>{{student.username}}</h5>
-            </div>
-          </div>
-        </b-form-group>
-        <b-form-group id="input-group-3" label-for="input-3">
-          <div class="row">
-            <div class="col-4">
-              <h6>Birthday:</h6>
-            </div>
-            <div class="col-8 text-left">
-              <h5>{{student.birthday}}</h5>
-            </div>
-          </div>
-        </b-form-group>
-
-        <b-form-group id="input-group-4" label-for="input-4">
-          <div class="row">
-            <div class="col-4">
-              <h6>Number Phone:</h6>
-            </div>
-            <div class="col-8 text-left">
-              <h5>{{student.numberphone}}</h5>
+              <h5>{{student.Username}}</h5>
             </div>
           </div>
         </b-form-group>
@@ -144,8 +123,7 @@ export default {
   data() {
     return {
       student: {
-        name: "",
-        birthday: 0
+        Fullname: ""
       },
       infoModal: {
         id: "info-modal",
@@ -154,141 +132,105 @@ export default {
       blogPosts: [
         {
           id: 1,
-          username: "helloworld",
-          name: "student01",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student01"
         },
         {
           id: 2,
-          username: "helloworld",
-          name: "student02",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student02"
         },
         {
           id: 3,
-          username: "helloworld",
-          name: "student03",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student03"
         },
         {
           id: 4,
-          username: "helloworld",
-          name: "student04",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student04"
         },
         {
           id: 5,
-          username: "helloworld",
-          name: "student05",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student05"
         },
         {
           id: 6,
-          username: "helloworld",
-          name: "student06",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student06"
         },
         {
           id: 7,
-          username: "helloworld",
-          name: "student07",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student07"
         },
         {
           id: 8,
-          username: "helloworld",
-          name: "student08",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student08"
         },
         {
           id: 9,
-          username: "helloworld",
-          name: "student09",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student09"
         },
         {
           id: 10,
-          username: "helloworld",
-          name: "student10",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student10"
         },
         {
           id: 11,
-          username: "helloworld",
-          name: "student11",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student11"
         },
         {
           id: 12,
-          username: "helloworld",
-          name: "student12",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student12"
         },
         {
           id: 13,
-          username: "helloworld",
-          name: "student13",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student13"
         },
         {
           id: 14,
-          username: "helloworld",
-          name: "student14",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student14"
         },
         {
           id: 15,
-          username: "helloworld",
-          name: "student15",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student15"
         },
         {
           id: 16,
-          username: "helloworld",
-          name: "student16",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student16"
         },
         {
           id: 17,
-          username: "helloworld",
-          name: "student17",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student17"
         },
         {
           id: 18,
-          username: "helloworld",
-          name: "student18",
-          birthday: "01 / 01 / 1997",
-          numberphone: "0123456789"
+          Username: "helloworld",
+          Fullname: "student18"
         }
       ],
       fields: [
         { key: "id", label: "id", class: "text-center", sortable: true },
         {
-          key: "name",
-          label: "Name",
+          key: "Fullname",
+          label: "Fullname",
           class: "text-center",
           sortable: true
         },
         {
-          key: "username",
+          key: "Username",
           label: "Username",
           class: "text-center",
           sortable: true
@@ -313,16 +255,12 @@ export default {
   },
   methods: {
     info(item, index, button) {
-      this.infoModal.birthday = `Row index: ${index}`;
-      this.student.name = item.name;
-      this.student.birthday = item.birthday;
-      this.student.username = item.username;
-      this.student.numberphone = item.numberphone;
+      this.student.Fullname = item.Fullname;
+      this.student.Username = item.Username;
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);
     },
     resetInfoModalDetail() {
-      this.student.name = "";
-      this.student.birthday = 0;
+      this.student.Fullname = "";
     },
     deleteSubject(item) {
       this.$swal({
