@@ -2,6 +2,7 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const { check, validationResult, sanitizeParam } = require('express-validator');
+const User = require('../models/User');
 
 router.get('/create', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -36,7 +37,7 @@ router.post(
       .trim()
       .escape()
   ],
-  async (req, res) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array(), status: '422' });
@@ -49,95 +50,82 @@ router.post(
         status: '422'
       });
     } else {
-      const user = req.decoded.user;
-      const subjectId = req.body.subjectid;
-      const subjectName = req.body.subjectname;
-      const teacherUsername = req.body.teacherusername;
-
-      let networkObj = await network.connectToNetwork(user);
-
-      if (networkObj.error) {
-        res.status(500).json({
-          success: false,
-          msg: 'Failed to connect blockchain',
-          status: '500'
-        });
-      }
-
-      let response = await network.createSubject(
-        networkObj,
-        subjectId,
-        subjectName,
-        teacherUsername
+      User.findOne(
+        { username: req.body.teacherusername, role: USER_ROLES.TEACHER },
+        async (err, teacher) => {
+          if (err) throw next(err);
+          if (teacher) {
+            let subject = {
+              subjectID: req.body.subjectid,
+              subjectName: req.body.subjectname,
+              teacherUsername: req.body.teacherusername
+            };
+            const networkObj = await network.connectToNetwork(req.decoded.user);
+            const response = await network.createSubject(networkObj, subject);
+            if (response.success == true) {
+              res.json({
+                success: true,
+                msg: response.msg
+                // token: token
+              });
+            } else {
+              res.json({
+                success: false,
+                msg: response.msg
+                // token: token
+              });
+            }
+          }
+        }
       );
-
-      if (!response) {
-        res.status(500).json({
-          success: false,
-          msg: 'Failed'
-        });
-      } else {
-        res.json({
-          success: true,
-          msg: 'Create subject success'
-        });
-      }
     }
   }
 );
 
-router.get('/all', async (req, res) => {
-  const user = req.decoded.user;
+router.get('/all', async (req, res, next) => {
+  const networkObj = await network.connectToNetwork(req.decoded.user);
 
-  let networkObj = await network.connectToNetwork(user);
+  const response = await network.query(networkObj, 'GetAllSubjects');
 
-  if (networkObj.error) {
-    res.status(500).json({
-      success: false,
-      msg: 'Failed to connect blockchain',
-      status: '500'
+  if (response.success == true) {
+    res.json({
+      success: true,
+      msg: response.msg.toString()
     });
-  }
-
-  let response = await network.query(networkObj, 'GetAllSubjects');
-
-  if (!response) {
-    res.status(404).send({ error: 'Not Found', status: '404' });
   } else {
-    res.json(response);
+    res.json({
+      success: false,
+      msg: response.msg.toString()
+    });
   }
 });
 
 router.get(
-  '/:id',
+  '/:subjectid',
   [
-    sanitizeParam('id')
+    sanitizeParam('subjectid')
       .trim()
       .escape()
   ],
-  async (req, res) => {
+  async (req, res, next) => {
     const result = validationResult(req);
     if (!result.isEmpty()) {
       return res.status(422).json({ errors: result.array(), status: '422' });
     }
+    const subjectID = req.params.subjectid;
+    const networkObj = await network.connectToNetwork(req.decoded.user);
 
-    const user = req.decoded.user;
-
-    let networkObj = await network.connectToNetwork(user);
-
-    if (networkObj.error) {
-      res.status(500).json({
-        success: false,
-        msg: 'Failed to connect blockchain',
-        status: '500'
+    const response = await network.query(networkObj, 'QuerySubject', subjectID);
+    if (response.success == true) {
+      res.json({
+        success: true,
+        msg: response.msg.toString()
       });
-    }
-
-    let response = await network.query(networkObj, 'QuerySubject', req.params.id);
-    if (!response) {
-      res.status(404).send({ error: 'Not Found', status: '404' });
     } else {
-      res.json(response);
+      res.json({
+        success: false,
+        msg: response.msg.toString()
+      });
     }
   }
 );

@@ -13,25 +13,29 @@ type SmartContract struct {
 }
 
 type Subject struct {
-	SubjectID       string
-	Name            string
-	TeacherUsername string
+	SubjectID       	string
+	Name            	string
+	TeacherUsername 	string
+	Students				[]string
 }
 
 type Teacher struct {
-	Username    string
-	Fullname    string
+	Username    		string
+	Fullname    		string
+	Subjects			[]string
 }
 
 type Student struct {
-	Username    string
-	Fullname    string
+	Username    	string
+	Fullname    	string
+	Subjects		[]string
 }
 
 type Score struct {
 	SubjectID       string
 	StudentUsername string
 	ScoreValue      float64
+	Certificated		bool
 }
 
 type Certificate struct {
@@ -126,26 +130,17 @@ func QueryStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	var Username string
-
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		shim.Error("Error - cid.GetMSPID()")
 	}
 
-	if MSPID == "StudentMSP" {
-		Username, _, err = cid.GetAttributeValue(stub, "Username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		Username = args[0]
-	} else {
+	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
 		shim.Error("WHO ARE YOU ?")
 	}
+
+	Username := args[0]
 
 	key := "Student-" + Username
 	studentAsBytes, err := stub.GetState(key)
@@ -167,26 +162,17 @@ func QueryTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	var Username string
-
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		shim.Error("Error - cid.GetMSPID()")
 	}
 
-	if MSPID == "StudentMSP" {
-		Username, _, err = cid.GetAttributeValue(stub, "Username")
-
-		if err != nil {
-			shim.Error("Error - Can not Get Student")
-		}
-
-	} else if MSPID == "AcademyMSP" {
-		Username = args[0]
-	} else {
+	if MSPID != "AcademyMSP" {
 		shim.Error("WHO ARE YOU ?")
 	}
+
+	Username := args[0]
 
 	key := "Teacher-" + Username
 	studentAsBytes, err := stub.GetState(key)

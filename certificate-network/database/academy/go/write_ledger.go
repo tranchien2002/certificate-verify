@@ -14,7 +14,7 @@ import (
 // func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 
 // 	students := []Student{
-// 		Student{Username: "20156425", Fullname: "Trinh Van Tan"},
+// 		Student{Username: "20156425", Fullname: "Trinh Van Tan", Subjects: nil },
 // 	}
 
 // 	for i := 0; i < len(students); i++ {
@@ -31,7 +31,7 @@ import (
 // func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
 
 // 	teachers := []Teacher{
-// 		Teacher{Username: "GV00", Fullname: "ABC"},
+// 		Teacher{Username: "GV00", Fullname: "ABC", Subjects: nil},
 // 	}
 
 // 	for i := 0; i < len(teachers); i++ {
@@ -92,7 +92,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{Username: Username, Fullname: Fullname}
+	var student = Student{Username: Username, Fullname: Fullname, Subjects: nil}
 
 	studentAsBytes, _ := json.Marshal(student)
 
@@ -130,7 +130,7 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This teacher already exists - " + Username)
 	}
 
-	var teacher = Teacher{Username: Username, Fullname: Fullname}
+	var teacher = Teacher{Username: Username, Fullname: Fullname, Subjects: nil }
 
 	studentAsBytes, _ := json.Marshal(teacher)
 
@@ -150,15 +150,15 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 4 {
+	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	fmt.Println("Start Create Subject!")
 
 	SubjectID := args[0]
-	Name := args[2]
-	TeacherUsername := args[3]
+	Name := args[1]
+	TeacherUsername := args[2]
 
 	keyTeacher := "Teacher-" + TeacherUsername
 	checkTeacherExist, err := getTeacher(stub, keyTeacher)
@@ -176,7 +176,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This subject already exists - " + SubjectID)
 	}
 
-	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: TeacherUsername}
+	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: TeacherUsername, Students: nil}
 
 	subjectAsBytes, _ := json.Marshal(subject)
 
