@@ -150,15 +150,15 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 4 {
+	if len(args) != 3 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	fmt.Println("Start Create Subject!")
 
 	SubjectID := args[0]
-	Name := args[2]
-	TeacherUsername := args[3]
+	Name := args[1]
+	TeacherUsername := args[2]
 
 	keyTeacher := "Teacher-" + TeacherUsername
 	checkTeacherExist, err := getTeacher(stub, keyTeacher)

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
 const User = require('../models/User');
-const { check, validationResult } = require('express-validator');
+const { check, validationResult, sanitizeParam } = require('express-validator');
 
 router.get('/create', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -90,7 +90,7 @@ router.post(
     .not()
     .isEmpty()
     .isFloat(),
-  async (req, res) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -141,58 +141,62 @@ router.get('/all', async (req, res, next) => {
       msg: 'Failed'
     });
   } else {
-    User.find({ role: USER_ROLES.TEACHER }, async (err, teachers) => {
-      if (err) {
-        res.json({
-          success: false,
-          msg: err
-        });
-      } else {
-        res.json({
-          success: true,
-          teachers: teachers
-        });
-      }
-    });
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.query(networkObj, 'GetAllTeachers');
+    if (response.success == true) {
+      res.json({
+        success: true,
+        msg: response.msg.toString()
+      });
+    } else {
+      res.json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
   }
 });
 
-router.get('/:username', async (req, res, next) => {
-  if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
-    res.json({
-      success: false,
-      msg: 'Failed'
-    });
-  } else {
-    var username = req.params.username;
-    console.log(username);
+router.get(
+  '/:username',
+  [
+    sanitizeParam('username')
+      .trim()
+      .escape()
+  ],
+  async (req, res, next) => {
+    if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
+      res.json({
+        success: false,
+        msg: 'Failed'
+      });
+    } else {
+      var username = req.params.username;
 
-    User.findOne({ username: username, role: USER_ROLES.TEACHER }, async (err, teacher) => {
-      if (err) {
-        res.json({
-          success: false,
-          msg: err
-        });
-      } else {
-        var username = req.params.username;
-        console.log(username);
-
-        User.findOne({ username: username }, async (err, teacher) => {
-          if (err) {
+      User.findOne({ username: username, role: USER_ROLES.TEACHER }, async (err, teacher) => {
+        if (err) {
+          res.json({
+            success: false,
+            msg: err
+          });
+        } else {
+          const networkObj = await network.connectToNetwork(req.decoded.user);
+          const response = await network.query(networkObj, 'QueryTeacher', username);
+          if (response.success == true) {
             res.json({
-              success: false,
-              msg: err
+              success: true,
+              msg: response.msg.toString()
             });
           } else {
             res.json({
-              success: true,
-              teacher: teacher
+              success: false,
+              msg: response.msg.toString()
             });
           }
-        });
-      }
-    });
+        }
+      });
+    }
   }
-});
+);
 
 module.exports = router;
