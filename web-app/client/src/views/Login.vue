@@ -4,7 +4,7 @@
       <div class="col-md-6 login-form-2">
         <h3>Sign In</h3>
         <ValidationObserver ref="observer" v-slot="{ passes }">
-          <b-form @submit="passes(onSubmit)" @reset="onReset">
+          <b-form @submit="onSubmit" @reset="onReset">
             <div v-if="alert.message" :class="`text-center alert ${alert.type}`">{{alert.message}}</div>
             <ValidationProvider rules="required" name="Username" v-slot="{ valid, errors }">
               <b-form-group label-for="Username">
@@ -40,9 +40,7 @@
     </div>
     <div class="row justify-content-center mt-2">
       <div class="col-md-6 row">
-        <div class="col-6">
-          <a href="#" class="ForgetPwd" value="Login">Forget Password?</a>
-        </div>
+        <div class="col-6"></div>
         <div class="col-6">
           <router-link
             to="/register"
@@ -80,7 +78,8 @@ export default {
   },
   methods: {
     ...mapActions("account", ["login"]),
-    onSubmit() {
+    onSubmit(e) {
+      e.preventDefault();
       const { username, password } = this.form;
       if (username && password) {
         this.login({ username, password });

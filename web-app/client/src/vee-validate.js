@@ -1,4 +1,4 @@
-import { required, confirmed, email, min } from 'vee-validate/dist/rules';
+import { required, confirmed, email, min, min_value } from 'vee-validate/dist/rules';
 import { extend } from 'vee-validate';
 
 extend('required', {
@@ -19,4 +19,9 @@ extend('confirmed', {
 extend('min', {
   ...min,
   message: 'This {_field_} must be 6 characters long'
+});
+
+extend('min_value', {
+  ...min_value,
+  message: 'This {_field_} must be 0 characters long'
 });

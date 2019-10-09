@@ -5,12 +5,14 @@ import HomePage from '@/layout/HomePage';
 import AcademyLayout from '@/layout/AcademyLayout';
 Vue.use(Router);
 
-export default new Router({
+export const router = new Router({
   linkExactActiveClass: 'active',
+  mode: 'history',
   routes: [
     {
       path: '/',
       redirect: 'home',
+      name: 'home',
       component: HomePage,
       children: [
         {
@@ -22,12 +24,26 @@ export default new Router({
           path: '/cert/:id',
           name: 'cert',
           component: () => import('./views/CertPage.vue')
+        },
+        {
+          path: '/404',
+          name: '404',
+          component: () => import('./views/404.vue')
+        },
+        {
+          path: '/403',
+          name: '403',
+          component: () => import('./views/403.vue')
         }
-      ]
+      ],
+      meta: {
+        guest: true
+      }
     },
     {
       path: '/',
       redirect: 'academy',
+      name: 'academy',
       component: AcademyLayout,
       children: [
         {
@@ -67,7 +83,7 @@ export default new Router({
         },
         {
           path: '/academy/students/:id/subjects',
-          name: 'academy-student',
+          name: 'academy-student-subjects',
           component: () => import('./views/admin-academy/StudentSubjects')
         },
         {
@@ -80,7 +96,10 @@ export default new Router({
           name: 'academy-certificates-students',
           component: () => import('./views/admin-academy/CertificatesStudents')
         }
-      ]
+      ],
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/',
@@ -97,7 +116,38 @@ export default new Router({
           name: 'register',
           component: () => import('./views/Register.vue')
         }
-      ]
-    }
+      ],
+      meta: {
+        guest: true
+      }
+    },
+    { path: '*', redirect: '/404' }
   ]
+});
+router.beforeEach((to, from, next) => {
+  let user = JSON.parse(localStorage.getItem('user'));
+  const publicPages = ['/login', '/register', '/home', '/404', '/403'];
+  const afterloginPages = ['/login', '/register', '/home'];
+  const authRequired = publicPages.includes(to.path);
+  const afterlogin = afterloginPages.includes(to.path);
+  const loggedIn = localStorage.getItem('user');
+
+  if (to.path.match(/\/cert\/\d+$/)) {
+    return next();
+  } else if (!authRequired && !loggedIn) {
+    return next('/login');
+  } else if (!authRequired && loggedIn) {
+    if (!to.matched[1]) {
+      return next();
+    }
+    if (to.matched[1].parent.name === 'academy' && user.role === 1) {
+      return next();
+    }
+    return next('/403');
+  } else if (afterlogin && loggedIn) {
+    if (user.role === 1) {
+      return next('/academy');
+    }
+  }
+  next();
 });
