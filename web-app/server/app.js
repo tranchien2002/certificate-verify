@@ -35,14 +35,19 @@ const scoreRoutes = require('./routes/score');
 const meRoutes = require('./routes/me');
 
 // Connect database
-mongoose.connect(
-  process.env.MONGODB_URI,
-  { useUnifiedTopology: true, useNewUrlParser: true },
-  (error) => {
-    if (error) console.log(error);
-  }
-);
-mongoose.set('useCreateIndex', true);
+if (process.env.NODE_ENV === 'test') {
+  mongoose.connect('test', { useUnifiedTopology: true, useNewUrlParser: true });
+} else {
+  mongoose.connect(
+    process.env.MONGODB_URI,
+    { useUnifiedTopology: true, useNewUrlParser: true },
+    (error) => {
+      if (error) console.log(error);
+      else console.log('connection successful');
+    }
+  );
+  mongoose.set('useCreateIndex', true);
+}
 
 // show log
 app.use(logger('dev'));
@@ -51,13 +56,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(
-  require('express-session')({
-    secret: process.env.EXPRESS_SESSION,
-    resave: false,
-    saveUninitialized: false
-  })
-);
+if (process.env.NODE_ENV === 'test') {
+  app.use(
+    require('express-session')({
+      secret: 'keyboard cat',
+      resave: false,
+      saveUninitialized: false
+    })
+  );
+} else {
+  app.use(
+    require('express-session')({
+      secret: process.env.EXPRESS_SESSION,
+      resave: false,
+      saveUninitialized: false
+    })
+  );
+}
 
 // set up cors to allow us to accept requests from our client
 app.use(

@@ -43,14 +43,16 @@ Thực hiện các câu lệnh query.
 Ở thời điểm khởi tạo chaincode, vẫn chưa có gì được lưu trong chaincode.
 
 Phía Academy có các quyền:
+
 - Register giảng viên mới
 - CreateSubject, chỉ có admin mới có quyền này
 - CreateScore, nếu một student và một subject đã tồn tại trong ledger
-- CreateCertificate: nếu một student đã hoàn thành tất cả các subject thì mới có thể  cấp certificate
+- CreateCertificate: nếu một student đã hoàn thành tất cả các subject thì mới có thể cấp certificate
 - QuerySubject, Student, Score, Certificate
 - GetAllSubjects, Students, Scores, Certificates
 
 Phía Student có các quyền:
+
 - Register student mới
 - QueryStudent, Score, Certificate của chính mình
 - GetAllSubjects
@@ -58,3 +60,5 @@ Phía Student có các quyền:
 (Các câu lệnh xem thêm trong README.md của từng thư mục)
 
 Xem các structure trong certificate-network/database/academy/go/certificate.go để hiểu rõ hơn.
+
+[![CircleCI](https://circleci.com/gh/tantv-918/certificate-verify/tree/master.svg?style=svg)](https://circleci.com/gh/tantv-918/certificate-verify/tree/master)
