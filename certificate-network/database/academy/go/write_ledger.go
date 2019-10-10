@@ -151,7 +151,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 	}
 
 	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
 	fmt.Println("Start Create Subject!")

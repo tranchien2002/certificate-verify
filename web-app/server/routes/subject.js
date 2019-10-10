@@ -4,6 +4,7 @@ const network = require('../fabric/network');
 const { check, validationResult, sanitizeParam } = require('express-validator');
 const User = require('../models/User');
 const checkJWT = require('../middlewares/check-jwt');
+const uuidv4 = require('uuid/v4');
 
 router.get('/create', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -23,16 +24,11 @@ router.post(
   '/create',
   checkJWT,
   [
-    (check('subjectname')
+    check('subjectname')
       .not()
       .isEmpty()
       .trim()
-      .escape(),
-    check('subjectid')
-      .not()
-      .isEmpty()
-      .trim()
-      .escape())
+      .escape()
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -48,7 +44,7 @@ router.post(
       });
     } else {
       let subject = {
-        subjectID: req.body.subjectid,
+        subjectID: uuidv4(),
         subjectName: req.body.subjectname
       };
       const networkObj = await network.connectToNetwork(req.decoded.user);
@@ -57,13 +53,11 @@ router.post(
         res.json({
           success: true,
           msg: response.msg
-          // token: token
         });
       } else {
         res.json({
           success: false,
           msg: response.msg
-          // token: token
         });
       }
     }
@@ -108,13 +102,11 @@ router.post(
               res.json({
                 success: true,
                 msg: response.msg
-                // token: token
               });
             } else {
               res.json({
                 success: false,
                 msg: response.msg
-                // token: token
               });
             }
           }
@@ -124,39 +116,46 @@ router.post(
   }
 );
 
-router.get('/all', checkJWT, async (req, res, next) => {
-  const networkObj = await network.connectToNetwork(req.decoded.user);
+router.get('/all', async (req, res, next) => {
+  await User.findOne({ username: process.env.DEFAULT_USER }, async (err, defaultUser) => {
+    if (err) throw err;
+    else {
+      const networkObj = await network.connectToNetwork(defaultUser);
 
-  const response = await network.query(networkObj, 'GetAllSubjects');
+      const response = await network.query(networkObj, 'GetAllSubjects');
 
-  if (response.success == true) {
-    res.json({
-      success: true,
-      msg: response.msg.toString()
-    });
-  } else {
-    res.json({
-      success: false,
-      msg: response.msg.toString()
-    });
-  }
+      if (response.success == true) {
+        res.json({
+          success: true,
+          msg: response.msg.toString()
+        });
+      } else {
+        res.json({
+          success: false,
+          msg: response.msg.toString()
+        });
+      }
+    }
+  });
 });
 
-router.get('/:subjectid', checkJWT, async (req, res, next) => {
-  const subjectID = req.params.subjectid;
-  const networkObj = await network.connectToNetwork(req.decoded.user);
-  const response = await network.query(networkObj, 'QuerySubject', subjectID);
-  if (response.success == true) {
-    res.json({
-      success: true,
-      msg: response.msg.toString()
-    });
-  } else {
-    res.json({
-      success: false,
-      msg: response.msg.toString()
-    });
-  }
+router.get('/:subjectid', async (req, res, next) => {
+  await User.findOne({ username: process.env.DEFAULT_USER }, async (err, defaultUser) => {
+    const subjectID = req.params.subjectid;
+    const networkObj = await network.connectToNetwork(defaultUser);
+    const response = await network.query(networkObj, 'QuerySubject', subjectID);
+    if (response.success == true) {
+      res.json({
+        success: true,
+        msg: response.msg.toString()
+      });
+    } else {
+      res.json({
+        success: false,
+        msg: response.msg.toString()
+      });
+    }
+  });
 });
 
 module.exports = router;

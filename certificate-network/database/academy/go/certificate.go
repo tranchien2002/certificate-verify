@@ -605,40 +605,62 @@ func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
 }
 
 func GetAllCertificates(stub shim.ChaincodeStubInterface) sc.Response {
-	// MSPID, err := cid.GetMSPID(stub)
+	MSPID, err := cid.GetMSPID(stub)
 
-	// if err != nil {
+	if err != nil {
+		shim.Error("Error - cide.GetMSPID()")
+	}
 
-	// 	fmt.Println("Error - cide.GetMSPID()")
+	allCertificates, err := getListCertificates(stub)
 
-	// }
-
-	// if MSPID != "AcademyMSP" {
-
-	// 	return shim.Error("WHO ARE YOU ?")
-
-	// }
-
-	allCertificates, _ := getListCertificates(stub)
+	if err != nil {
+		shim.Error("Error - Can not get all scores")
+	}
 
 	defer allCertificates.Close()
 
 	var tlist []Certificate
 	var i int
 
-	for i = 0; allCertificates.HasNext(); i++ {
-
-		record, err := allCertificates.Next()
+	if MSPID != "StudentMSP" && MSPID != "AcademyMSP" {
+		shim.Error("WHO ARE YOU ?")
+	} else if MSPID == "StudentMSP" {
+		StudentUsername, _, err := cid.GetAttributeValue(stub, "username")
 
 		if err != nil {
-
-			return shim.Success(nil)
-
+			shim.Error("Error - Can not Get StudentUsername")
 		}
 
-		certificate := Certificate{}
-		json.Unmarshal(record.Value, &certificate)
-		tlist = append(tlist, certificate)
+		for i = 0; allCertificates.HasNext(); i++ {
+
+			record, err := allCertificates.Next()
+
+			if err != nil {
+				return shim.Success(nil)
+			}
+
+			certificate := Certificate{}
+			json.Unmarshal(record.Value, &certificate)
+
+			if certificate.StudentUsername == StudentUsername {
+				tlist = append(tlist, certificate)
+			}
+		}
+
+	} else {
+
+		for i = 0; allCertificates.HasNext(); i++ {
+
+			record, err := allCertificates.Next()
+
+			if err != nil {
+				return shim.Success(nil)
+			}
+
+			certificate := Certificate{}
+			json.Unmarshal(record.Value, &certificate)
+			tlist = append(tlist, certificate)
+		}
 	}
 
 	jsonRow, err := json.Marshal(tlist)

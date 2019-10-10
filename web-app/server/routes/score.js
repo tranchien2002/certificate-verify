@@ -101,11 +101,13 @@ router.get(
       return res.status(422).json({ errors: result.array(), status: '422' });
     }
     const subjectID = req.params.subjectid;
-    const studentUsername = req.params.studentUsername;
+    const studentUsername = req.params.studentusername;
+
+    args = [subjectID, studentUsername];
 
     const networkObj = await network.connectToNetwork(req.decoded.user);
 
-    const response = await network.query(networkObj, 'QueryScore', subjectID, studentUsername);
+    const response = await network.query(networkObj, 'QueryScore', args);
     if (response.success == true) {
       res.json({
         success: true,
@@ -119,5 +121,23 @@ router.get(
     }
   }
 );
+
+router.get('/all', checkJWT, async (req, res) => {
+  const networkObj = await network.connectToNetwork(req.decoded.user);
+
+  const response = await network.query(networkObj, 'GetAllScores');
+
+  if (response.success == true) {
+    res.json({
+      success: true,
+      msg: response.msg.toString()
+    });
+  } else {
+    res.json({
+      success: false,
+      msg: response.msg.toString()
+    });
+  }
+});
 
 module.exports = router;

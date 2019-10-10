@@ -39,6 +39,7 @@
     "sinon-test": "^2.4.0",
     "supertest": "^4.0.2",
     "util": "^0.12.1",
+    "uuid": "^3.3.3",
     "yargs": "^14.0.0"
   },
   "devDependencies": {

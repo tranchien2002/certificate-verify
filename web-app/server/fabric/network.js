@@ -474,8 +474,6 @@ exports.registerStudentForSubject = async function(networkObj, subjectID, studen
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
   }
-  console.log('aaa');
-
   try {
     await networkObj.contract.submitTransaction(
       'StudentRegisterSubject',
