@@ -31,6 +31,9 @@ const scoreRoutes = require('./routes/score');
 // API cert
 //const certRouter = require('./routes/cert');
 
+// API me
+const meRoutes = require('./routes/me');
+
 // Connect database
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -68,10 +71,12 @@ app.use(
 // Set up routes
 app.use('/auth', authRoutes);
 app.use('/certificate', certificateRoutes);
-app.use('/student', checkJWT, studentRoutes);
-app.use('/teacher', checkJWT, teacherRoutes);
 app.use('/subject', subjectRoutes);
 app.use('/score', scoreRoutes);
+app.use('/account/student', checkJWT, studentRoutes);
+app.use('/account/teacher', checkJWT, teacherRoutes);
+app.use('/subject', checkJWT, subjectRoutes);
+app.use('/account/me', checkJWT, meRoutes);
 
 //app.use('/cert', certRouter);
 

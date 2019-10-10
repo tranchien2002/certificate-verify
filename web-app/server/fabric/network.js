@@ -121,6 +121,56 @@ exports.query = async function(networkObj, func, args) {
   }
 };
 
+exports.queryUserSubjects = async function(networkObj) {
+  let response = {
+    success: false,
+    msg: ''
+  };
+  try {
+    const user = networkObj.user;
+    let allSubjects = await networkObj.contract.evaluateTransaction('GetAllSubjects');
+    let userSubject = [];
+
+    if (!allSubjects) {
+      response.success = false;
+      response.msg = error;
+      return response;
+    } else if (user.role === USER_ROLES.STUDENT) {
+      let student = await networkObj.contract.evaluateTransaction('QueryStudent', user.username);
+      let subjectIdStudent = student.Subjects;
+
+      for (let i = 0; i < subjectIdStudent.length; i++) {
+        for (let k = 0; k < allSubjects.length; k++) {
+          if (subjectIdStudent[i] === allSubjects[k].SubjectID) {
+            userSubject.push(allSubjects[k]);
+          }
+        }
+      }
+    } else if (user.role === USER_ROLES.TEACHER) {
+      let teacher = await networkObj.contract.evaluateTransaction('QueryTeacher', user.username);
+      let subjectIdTeacher = teacher.Subjects;
+
+      for (let i = 0; i < subjectIdTeacher.length; i++) {
+        for (let k = 0; k < allSubjects.length; k++) {
+          if (subjectIdTeacher[i] === allSubjects[k].SubjectID) {
+            userSubject.push(allSubjects[k]);
+          }
+        }
+      }
+    }
+
+    reponse = {
+      success: true,
+      msg: userSubject
+    };
+    return response;
+  } catch (error) {
+    response.success = false;
+    response.msg = error;
+    return response;
+  }
+};
+
 exports.verifyCertificate = async function(networkObj, certificate) {
   let response = {
     success: false,

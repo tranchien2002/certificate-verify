@@ -75,8 +75,8 @@ func (s *SmartContract) Invoke(stub shim.ChaincodeStubInterface) sc.Response {
 		return GetAllStudents(stub)
 	} else if function == "GetAllScores" {
 		return GetAllScores(stub)
-	} else if function == "GetAllCertificates" {
-		return GetAllCertificates(stub)
+	} else if function == "GetMyCerts" {
+		return GetMyCerts(stub)
 	} else if function == "QueryTeacher" {
 		return QueryTeacher(stub, args)
 	} else if function == "GetAllTeachers" {
@@ -604,7 +604,7 @@ func GetAllScores(stub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(jsonRow)
 }
 
-func GetAllCertificates(stub shim.ChaincodeStubInterface) sc.Response {
+func GetMyCerts(stub shim.ChaincodeStubInterface) sc.Response {
 	MSPID, err := cid.GetMSPID(stub)
 
 	if err != nil {
