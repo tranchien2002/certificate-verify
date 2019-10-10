@@ -1,8 +1,7 @@
 'use strict';
 const User = require('../models/User');
-const Certificate = require('../models/Certificate');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
-
+const Certificate = require('../models/Certificate');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -122,50 +121,26 @@ exports.query = async function(networkObj, func, args) {
   }
 };
 
-exports.createSubject = async function(networkObj, subjectID, name, teacherUsername) {
+exports.verifyCertificate = async function(networkObj, certificate) {
+  let response = {
+    success: false,
+    msg: ''
+  };
   try {
-    let response = await networkObj.contract.submitTransaction(
-      'CreateSubject',
-      subjectID,
-      name,
-      teacherUsername
-    );
-    await networkObj.gateway.disconnect();
-    return response;
-  } catch (error) {
-    return error;
-  }
-};
-
-exports.createScore = async function(networkObj, subjectID, studentUsername, score) {
-  try {
-    let response = await networkObj.contract.submitTransaction(
-      'CreateScore',
-      subjectID,
-      studentUsername,
-      score
-    );
-    await networkObj.gateway.disconnect();
-    return response;
-  } catch (error) {
-    return error;
-  }
-};
-
-exports.createCertificate = async function(networkObj, certificate) {
-  try {
-    let response = await networkObj.contract.submitTransaction(
-      'CreateCertificate',
+    response.msg = await networkObj.contract.evaluateTransaction(
+      'VerifyCertificate',
       certificate.certificateID,
       certificate.subjectID,
-      certificate.studentUsername,
-      certificate.issueDate
+      certificate.username
     );
 
     await networkObj.gateway.disconnect();
+    response.success = true;
     return response;
   } catch (error) {
-    return error;
+    response.success = false;
+    response.msg = error;
+    return response;
   }
 };
 
@@ -349,7 +324,7 @@ exports.registerStudentOnBlockchain = async function(createdUser) {
 };
 
 exports.createSubject = async function(networkObj, subject) {
-  if (!subject.subjectID || !subject.subjectName || !subject.teacherUsername) {
+  if (!subject.subjectID || !subject.subjectName) {
     let response = {};
     response.error = 'Error! You need to fill all fields before you can register!';
     return response;
@@ -359,9 +334,153 @@ exports.createSubject = async function(networkObj, subject) {
     await networkObj.contract.submitTransaction(
       'CreateSubject',
       subject.subjectID,
-      subject.subjectName,
-      'aa',
-      subject.teacherUsername
+      subject.subjectName
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.createScore = async function(networkObj, score) {
+  if (!score.subjectID || !score.studentUsername || !score.scoreValue) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'CreateScore',
+      score.subjectID,
+      score.studentUsername,
+      score.scoreValue
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.createCertificate = async function(networkObj, certificate) {
+  console.log(certificate);
+  if (
+    !certificate.certificateID ||
+    !certificate.subjectID ||
+    !certificate.studentUsername ||
+    !certificate.issueDate
+  ) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'CreateCertificate',
+      certificate.certificateID,
+      certificate.subjectID,
+      certificate.studentUsername,
+      certificate.issueDate
+    );
+
+    var certificate = new Certificate({
+      certificateID: certificate.certificateID,
+      subjectID: certificate.subjectID,
+      username: certificate.studentUsername,
+      issueDate: certificate.issueDate
+    });
+
+    await certificate.save(async (err, certificate) => {
+      if (err) {
+        throw err;
+      }
+      console.log(certificate);
+    });
+
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.registerTeacherForSubject = async function(networkObj, subjectID, teacherUsername) {
+  if (!subjectID || !teacherUsername) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'TeacherRegisterSubject',
+      subjectID,
+      teacherUsername
+    );
+    let response = {
+      success: true,
+      msg: 'Create success!'
+    };
+
+    await networkObj.gateway.disconnect();
+    return response;
+  } catch (error) {
+    console.error(`Failed to register!`);
+    let response = {
+      success: false,
+      msg: error
+    };
+    return response;
+  }
+};
+
+exports.registerStudentForSubject = async function(networkObj, subjectID, studentUsername) {
+  console.log(subjectID);
+  if (!subjectID || !studentUsername) {
+    let response = {};
+    response.error = 'Error! You need to fill all fields before you can register!';
+    return response;
+  }
+  console.log('aaa');
+
+  try {
+    await networkObj.contract.submitTransaction(
+      'StudentRegisterSubject',
+      subjectID,
+      studentUsername
     );
     let response = {
       success: true,

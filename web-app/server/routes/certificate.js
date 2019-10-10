@@ -1,13 +1,11 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
-const Certificate = require('../models/Certificate');
-const mongoose = require('mongoose');
-
-const { check, validationResult } = require('express-validator');
+const { check, validationResult, sanitizeParam } = require('express-validator');
 const checkJWT = require('../middlewares/check-jwt');
+const Certificate = require('../models/Certificate');
 
-router.get('/create', async (req, res) => {
+router.get('/create', checkJWT, async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
     res.json({
       success: false,
@@ -23,8 +21,8 @@ router.get('/create', async (req, res) => {
 router.post(
   '/create',
   checkJWT,
-  [check('subjectid').isLength({ min: 6 }), check('username').isLength({ min: 6 })],
-  async (req, res, next) => {
+  // [check('subjectid').isLength({ min: 6 }), check('username').isLength({ min: 6 })],
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -35,88 +33,82 @@ router.post(
         msg: 'Failed'
       });
     } else {
-      let networkObj = network.connectToNetwork(req.decoded.user);
+      const networkObj = await network.connectToNetwork(req.decoded.user);
 
       var today = new Date();
       var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
       var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
       var issueDate = date + ' ' + time;
 
-      let certificate = new Certificate({
-        subjectID: req.body.subjectID,
-        username: req.body.username,
+      let certificate = {
+        certificateID: Math.random()
+          .toString(36)
+          .substr(2, 9),
+        subjectID: req.body.subjectid,
+        studentUsername: req.body.username,
         issueDate: issueDate
-      });
+      };
 
-      await certificate.save(async (err, certificate) => {
-        certificate.certificateID = certificate._id;
-        await network.createCertificate(networkObj, certificate);
+      const response = await network.createCertificate(networkObj, certificate);
+
+      if (response.success == true) {
         res.json({
           success: true,
-          msg: 'Create Success'
+          msg: response.msg.toString()
         });
-      });
+      } else {
+        res.json({
+          success: false,
+          msg: response.msg.toString()
+        });
+      }
     }
   }
 );
 
-router.get('/:certificateid', async (req, res, next) => {
-  if (mongoose.Types.ObjectId.isValid(req.params.certificateid)) {
-    Certificate.find(req.params.certificateid, (err, cert) => {
-      if (!cert) {
-        res.json({
-          success: false,
-          msg: "certificate doesn't exit"
-        });
-      } else {
-        res.json({
-          success: true,
-          cert: cert
-        });
-      }
-    });
-  } else {
-    res.json({
-      success: false,
-      msg: "certificate doesn't exit"
-    });
-  }
+router.get('/:certificateid', checkJWT, async (req, res) => {
+  var ceritificateid = req.params.certificateid;
+  console.log(ceritificateid);
+  await Certificate.findOne({ certificateID: ceritificateid }, async (err, ceritificate) => {
+    if (err) {
+      res.json({
+        success: false,
+        msg: err
+      });
+    } else {
+      res.json({
+        success: true,
+        msg: ceritificate
+      });
+    }
+  });
 });
 
-router.get('/certififcate/:certificateid/verify', async (req, res, next) => {
-  if (mongoose.Types.ObjectId.isValid(req.params.certificateid)) {
-    Certificate.find(req.params.certificateid, async (err, cert) => {
-      if (!cert) {
+router.get('/:certificateid/verify', checkJWT, async (req, res) => {
+  var ceritificateid = req.params.certificateid;
+  Certificate.findOne({ certificateID: ceritificateid }, async (err, ceritificate) => {
+    if (err) {
+      res.json({
+        success: false,
+        msg: err
+      });
+    } else {
+      const networkObj = await network.connectToNetwork(req.decoded.user);
+      const response = await network.verifyCertificate(networkObj, ceritificate);
+
+      if (response.success == true) {
         res.json({
-          success: false,
-          msg: "certificate doesn't exit"
+          success: true,
+          msg: response.msg.toString()
         });
       } else {
-        ceritificateOnBlockChain = await network.query(
-          'QueryCertificate',
-          req.params.certificateid
-        );
-        var cerJSON = JSON.parse(ceritificateOnBlockChain);
-        if (
-          cerJSON.StudentUserName != ceritificate.username ||
-          cerJSON.SubjectID != ceritificate.subjectID
-        ) {
-          res.json({
-            success: false,
-            msg: 'False'
-          });
-        } else {
-          res.json({
-            success: true,
-            ceritificate: ceritificate
-          });
-        }
+        res.json({
+          success: false,
+          msg: response.msg.toString()
+        });
       }
-    });
-  } else {
-    res.json({
-      success: false,
-      msg: "certificate doesn't exit"
-    });
-  }
+    }
+  });
 });
+
+module.exports = router;
