@@ -81,7 +81,11 @@ router.get('/:username', async (req, res, next) => {
       const networkObj = await network.connectToNetwork(req.decoded.user);
       const response = await network.query(networkObj, 'QueryStudent', username);
       const allSubjects = await network.query(networkObj, 'GetAllSubjects');
+<<<<<<< HEAD
       if (allSubjects.success && response.success) {
+=======
+      if (allSubjects.success == true && response.success == true) {
+>>>>>>> Complete Create and Query and Verify Certificate
         if (!response.msg) {
           res.json({
             success: false,
@@ -91,7 +95,11 @@ router.get('/:username', async (req, res, next) => {
         } else {
           let listSubjects = JSON.parse(allSubjects.msg);
           listSubjects.map((subject) => {
+<<<<<<< HEAD
             if (!subject.Students || !subject.Students.includes(username)) {
+=======
+            if (subject.Students == null || !subject.Students.includes(username)) {
+>>>>>>> Complete Create and Query and Verify Certificate
               subject['statusConfirm'] = 0;
             } else {
               subject['statusConfirm'] = 1;

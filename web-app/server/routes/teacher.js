@@ -54,7 +54,7 @@ router.post(
           };
           const networkObj = await network.connectToNetwork(req.decoded.user);
           const response = await network.registerTeacherOnBlockchain(networkObj, createdUser);
-          if (response.success) {
+          if (response.success == true) {
             let teachers = await network.query(networkObj, 'GetAllTeachers');
             res.json({
               success: true,
