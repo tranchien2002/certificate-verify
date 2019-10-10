@@ -14,7 +14,7 @@ import (
 // func initStudent(stub shim.ChaincodeStubInterface) sc.Response {
 
 // 	students := []Student{
-// 		Student{Username: "20156425", Fullname: "Trinh Van Tan"},
+// 		Student{Username: "20156425", Fullname: "Trinh Van Tan", Subjects: nil },
 // 	}
 
 // 	for i := 0; i < len(students); i++ {
@@ -31,7 +31,7 @@ import (
 // func initTeacher(stub shim.ChaincodeStubInterface) sc.Response {
 
 // 	teachers := []Teacher{
-// 		Teacher{Username: "GV00", Fullname: "ABC"},
+// 		Teacher{Username: "GV00", Fullname: "ABC", Subjects: nil},
 // 	}
 
 // 	for i := 0; i < len(teachers); i++ {
@@ -92,7 +92,7 @@ func CreateStudent(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This student already exists - " + Username)
 	}
 
-	var student = Student{Username: Username, Fullname: Fullname}
+	var student = Student{Username: Username, Fullname: Fullname, Subjects: nil}
 
 	studentAsBytes, _ := json.Marshal(student)
 
@@ -109,7 +109,7 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("Error - cide.GetMSPID()")
 	}
 
-	if MSPID != "StudentMSP" {
+	if MSPID != "AcademyMSP" {
 		shim.Error("WHO ARE YOU")
 	}
 
@@ -130,7 +130,7 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This teacher already exists - " + Username)
 	}
 
-	var teacher = Teacher{Username: Username, Fullname: Fullname}
+	var teacher = Teacher{Username: Username, Fullname: Fullname, Subjects: nil }
 
 	studentAsBytes, _ := json.Marshal(teacher)
 
@@ -150,23 +150,14 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		shim.Error("WHO ARE YOU")
 	}
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
 	fmt.Println("Start Create Subject!")
 
 	SubjectID := args[0]
 	Name := args[1]
-	TeacherUsername := args[2]
-
-	keyTeacher := "Teacher-" + TeacherUsername
-	checkTeacherExist, err := getTeacher(stub, keyTeacher)
-
-	if err != nil {
-		fmt.Println(checkTeacherExist)
-		return shim.Error("This teacher not exists - " + TeacherUsername)
-	}
 
 	keySubject := "Subject-" + SubjectID
 	checkSubjectExist, err := getSubject(stub, keySubject)
@@ -176,7 +167,7 @@ func CreateSubject(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This subject already exists - " + SubjectID)
 	}
 
-	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: TeacherUsername}
+	var subject = Subject{SubjectID: SubjectID, Name: Name, TeacherUsername: "", Students: nil}
 
 	subjectAsBytes, _ := json.Marshal(subject)
 
@@ -196,7 +187,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("You Are Not Teacher!")
 	}
 
-	TeacherUsername, found, err := cid.GetAttributeValue(stub, "TeacherUsername")
+	TeacherUsername, found, err := cid.GetAttributeValue(stub, "username")
 
 	if err != nil {
 		shim.Error("Error - cide.GetMSPID()?")
@@ -242,7 +233,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("This score already exists.")
 	}
 
-	var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue}
+	var score = Score{SubjectID: SubjectID, StudentUsername: StudentUsername, ScoreValue: ScoreValue, Certificated: false}
 
 	scoreAsBytes, _ := json.Marshal(score)
 
@@ -262,19 +253,9 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 		return shim.Error("You Are Not Teacher!")
 	}
 
-	// TeacherUsername, found, err := cid.GetAttributeValue(stub, "TeacherUsername")
-
-	// if err != nil {
-	// 	shim.Error("Error - Get TeacherID")
-	// }
-
-	// if found == false {
-	// 	shim.Error("WHO ARE YOU ?")
-	// }
-
 	fmt.Println("Start Create Certificate!")
 
-	if len(args) != 3 {
+	if len(args) != 4 {
 		return shim.Error("Incorrecr")
 	}
 
@@ -283,51 +264,30 @@ func CreateCertificate(stub shim.ChaincodeStubInterface, args []string) sc.Respo
 	StudentUsername := args[2]
 	IssueDate := args[3]
 
-	key := "Certificate-" + CertificateID
+	keyCertificate := "Certificate-" + CertificateID
 
-	checkScoreExist, err := getScore(stub, key)
+	keyScore := "Score-" + " " + "Subject-" + SubjectID + " " + "Student-" + StudentUsername
+
+	score, err := getScore(stub, keyScore)
 
 	if err != nil {
-		fmt.Println(checkScoreExist)
+
 		return shim.Error("Score dose not exist")
+
+	} else {
+
+		score.Certificated = true
+
+		scoreAsBytes, _ := json.Marshal(score)
+
+		stub.PutState(keyScore, scoreAsBytes)
+
+		var certificate = Certificate{CertificateID: CertificateID, StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
+
+		certificateAsBytes, _ := json.Marshal(certificate)
+
+		stub.PutState(keyCertificate, certificateAsBytes)
+
+		return shim.Success(nil)
 	}
-
-	// allSubjects, _ := getListSubjects(stub)
-
-	// var i int
-	// var sumScore float64
-	// var sumWeight int
-
-	// for i = 0; allSubjects.HasNext(); i++ {
-
-	// 	record, err := allSubjects.Next()
-
-	// 	if err != nil {
-	// 		return shim.Success(nil)
-	// 	}
-
-	// 	subject := Subject{}
-	// 	json.Unmarshal(record.Value, &subject)
-
-	// 	score, err := getScore(stub, "Score-"+" "+"Subject-"+subject.SubjectID+" "+"Student-"+StudentID)
-
-	// 	if err != nil {
-	// 		fmt.Println(score)
-	// 		return shim.Error("Score of Subject-" + subject.SubjectID + " does not exist")
-	// 	}
-
-	// 	sumWeight += subject.Weight
-	// 	sumScore += (score.ScoreValue * float64(subject.Weight))
-	// }
-
-	// average := sumScore / float64(sumWeight)
-
-	var certificate = Certificate{CertificateID: CertificateID, StudentUsername: StudentUsername, SubjectID: SubjectID, IssueDate: IssueDate}
-
-	certificateAsBytes, _ := json.Marshal(certificate)
-
-	stub.PutState(key, certificateAsBytes)
-
-	return shim.Success(nil)
-
 }

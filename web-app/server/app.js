@@ -20,11 +20,16 @@ const teacherRoutes = require('./routes/teacher');
 const subjectRoutes = require('./routes/subject');
 
 const certificateRoutes = require('./routes/certificate');
+
 // API student
 const studentRoutes = require('./routes/student');
 
+//API score
+
+const scoreRoutes = require('./routes/score');
+
 // API cert
-const certRouter = require('./routes/cert');
+//const certRouter = require('./routes/cert');
 
 // Connect database
 mongoose.connect(
@@ -62,11 +67,13 @@ app.use(
 
 // Set up routes
 app.use('/auth', authRoutes);
+app.use('/certificate', certificateRoutes);
 app.use('/student', checkJWT, studentRoutes);
 app.use('/teacher', checkJWT, teacherRoutes);
-app.use('/subject', checkJWT, subjectRoutes);
+app.use('/subject', subjectRoutes);
+app.use('/score', scoreRoutes);
 
-app.use('/cert', certRouter);
+//app.use('/cert', certRouter);
 
 app.get('/', (req, res, next) => {
   res.json({ title: 'Hello' });

@@ -141,9 +141,7 @@ describe('Routes /subject/create', () => {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjoxfSwiaWF0IjoxNTcwMTYwNDExfQ.xtzWBCZf0-tJWaVQocE15oeGpiVCMPwdBWxhPMYxWW4'
           )
           .send({
-            subjectid: '02',
-            subjectname: 'Hyperledger Fabric',
-            teacherusername: 'GV01'
+            subjectname: 'Hyperledger Fabric'
           })
           .then((res) => {
             expect(200);

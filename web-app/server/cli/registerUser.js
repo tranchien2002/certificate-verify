@@ -115,7 +115,7 @@ async function main() {
         role: USER_ROLES.STUDENT
       });
     } else if (orgMSP === 'academy') {
-      await contract.submitTransaction('CreateTeacher', username, fullname, address, phoneNumber);
+      await contract.submitTransaction('CreateTeacher', username, fullname);
       user = new User({
         username: username,
         password: password,

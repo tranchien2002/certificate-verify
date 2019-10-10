@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const CertificateSchema = new Schema({
+  certificateID: {
+    type: String,
+    unique: true,
+    required: [true, "can't be blank"]
+  },
   subjectID: {
     type: String,
     trim: true,
