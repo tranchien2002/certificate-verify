@@ -23,7 +23,7 @@ router.get('/create', checkJWT, async (req, res) => {
 router.post(
   '/create',
   checkJWT,
-  //[check('subjectid').isLength({ min: 6 }), check('username').isLength({ min: 6 })],
+  //[check('subjectId').isLength({ min: 6 }), check('username').isLength({ min: 6 })],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,14 +44,14 @@ router.post(
 
       let certificate = {
         certificateID: uuidv4(),
-        subjectID: req.body.subjectid,
+        subjectID: req.body.subjectId,
         studentUsername: req.body.username,
         issueDate: issueDate
       };
 
       const response = await network.createCertificate(networkObj, certificate);
 
-      if (response.success == true) {
+      if (response.success) {
         res.json({
           success: true,
           msg: response.msg.toString()
@@ -112,7 +112,7 @@ router.get('/:certid/verify', async (req, res) => {
         const networkObj = await network.connectToNetwork(defaultUser);
         const response = await network.verifyCertificate(networkObj, ceritificate);
 
-        if (response.success == true) {
+        if (response.success) {
           res.json({
             success: true,
             msg: response.msg.toString()
