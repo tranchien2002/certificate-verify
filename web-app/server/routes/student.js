@@ -20,12 +20,12 @@ router.get('/all', async (req, res) => {
   if (response.success == true) {
     res.json({
       success: true,
-      msg: response.msg.toString()
+      msg: response.msg
     });
   } else {
     res.json({
       success: false,
-      msg: response.msg.toString()
+      msg: response.msg
     });
   }
 });
@@ -48,14 +48,22 @@ router.get('/:username', async (req, res, next) => {
       const networkObj = await network.connectToNetwork(req.decoded.user);
       const response = await network.query(networkObj, 'QueryStudent', username);
       if (response.success == true) {
-        res.json({
-          success: true,
-          msg: response.msg.toString()
-        });
+        if (!response.msg) {
+          res.json({
+            success: false,
+            msg: 'NOT FOUND',
+            status: 404
+          });
+        } else {
+          res.json({
+            success: true,
+            msg: response.msg
+          });
+        }
       } else {
         res.json({
           success: false,
-          msg: response.msg.toString()
+          msg: response.msg
         });
       }
     }

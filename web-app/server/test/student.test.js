@@ -8,13 +8,15 @@ const test = require('sinon-test')(sinon, { useFakeTimers: false });
 
 const app = require('../app');
 
+require('dotenv').config();
+
 // token of admin student: ...c5Zg
 // token of student: ...aQVk
 // token of admin academy: ...xWW4
 // token of teacher: ...a6fs
 
-describe('GET /student', () => {
-  describe('GET /student/:id', () => {
+describe('GET /account/student', () => {
+  describe('GET /account/student/:username', () => {
     let connect;
     let query;
 
@@ -22,7 +24,7 @@ describe('GET /student', () => {
       connect = sinon.stub(network, 'connectToNetwork');
       query = sinon.stub(network, 'query');
 
-      query.withArgs('QueryStudent', '20156425');
+      query.withArgs('QueryStudent', 'hoangdd');
     });
 
     afterEach(() => {
@@ -35,23 +37,16 @@ describe('GET /student', () => {
       test((done) => {
         connect.returns({ error: null });
         query.returns({
-          Username: '20156425',
-          Fullname: 'Trinh Van Tan',
-          Address: '38 Hoang Mai',
-          PhoneNumber: '0382794668'
+          Username: 'hoangdd',
+          Fullname: 'Do Hoang',
+          Subjects: ['1', '2']
         });
         request(app)
-          .get('/student/20156425')
-          .set(
-            'authorization',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiaG9hbmdkZCIsInBhc3N3b3JkIjoiJDJhJDEwJGhxWnRJd0ZjbDhTTGFVYnhrdVBPRWVLcXZUa25XRm9kalZhWVZkWG9aMEVlSWIzU2pUL2RHIiwibmFtZSI6ImFsaWJhYmEiLCJyb2xlIjozfSwiaWF0IjoxNTcwNDMwNTgyfQ.7su0h90mv0_87ZgH_F9lr71qf_JDBXIIfcsSXfKx-DQ'
-          )
-          .expect(200)
-          .expect('Content-Type', /json/)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
+          .get('/account/student/hoangdd')
+          .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+          .then((res) => {
+            expect(res.status).equal(200);
+            expect(res.body.success).equal(true);
             done();
           });
       })
@@ -60,18 +55,15 @@ describe('GET /student', () => {
     it(
       'fail connect to blockchain when query student id with admin',
       test((done) => {
-        connect.returns({ error: 'ERROR' });
+        query.returns({
+          success: false,
+          msg: 'ERR'
+        });
         request(app)
-          .get('/student/20156425')
-          .set(
-            'authorization',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6IiQyYSQxMCRocVp0SXdGY2w4U0xhVWJ4a3VQT0VlS3F2VGtuV0ZvZGpWYVlWZFhvWjBFZUliM1NqVC9kRyIsIm5hbWUiOiJhbGliYWJhIiwicm9sZSI6MX0sImlhdCI6MTU3MDQyMDQ1Mn0.E2_zvod-M9vuiHGI9KEJT0ruW9w6WT8t8X5xiPh9tLc'
-          )
-          .expect(500)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
+          .get('/account/student/20156425')
+          .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+          .then((res) => {
+            expect(res.body.success).equal(false);
             done();
           });
       })
