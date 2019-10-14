@@ -192,6 +192,32 @@ const actions = {
         router.push('/403');
       }
     }
+  },
+
+  // Student Subject Certificate
+  async getCertificatesOfSubject({ dispatch, commit }, subjectId) {
+    let res = await adminService.getCertificatesOfSubject(subjectId);
+    if (!res.success) {
+      dispatch('alert/error', res.msg, { root: true });
+      if ('403'.includes(res.msg)) {
+        router.push('/403');
+      }
+    } else {
+      dispatch('alert/clear', res.success, { root: true });
+      commit('getCertificatesOfSubject', res.students);
+    }
+  },
+  async confirmCertificate({ dispatch, commit }, { studentUsername, subjectId }) {
+    let res = await adminService.confirmCertificate(studentUsername, subjectId);
+    if (!res.success) {
+      dispatch('alert/error', res.msg, { root: true });
+      if ('403'.includes(res.msg)) {
+        router.push('/403');
+      }
+    } else {
+      dispatch('alert/clear', res.success, { root: true });
+      commit('getCertificatesOfSubject', res.students);
+    }
   }
 };
 
@@ -252,6 +278,14 @@ const mutations = {
   // Subjects of student
   getSubjectsOfStudent(state, listSubjects) {
     state.subjectOfStudent = listSubjects;
+  },
+
+  // Student Subject Certificate
+  getCertificatesOfSubject(state, studentsOfSubject) {
+    state.studentsOfSubject = studentsOfSubject;
+  },
+  confirmCertificate(state, studentsOfSubject) {
+    state.studentsOfSubject = studentsOfSubject;
   }
 };
 

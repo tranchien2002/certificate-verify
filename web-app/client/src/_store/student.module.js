@@ -24,6 +24,7 @@ const actions = {
     try {
       let listSubjects = await studentService.registerSubject(subjectId);
       commit('registerSubject', listSubjects);
+      location.reload(true);
     } catch (error) {
       console.log(error);
       if ('403'.includes(error.message)) {
@@ -33,7 +34,7 @@ const actions = {
   },
   async getMySubjects({ commit }) {
     try {
-      let mySubjects = await studentService.getMySubjects(user.username);
+      let mySubjects = await studentService.getMySubjects();
       commit('getMySubjects', mySubjects);
     } catch (error) {
       console.log(error);
@@ -44,7 +45,7 @@ const actions = {
   },
   async getMyCertificates({ commit }) {
     try {
-      let myCertificates = await studentService.getMyCertificates(user.username);
+      let myCertificates = await studentService.getMyCertificates();
       commit('getMyCertificates', myCertificates);
     } catch (error) {
       console.log(error);

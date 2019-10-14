@@ -31,8 +31,8 @@ const actions = {
       commit('getStudentsOfSubject', res.students);
     }
   },
-  async setPointForStudent({ dispatch, commit }, { subjectId, username, point }) {
-    let res = await teacherService.setPointForStudent(subjectId, username, point);
+  async setScoreForStudent({ dispatch, commit }, { subjectId, username, score }) {
+    let res = await teacherService.setScoreForStudent(subjectId, username, score);
     if (!res.success) {
       dispatch('alert/error', res.msg, { root: true });
       if ('403'.includes(res.msg)) {
@@ -40,7 +40,8 @@ const actions = {
       }
     } else {
       dispatch('alert/clear', res.success, { root: true });
-      commit('setPointForStudent', res.students);
+      commit('setScoreForStudent', res.students);
+      location.reload();
     }
   }
 };
@@ -52,7 +53,7 @@ const mutations = {
   getStudentsOfSubject(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;
   },
-  setPointForStudent(state, studentsOfSubject) {
+  setScoreForStudent(state, studentsOfSubject) {
     state.studentsOfSubject = studentsOfSubject;
   }
 };

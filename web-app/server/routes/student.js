@@ -3,6 +3,7 @@ const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network.js');
 const { validationResult, sanitizeParam, check } = require('express-validator');
 const User = require('../models/User');
+const checkJWT = require('../middlewares/check-jwt');
 
 router.get('/all', async (req, res) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
@@ -28,7 +29,7 @@ router.get('/all', async (req, res) => {
   });
 });
 
-router.get('/:username/subjects', async (req, res, next) => {
+router.get('/:username/subjects', checkJWT, async (req, res, next) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
     return res.json({
       success: false,
@@ -39,7 +40,7 @@ router.get('/:username/subjects', async (req, res, next) => {
   await User.findOne({ username: req.params.username }, async (err, student) => {
     if (err) throw err;
     else {
-      const networkObj = await network.connectToNetwork(student.user);
+      const networkObj = await network.connectToNetwork(req.decoded.user);
       let subjectsByStudent = await network.query(
         networkObj,
         'GetSubjectsByStudent',

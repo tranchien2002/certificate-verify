@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const STATUS_CERT = require('../configs/constant').STATUS_CERT;
 const network = require('../fabric/network');
 const { check, validationResult, sanitizeParam } = require('express-validator');
 const User = require('../models/User');
@@ -239,7 +240,7 @@ router.get('/:subjectId/scores', checkJWT, async (req, res, next) => {
   });
 });
 
-router.get('/:subjectId/certificates', checkJWT, async (req, res, next) => {
+router.get('/:subjectId/certificates', async (req, res, next) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
     return res.json({
       success: false,
@@ -247,24 +248,47 @@ router.get('/:subjectId/certificates', checkJWT, async (req, res, next) => {
       status: 403
     });
   }
-  await User.findOne({ username: req.decoded.user }, async (err, user) => {
-    if (err) throw err;
-    else {
-      const subjectId = req.params.subjectId;
-      const networkObj = await network.connectToNetwork(user);
-      const response = await network.query(networkObj, 'GetCertificatesBySubject', subjectId);
+  const subjectId = req.params.subjectId;
+  const networkObj = await network.connectToNetwork(req.decoded.user);
+  const queryCertificate = await network.query(networkObj, 'GetCertificatesBySubject', subjectId);
+  const queryScore = await network.query(networkObj, 'GetScoresBySubject', subjectId);
+  const queryStudent = await network.query(networkObj, 'GetStudentsBySubject', subjectId);
 
-      if (response.success) {
-        return res.json({
-          success: true,
-          certificates: JSON.parse(response.msg)
-        });
-      }
-      return res.json({
-        success: false,
-        msg: response.msg.toString()
+  if (!queryCertificate.success || !queryScore.success || !queryStudent.success) {
+    return res.json({
+      success: false,
+      msg: response.msg.toString()
+    });
+  }
+
+  let listScore = JSON.parse(queryScore.msg);
+  let listCertificates = JSON.parse(queryCertificate.msg);
+  let listStudents = JSON.parse(queryStudent.msg);
+
+  listStudents.forEach((student) => {
+    student['statusCertificate'] = STATUS_CERT.NO_SCORE;
+    student['ScoreValue'] = null;
+    if (listScore) {
+      listScore.forEach((score) => {
+        if (score.StudentUsername === student.Username) {
+          student['ScoreValue'] = score.ScoreValue;
+          if (score.Certificated) {
+            student['statusCertificate'] = STATUS_CERT.CERTIFICATED;
+            listCertificates.forEach((cert) => {
+              if (student.Username === cert.StudentUsername) {
+                student['certificateId'] = cert.CertificateID;
+              }
+            });
+          } else {
+            student['statusCertificate'] = STATUS_CERT.NO_CERT;
+          }
+        }
       });
     }
+  });
+  return res.json({
+    success: true,
+    students: listStudents
   });
 });
 

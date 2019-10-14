@@ -26,7 +26,7 @@
 
             <div class="col-xs-12">
               <div class="pm-certificate-name underline margin-0 col-xs-8 text-center">
-                <span class="nameOfUser bold Rochester">{{this.cert.name}}</span>
+                <span class="nameOfUser bold Rochester">{{this.cert.username}}</span>
               </div>
               <div class="col-xs-2">
                 <!-- LEAVE EMPTY -->
@@ -36,7 +36,7 @@
             <div class="col-xs-12">
               <div class="pm-certificate-name margin-0 col-xs-8 text-center">
                 <p class="bold">Has been recognized for outstanding achievement</p>
-                <p class="bold">at {{this.cert.course}} course</p>
+                <p class="bold">at {{this.cert.subjectID}} course</p>
               </div>
               <div class="col-xs-2">
                 <!-- LEAVE EMPTY -->
@@ -49,9 +49,7 @@
         <div class="row pm-certificate-footer">
           <div class="col-md-12">
             <div class="row">
-              <div class="col-md-6"></div>
-
-              <div class="col-md-3 text-center">
+              <div class="col-md-6 text-center">
                 <div class="pm-certificate-name underline margin-0 text-center">
                   <p>{{this.cert.issueDate}}</p>
                 </div>
@@ -59,12 +57,12 @@
                   <strong>DATE</strong>
                 </p>
               </div>
-              <div class="col-md-3 text-center">
+              <div class="col-md-6 text-center">
                 <div class="pm-certificate-name underline margin-0 text-center">
-                  <p class="Rochester">{{this.cert.signature}}</p>
+                  <p class="Rochester">{{this.cert.certificateID}}</p>
                 </div>
                 <p>
-                  <strong>SIGNATURE</strong>
+                  <strong>Certificate ID</strong>
                 </p>
               </div>
             </div>
@@ -86,24 +84,24 @@ export default {
     return {
       success: Boolean,
       cert: {
-        name: String,
+        username: String,
         issueDate: String,
-        signature: String,
-        course: String
+        certificateID: String,
+        subjectID: String
       },
       msg: String
     };
   },
   created: async function() {
     let response = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/cert/${this.$route.params.id}`
+      `${process.env.VUE_APP_API_BACKEND}/certificate/${this.$route.params.id}`
     );
 
     this.success = response.data.success;
 
     if (response.data.success) {
       // Convert Date to dd/mm/yy
-      var today = new Date(response.data.cert.issueDate);
+      var today = new Date(response.data.msg.issueDate);
       var dd = today.getDate();
       var mm = today.getMonth() + 1; //January is 0!
 
@@ -114,9 +112,10 @@ export default {
       if (mm < 10) {
         mm = "0" + mm;
       }
-      response.data.cert.issueDate = dd + "/" + mm + "/" + yyyy;
+      response.data.msg.issueDate = dd + "/" + mm + "/" + yyyy;
 
-      this.cert = response.data.cert;
+      this.cert = response.data.msg;
+      console.log();
     } else {
       this.msg = response.data.msg;
     }

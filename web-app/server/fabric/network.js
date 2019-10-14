@@ -435,7 +435,6 @@ exports.createScore = async function(networkObj, score) {
 };
 
 exports.createCertificate = async function(networkObj, certificate) {
-  console.log(certificate);
   if (
     !certificate.certificateID ||
     !certificate.subjectID ||
@@ -456,18 +455,20 @@ exports.createCertificate = async function(networkObj, certificate) {
       certificate.issueDate
     );
 
-    var certificate = new Certificate({
+    let certificateData = new Certificate({
       certificateID: certificate.certificateID,
       subjectID: certificate.subjectID,
       username: certificate.studentUsername,
       issueDate: certificate.issueDate
     });
 
-    await certificate.save(async (err, certificate) => {
+    await certificateData.save(async (err, cert) => {
       if (err) {
-        throw err;
+        return (response = {
+          success: false,
+          msg: error
+        });
       }
-      console.log(certificate);
     });
 
     let response = {

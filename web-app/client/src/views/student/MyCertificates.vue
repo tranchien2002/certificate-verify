@@ -12,7 +12,7 @@
             <b-table
               show-empty
               stacked="md"
-              :items="listSubjects ? listSubjects : []"
+              :items="myCertificates ? myCertificates : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
@@ -36,7 +36,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="listSubjects ? listSubjects.length : 0 "
+                :total-rows="myCertificates ? myCertificates.length : 0 "
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -63,28 +63,6 @@ export default {
       infoModal: {
         SubjectID: "info-modal"
       },
-      listSubjects: [
-        {
-          SubjectID: 1,
-          Name: "Subject01"
-        },
-        {
-          SubjectID: 2,
-          Name: "Subject02"
-        },
-        {
-          SubjectID: 3,
-          Name: "Subject03"
-        },
-        {
-          SubjectID: 4,
-          Name: "Subject03"
-        },
-        {
-          SubjectID: 5,
-          Name: "Subject03"
-        }
-      ],
       fields: [
         {
           key: "SubjectID",

@@ -117,12 +117,6 @@ export default {
         id: "info-modal",
         total: ""
       },
-      studentsOfSubject1: [
-        {
-          Username: "student01",
-          Fullname: "helloworld"
-        }
-      ],
       fields: [
         {
           key: "Fullname",

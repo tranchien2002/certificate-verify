@@ -10,12 +10,9 @@ export const studentService = {
 
 async function getAllSubjects(username) {
   try {
-    let respone = await axios.get(
-      `${process.env.VUE_APP_API_BACKEND}/account/student/${username}`,
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/subjects`, {
+      headers: authHeader()
+    });
     return respone.data.subjects;
   } catch (error) {
     throw error;
@@ -24,7 +21,7 @@ async function getAllSubjects(username) {
 async function registerSubject(subjectId) {
   try {
     let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/account/student/registersubject`,
+      `${process.env.VUE_APP_API_BACKEND}/account/me/registersubject`,
       { subjectId: subjectId },
       {
         headers: authHeader()
@@ -35,30 +32,22 @@ async function registerSubject(subjectId) {
     throw error;
   }
 }
-async function getMySubjects(username) {
+async function getMySubjects() {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/student/mysubjects`,
-      { username: username },
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/mysubjects`, {
+      headers: authHeader()
+    });
     return respone.data.subjects;
   } catch (error) {
     throw error;
   }
 }
 
-async function getMyCertificates(username) {
+async function getMyCertificates() {
   try {
-    let respone = await axios.post(
-      `${process.env.VUE_APP_API_BACKEND}/student/mycertificates`,
-      { username: username },
-      {
-        headers: authHeader()
-      }
-    );
+    let respone = await axios.get(`${process.env.VUE_APP_API_BACKEND}/account/me/mycertificates`, {
+      headers: authHeader()
+    });
     return respone.data.subjects;
   } catch (error) {
     throw error;

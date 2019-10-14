@@ -28,7 +28,7 @@
                     @click="handleRegisterSubject(row.item)"
                     class="float-left btn-circle btn-sm"
                     :id="`popover-confirm-${row.item.SubjectID}`"
-                    v-if="!row.item.statusConfirm || row.item.statusConfirm === 0 "
+                    v-if="!row.item.statusConfirm || row.item.statusConfirm === STATUS_REGISTERED.UNREGISTERED"
                   >
                     <b-popover
                       :target="`popover-confirm-${row.item.SubjectID}`"
@@ -39,13 +39,13 @@
                   </b-button>
                   <b-button
                     variant="info"
-                    v-if="row.item.statusConfirm === 1"
+                    v-if="row.item.statusConfirm === STATUS_REGISTERED.REGISTERED"
                     disabled="disabled"
                     class="btn-confirm-certificate"
                   >Registered</b-button>
                   <b-button
                     variant="success"
-                    v-if="row.item.statusConfirm === 2"
+                    v-if="row.item.statusConfirm === STATUS_REGISTERED.CERTIFICATED"
                     class="btn-confirm-certificate"
                     :to="`/cert/1`"
                   >Certificated</b-button>
@@ -72,6 +72,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { STATUS_REGISTERED } from "../../_helpers/constants";
 export default {
   data() {
     return {
@@ -84,32 +85,6 @@ export default {
       infoModal: {
         SubjectID: "info-modal"
       },
-      listSubjects1: [
-        {
-          SubjectID: 1,
-          Name: "Subject01",
-          statusConfirm: 0
-        },
-        {
-          SubjectID: 2,
-          Name: "Subject02",
-          statusConfirm: 1
-        },
-        {
-          SubjectID: 3,
-          Name: "Subject03"
-        },
-        {
-          SubjectID: 4,
-          Name: "Subject03",
-          statusConfirm: 0
-        },
-        {
-          SubjectID: 5,
-          Name: "Subject03",
-          statusConfirm: 2
-        }
-      ],
       fields: [
         {
           key: "SubjectID",
