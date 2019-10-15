@@ -32,8 +32,7 @@ router.get('/', async (req, res) => {
       username: response.msg.Username,
       fullname: response.msg.Fullname
     });
-  }
-  if (user.role === USER_ROLES.TEACHER) {
+  } else if (user.role === USER_ROLES.TEACHER) {
     const networkObj = await network.connectToNetwork(user);
 
     if (!networkObj) {
@@ -57,10 +56,8 @@ router.get('/', async (req, res) => {
       username: response.msg.Username,
       fullname: response.msg.Fullname
     });
-  }
-
-  if (user.role === USER_ROLES.ADMIN_ACADEMY) {
-    return res.json({ success: true, username: admin.username, role: admin.role });
+  } else if (user.role === USER_ROLES.ADMIN_ACADEMY || user.role === USER_ROLES.ADMIN_STUDENT) {
+    return res.json({ success: true, username: user.username, role: user.role });
   }
 });
 
@@ -334,7 +331,6 @@ router.get('/createscore', async (req, res) => {
 
 router.post(
   '/createscore',
-  checkJWT,
   [
     (check('subjectId')
       .not()
@@ -355,7 +351,7 @@ router.post(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array(), status: '422' });
+      return res.json({ success: false, errors: errors.array(), status: 422 });
     }
     if (req.decoded.user.role !== USER_ROLES.TEACHER) {
       return res.json({
@@ -376,7 +372,6 @@ router.post(
           };
           const networkObj = await network.connectToNetwork(req.decoded.user);
           const response = await network.createScore(networkObj, score);
-          console.log(response);
 
           if (response.success) {
             return res.json({
