@@ -12,9 +12,8 @@ module.exports = (req, res, next) => {
           success: false,
           message: 'Failed to authentication token'
         });
-      }
-      else {
-        await User.findOne({ username: decoded.user.username }, (err, user) => {
+      } else {
+        User.findOne({ username: decoded.user.username }, (err, user) => {
           if (err) {
             res.status(403).json({
               success: false,

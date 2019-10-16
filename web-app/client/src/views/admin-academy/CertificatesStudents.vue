@@ -9,15 +9,15 @@
             <b-table
               show-empty
               stacked="md"
-              :items="blogPosts"
+              :items="studentsOfSubject ? studentsOfSubject : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
             >
-              <template slot="name" slot-scope="row">{{ row.item.name }}</template>
+              <template slot="Fullname" slot-scope="row">{{ row.item.Fullname }}</template>
 
               <template slot="Username" slot-scope="row">{{ row.item.Username }}</template>
-              <template slot="more">...</template>
+              <template slot="score" slot-scope="row">{{ row.item.ScoreValue }}</template>
 
               <template slot="delete" slot-scope="row">
                 <div class="row justify-content-center">
@@ -38,11 +38,11 @@
                   </div>
                   <div class="col-4 padding-0">
                     <b-button
+                      v-if="row.item.statusCertificate == STATUS_CERT.NO_CERT"
                       variant="success"
-                      @click="confirmCertificate(row.item)"
+                      @click="handleConfirm(row.item)"
                       class="float-left btn-circle btn-sm"
                       :id="`popover-confirm-${row.item.Username}`"
-                      v-if="!row.item.statusConfirm"
                     >
                       <b-popover
                         :target="`popover-confirm-${row.item.Username}`"
@@ -52,11 +52,11 @@
                       <i class="fas fa-check-circle"></i>
                     </b-button>
                     <b-button
-                      variant="info"
-                      v-if="row.item.statusConfirm"
-                      disabled="disabled"
+                      variant="primary"
+                      v-if="row.item.statusCertificate == STATUS_CERT.CERTIFICATED"
                       class="btn-confirm-certificate"
-                    >Confirmed</b-button>
+                      :to="`/cert/${row.item.certificateId}`"
+                    >Certificated</b-button>
                   </div>
                 </div>
               </template>
@@ -66,7 +66,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="blogPosts.length"
+                :total-rows="studentsOfSubject ?  studentsOfSubject.length : 0"
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -78,10 +78,10 @@
     </div>
 
     <b-modal
-      :id="infoModal.Username"
+      :id="infoModal.id"
       :total="infoModal.total"
       @hide="resetInfoModalDetail"
-      title="Cập Nhật Môn Học"
+      title="Chi Tiết Sinh Viên"
       ok-only
       ok-variant="secondary"
       ok-title="Cancel"
@@ -90,10 +90,10 @@
         <b-form-group id="input-group-1" label-for="input-1">
           <div class="row">
             <div class="col-4">
-              <h6>Name:</h6>
+              <h6>Fullname:</h6>
             </div>
             <div class="col-8 text-left">
-              <h5>{{ student.name }}</h5>
+              <h5>{{ student.Fullname }}</h5>
             </div>
           </div>
         </b-form-group>
@@ -107,36 +107,40 @@
             </div>
           </div>
         </b-form-group>
+        <b-form-group id="input-group-2" label-for="input-2">
+          <div class="row">
+            <div class="col-4">
+              <h6>Score:</h6>
+            </div>
+            <div class="col-8 text-left">
+              <h5>{{ student.ScoreValue }}</h5>
+            </div>
+          </div>
+        </b-form-group>
       </b-form>
     </b-modal>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
+import { STATUS_CERT } from "../../_helpers/constants";
 export default {
   data() {
     return {
       student: {
-        name: ""
+        Username: "",
+        Fullname: "",
+        ScoreValue: 0
       },
       infoModal: {
         id: "info-modal",
         total: ""
       },
-      blogPosts: [
-        {
-          Username: "student01",
-          Fullname: "helloworld "
-        },
-        {
-          Username: "student02",
-          Fullname: "helloworld"
-        }
-      ],
       fields: [
         {
-          key: "name",
-          label: "Name",
+          key: "Fullname",
+          label: "Fullname",
           class: "text-center",
           sortable: true
         },
@@ -147,8 +151,8 @@ export default {
           sortable: true
         },
         {
-          key: "more",
-          label: "...",
+          key: "score",
+          label: "Score",
           class: "text-center",
           sortable: true
         },
@@ -164,16 +168,24 @@ export default {
       pageOptions: [12, 24, 36]
     };
   },
+  computed: {
+    ...mapState("adminAcademy", ["studentsOfSubject"])
+  },
   methods: {
+    ...mapActions("adminAcademy", [
+      "getCertificatesOfSubject",
+      "confirmCertificate"
+    ]),
     info(item, index, button) {
-      this.student.name = item.name;
+      this.student.Fullname = item.Fullname;
       this.student.Username = item.Username;
+      this.student.ScoreValue = item.ScoreValue;
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);
     },
     resetInfoModalDetail() {
       this.student.name = "";
     },
-    confirmCertificate(item) {
+    handleConfirm(student) {
       this.$swal({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -185,6 +197,10 @@ export default {
         reverseButtons: true
       }).then(result => {
         if (result.value) {
+          this.confirmCertificate({
+            studentUsername: student.Username,
+            subjectId: this.$route.params.id
+          });
           this.$swal(
             "Confirmed!",
             "The certificate has been confirmed .",
@@ -193,6 +209,9 @@ export default {
         }
       });
     }
+  },
+  created() {
+    this.getCertificatesOfSubject(this.$route.params.id);
   }
 };
 </script>

@@ -180,12 +180,6 @@ export default {
         id: "info-modal",
         total: ""
       },
-      listTeachers1: [
-        {
-          Username: "teacher",
-          Fullname: "teacher01"
-        }
-      ],
       fields: [
         {
           key: "Fullname",

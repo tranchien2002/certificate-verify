@@ -84,7 +84,7 @@
             <b-form-group>
               <b-form-input
                 type="number"
-                v-model="newScore.point"
+                v-model="newScore.score"
                 :state="errors[0] ? false : (valid ? true : null)"
                 placeholder="Score"
               ></b-form-input>
@@ -147,24 +147,12 @@ export default {
       newScore: {
         subjectId: null,
         username: "",
-        point: null
+        score: null
       },
       infoModal: {
         id: "info-modal",
         total: ""
       },
-      studentsOfSubject: [
-        {
-          Username: "student01",
-          Fullname: "helloworld",
-          ScoreValue: null
-        },
-        {
-          Username: "student01",
-          Fullname: "helloworld",
-          ScoreValue: 8
-        }
-      ],
       fields: [
         {
           key: "Fullname",
@@ -197,10 +185,10 @@ export default {
     };
   },
   computed: {
-    // ...mapState("adminAcademy", ["studentsOfSubject"])
+    ...mapState("teacher", ["studentsOfSubject"])
   },
   methods: {
-    ...mapActions("teacher", ["getStudentsOfSubject", "setPointForStudent"]),
+    ...mapActions("teacher", ["getStudentsOfSubject", "setScoreForStudent"]),
     info(item, index, button) {
       this.student.Fullname = item.Fullname;
       this.student.Username = item.Username;
@@ -213,7 +201,7 @@ export default {
     },
     handleScore() {
       this.$refs["modal-setScore"].hide();
-      this.setPointForStudent(this.newScore);
+      this.setScoreForStudent(this.newScore);
       this.resetInfoModalSetPoint();
     },
     resetInfoModalDetail() {
@@ -221,7 +209,7 @@ export default {
       this.student.Username = "";
     },
     resetInfoModalSetPoint() {
-      this.newScore.point = null;
+      this.newScore.score = null;
       this.newScore.username = "";
       this.newScore.subjectId = null;
       requestAnimationFrame(() => {

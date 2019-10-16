@@ -80,12 +80,6 @@ export default {
   data() {
     return {
       newSubjectId: null,
-      subjectsOfTeacher1: [
-        {
-          SubjectID: 1,
-          Name: "Subject01"
-        }
-      ],
       fields: [
         {
           key: "SubjectID",

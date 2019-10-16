@@ -71,32 +71,6 @@ export default {
       infoModal: {
         SubjectID: "info-modal"
       },
-      listSubjects1: [
-        {
-          SubjectID: 1,
-          Name: "Subject01",
-          statusConfirm: 0
-        },
-        {
-          SubjectID: 2,
-          Name: "Subject02",
-          statusConfirm: 1
-        },
-        {
-          SubjectID: 3,
-          Name: "Subject03"
-        },
-        {
-          SubjectID: 4,
-          Name: "Subject03",
-          statusConfirm: 0
-        },
-        {
-          SubjectID: 5,
-          Name: "Subject03",
-          statusConfirm: 2
-        }
-      ],
       fields: [
         {
           key: "SubjectID",

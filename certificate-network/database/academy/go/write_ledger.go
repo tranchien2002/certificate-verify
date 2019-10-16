@@ -78,7 +78,7 @@ func CreateTeacher(stub shim.ChaincodeStubInterface, args []string) sc.Response 
 		return shim.Error("This teacher already exists - " + Username)
 	}
 
-	var teacher = Teacher{Username: Username, Fullname: Fullname, Subjects: nil }
+	var teacher = Teacher{Username: Username, Fullname: Fullname, Subjects: nil}
 
 	studentAsBytes, _ := json.Marshal(teacher)
 
@@ -143,13 +143,7 @@ func CreateScore(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 		return shim.Error("Error - cide.GetMSPID()?")
 	}
 
-	if found == false {
-		return shim.Error("WHO ARE YOU ?")
-	}
-
-	_, err = getTeacher(stub, TeacherUsername)
-
-	if err != nil {
+	if !found {
 		return shim.Error("WHO ARE YOU ?")
 	}
 

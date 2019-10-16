@@ -16,7 +16,9 @@ export const adminService = {
   createTeacher,
   getSubjectsNoTeacher,
   getAllStudents,
-  getSubjectsOfStudent
+  getSubjectsOfStudent,
+  getCertificatesOfSubject,
+  confirmCertificate
 };
 
 // Subjects Manager
@@ -222,6 +224,32 @@ async function getSubjectsOfStudent(username) {
       }
     );
     return respone.data.subjects;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Student Subject Certificate
+async function getCertificatesOfSubject(subjectId) {
+  let respone = await axios.get(
+    `${process.env.VUE_APP_API_BACKEND}/subject/${subjectId}/certificates`,
+    {
+      headers: authHeader()
+    }
+  );
+  return respone.data;
+}
+
+async function confirmCertificate(studentUsername, subjectId) {
+  try {
+    let respone = await axios.post(
+      `${process.env.VUE_APP_API_BACKEND}/certificate/create`,
+      { studentUsername: studentUsername, subjectId: subjectId },
+      {
+        headers: authHeader()
+      }
+    );
+    return respone.data;
   } catch (error) {
     throw error;
   }

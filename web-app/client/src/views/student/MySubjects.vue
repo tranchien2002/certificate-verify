@@ -12,7 +12,7 @@
             <b-table
               show-empty
               stacked="md"
-              :items="listSubjects ? listSubjects : []"
+              :items="mySubjects ? mySubjects : []"
               :fields="fields"
               :current-page="currentPage"
               :per-page="perPage"
@@ -26,7 +26,7 @@
           <b-row>
             <b-col md="6" class="my-1">
               <b-pagination
-                :total-rows="listSubjects ? listSubjects.length : 0 "
+                :total-rows="mySubjects ? mySubjects.length : 0 "
                 :per-page="perPage"
                 v-model="currentPage"
                 class="my-0"
@@ -44,20 +44,6 @@ import { mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
-      listSubjects: [
-        {
-          SubjectID: 1,
-          Name: "Subject01"
-        },
-        {
-          SubjectID: 2,
-          Name: "Subject02"
-        },
-        {
-          SubjectID: 3,
-          Name: "Subject03"
-        }
-      ],
       fields: [
         {
           key: "SubjectID",

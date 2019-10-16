@@ -173,7 +173,7 @@ router.beforeEach((to, from, next) => {
   const afterlogin = afterloginPages.includes(to.path);
   const loggedIn = localStorage.getItem('user');
 
-  if (to.path.match(/\/cert\/\d+$/)) {
+  if (to.path.match(/\/cert\//)) {
     return next();
   } else if (!authRequired && !loggedIn) {
     return next('/login');
