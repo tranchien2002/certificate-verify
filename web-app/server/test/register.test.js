@@ -5,22 +5,26 @@ const request = require('supertest');
 const User = require('../models/User');
 const sinon = require('sinon');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
+const network = require('../fabric/network');
 
 const app = require('../app');
 
 describe('Route : /auth', () => {
   describe('# POST :/auth/register ', () => {
-    var findOneUserStub;
-    var saveUserStub;
+    let findOneUserStub;
+    let saveUserStub;
+    let registerStudentStub;
 
     beforeEach(() => {
       findOneUserStub = sinon.stub(User, 'findOne');
       saveUserStub = sinon.stub(User.prototype, 'save');
+      registerStudentStub = sinon.stub(network, 'registerStudentOnBlockchain');
     });
 
     afterEach(() => {
       findOneUserStub.restore();
       saveUserStub.restore();
+      registerStudentStub.restore();
     });
 
     it('should be invalid if username password and name is empty', (done) => {
@@ -40,15 +44,17 @@ describe('Route : /auth', () => {
 
     it('should register success', (done) => {
       findOneUserStub.yields(undefined, null);
+      registerStudentStub.returns({
+        success: true,
+        msg: 'Register success!'
+      });
 
       request(app)
         .post('/auth/register')
         .send({
-          username: 'hoangdd',
+          username: 'hoangdd123',
           password: '123456',
-          fullname: 'Do Duc Hoang',
-          address: 'Vinh Yen',
-          phone: '0123456789'
+          fullname: 'Do Hoang'
         })
         .then((res) => {
           expect(res.status).equal(200);
@@ -82,7 +88,7 @@ describe('Route : /auth', () => {
   });
 
   describe('# POST :/auth/login ', () => {
-    var findOneUserStub;
+    let findOneUserStub;
     beforeEach(() => {
       findOneUserStub = sinon.stub(User, 'findOne');
     });

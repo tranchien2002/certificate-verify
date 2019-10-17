@@ -12,7 +12,7 @@ const app = require('../app');
 
 require('dotenv').config();
 
-describe('GET /account/me', () => {
+describe('GET /account/me/', () => {
   let connect;
   let query;
   let findOneUserStub;
@@ -177,20 +177,20 @@ describe('GET /account/me', () => {
   );
 });
 
-describe('GET /account/me/subject', () => {
+describe('GET /account/me/mysubjects', () => {
   let connect;
-  let queryUserSubjectsStub;
+  let getMySubjectStub;
   let findOneUserStub;
 
   beforeEach(() => {
     connect = sinon.stub(network, 'connectToNetwork');
-    queryUserSubjectsStub = sinon.stub(network, 'queryUserSubjects');
+    getMySubjectStub = sinon.stub(network, 'query');
     findOneUserStub = sinon.stub(User, 'findOne');
   });
 
   afterEach(() => {
     connect.restore();
-    queryUserSubjectsStub.restore();
+    getMySubjectStub.restore();
     findOneUserStub.restore();
   });
 
@@ -203,7 +203,7 @@ describe('GET /account/me/subject', () => {
         role: USER_ROLES.STUDENT
       });
       request(app)
-        .get('/account/me/subject')
+        .get('/account/me/mysubjects')
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -229,15 +229,21 @@ describe('GET /account/me/subject', () => {
         user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
       });
 
-      queryUserSubjectsStub.returns({ success: false, msg: 'Error' });
+      let data = JSON.stringify({
+        error: 'Error Network'
+      });
+
+      getMySubjectStub.returns({
+        success: false,
+        msg: data
+      });
 
       request(app)
-        .get('/account/me/subject')
+        .get('/account/me/mysubjects')
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
           expect(res.body.success).equal(false);
-          expect(res.body.msg).equal('Error');
           done();
         });
     })
@@ -252,21 +258,26 @@ describe('GET /account/me/subject', () => {
         gateway: 'gateway',
         user: { username: 'hoangdd', role: USER_ROLES.STUDENT }
       });
+
       findOneUserStub.yields(undefined, {
         username: 'hoangdd',
         role: USER_ROLES.STUDENT
       });
-      queryUserSubjectsStub.returns({
-        success: true,
-        msg: {
-          SubjectID: 'INT2002',
-          Name: 'C++',
-          TeacherUsername: 'tanbongcuoi',
-          Students: ['1', '2']
-        }
+
+      let data = JSON.stringify({
+        SubjectID: 'INT2002',
+        Name: 'C++',
+        TeacherUsername: 'tantrinh',
+        Students: ['1', '2']
       });
+
+      getMySubjectStub.returns({
+        success: true,
+        msg: data
+      });
+
       request(app)
-        .get('/account/me/subject')
+        .get('/account/me/mysubjects')
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -285,21 +296,34 @@ describe('GET /account/me/subject', () => {
         gateway: 'gateway',
         user: { username: 'hoangdd', role: USER_ROLES.TEACHER }
       });
+
       findOneUserStub.yields(undefined, {
         username: 'hoangdd',
         role: USER_ROLES.TEACHER
       });
-      queryUserSubjectsStub.returns({
-        success: true,
-        msg: {
+
+      let data = JSON.stringify(
+        {
           SubjectID: 'INT2002',
           Name: 'C++',
-          TeacherUsername: 'tanbongcuoi',
+          TeacherUsername: 'tantrinh',
+          Students: ['1', '2']
+        },
+        {
+          SubjectID: 'INT2020',
+          Name: 'Golang',
+          TeacherUsername: 'tantrinh',
           Students: ['1', '2']
         }
+      );
+
+      getMySubjectStub.returns({
+        success: true,
+        msg: data
       });
+
       request(app)
-        .get('/account/me/subject')
+        .get('/account/me/mysubjects')
         .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -308,47 +332,136 @@ describe('GET /account/me/subject', () => {
         });
     })
   );
+});
+
+describe('POST /account/me/createscore', () => {
+  let connect;
+  let createScoreStub;
+  let findOneUserStub;
+
+  beforeEach(() => {
+    connect = sinon.stub(network, 'connectToNetwork');
+    createScoreStub = sinon.stub(network, 'createScore');
+    findOneUserStub = sinon.stub(User, 'findOne');
+  });
+
+  afterEach(() => {
+    connect.restore();
+    createScoreStub.restore();
+    findOneUserStub.restore();
+  });
 
   it(
-    'success query subjects of user admin student',
+    'success create score',
     test((done) => {
-      findOneUserStub.yields(undefined, {
-        username: 'hoangdd',
-        role: USER_ROLES.ADMIN_STUDENT
+      findOneUserStub.yields(undefined, { username: 'tantrinh' });
+      createScoreStub.returns({
+        success: true,
+        msg: 'create score success'
       });
+
       request(app)
-        .get('/account/me/subject')
-        .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+        .post('/account/me/createscore')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          subjectID: '123',
+          studentUsername: 'tantrinh',
+          scoreValue: '9.0'
+        })
         .then((res) => {
           expect(res.status).equal(200);
           expect(res.body.success).equal(true);
-          expect(res.body.msg).equal('You do not have subject');
           done();
         });
     })
   );
 
   it(
-    'success query subjects of user admin academy',
+    'do not success create score',
     test((done) => {
-      findOneUserStub.yields(undefined, {
-        username: 'hoangdd',
-        role: USER_ROLES.ADMIN_ACADEMY
-      });
+      findOneUserStub.yields(undefined, { username: 'tantrinh' });
+
       request(app)
-        .get('/account/me/subject')
-        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .post('/account/me/createscore')
+        .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
+        .send({
+          subjectID: '123',
+          studentUsername: 'tantrinh',
+          scoreValue: ''
+        })
         .then((res) => {
-          expect(res.status).equal(200);
-          expect(res.body.success).equal(true);
-          expect(res.body.msg).equal('You do not have subject');
+          expect(res.body.status).equal(422);
+          expect(res.body.success).equal(false);
+          done();
+        });
+    })
+  );
+
+  it(
+    'permission denied create score with role student ',
+    test((done) => {
+      findOneUserStub.yields(undefined, { username: 'tantrinh' });
+
+      request(app)
+        .post('/account/me/createscore')
+        .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
+        .send({
+          subjectID: '123',
+          studentUsername: 'tantrinh',
+          scoreValue: '9.0'
+        })
+        .then((res) => {
+          expect(res.body.status).equal(403);
+          expect(res.body.success).equal(false);
+          done();
+        });
+    })
+  );
+
+  it(
+    'permission denied create score with role admin academy ',
+    test((done) => {
+      findOneUserStub.yields(undefined, { username: 'tantrinh' });
+
+      request(app)
+        .post('/account/me/createscore')
+        .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
+        .send({
+          subjectID: '123',
+          studentUsername: 'tantrinh',
+          scoreValue: '9.0'
+        })
+        .then((res) => {
+          expect(res.body.status).equal(403);
+          expect(res.body.success).equal(false);
+          done();
+        });
+    })
+  );
+
+  it(
+    'permission denied create score with role admin student ',
+    test((done) => {
+      findOneUserStub.yields(undefined, { username: 'tantrinh' });
+
+      request(app)
+        .post('/account/me/createscore')
+        .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
+        .send({
+          subjectID: '123',
+          studentUsername: 'tantrinh',
+          scoreValue: '9.0'
+        })
+        .then((res) => {
+          expect(res.body.status).equal(403);
+          expect(res.body.success).equal(false);
           done();
         });
     })
   );
 });
 
-describe('GET /account/me/certificate', () => {
+describe('GET /account/me/mycertificates', () => {
   let connect;
   let query;
   let findOneUserStub;
@@ -391,7 +504,7 @@ describe('GET /account/me/certificate', () => {
         }
       });
       request(app)
-        .get('/account/me/certificate')
+        .get('/account/me/mycertificates')
         .set('authorization', `${process.env.JWT_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -410,7 +523,7 @@ describe('GET /account/me/certificate', () => {
       });
 
       request(app)
-        .get('/account/me/certificate')
+        .get('/account/me/mycertificates')
         .set('authorization', `${process.env.JWT_TEACHER_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -429,7 +542,7 @@ describe('GET /account/me/certificate', () => {
         role: USER_ROLES.ADMIN_STUDENT
       });
       request(app)
-        .get('/account/me/certificate')
+        .get('/account/me/mycertificates')
         .set('authorization', `${process.env.JWT_ADMIN_STUDENT_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
@@ -448,7 +561,7 @@ describe('GET /account/me/certificate', () => {
         role: USER_ROLES.ADMIN_ACADEMY
       });
       request(app)
-        .get('/account/me/certificate')
+        .get('/account/me/mycertificates')
         .set('authorization', `${process.env.JWT_ADMIN_ACADEMY_EXAMPLE}`)
         .then((res) => {
           expect(res.status).equal(200);
