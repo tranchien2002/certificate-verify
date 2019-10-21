@@ -6,7 +6,6 @@ const User = require('../models/User');
 const sinon = require('sinon');
 const USER_ROLES = require('../configs/constant').USER_ROLES;
 const network = require('../fabric/network');
-
 const app = require('../app');
 
 describe('Route : /auth', () => {
@@ -33,7 +32,7 @@ describe('Route : /auth', () => {
         .send({
           username: '',
           password: '',
-          name: ''
+          fullname: ''
         })
         .then((res) => {
           expect(res.status).equal(422);
@@ -54,7 +53,7 @@ describe('Route : /auth', () => {
         .send({
           username: 'hoangdd123',
           password: '123456',
-          fullname: 'Do Hoang'
+          fullname: 'Hoang Do'
         })
         .then((res) => {
           expect(res.status).equal(200);
@@ -66,8 +65,7 @@ describe('Route : /auth', () => {
       // found a record username: 'trailang98',
       findOneUserStub.yields(undefined, {
         username: 'hoangdd',
-        password: '1234567',
-        fullname: 'aasddd'
+        password: '1234567'
       });
 
       request(app)
@@ -75,13 +73,49 @@ describe('Route : /auth', () => {
         .send({
           username: 'hoangdd',
           password: '123456',
-          fullname: 'Do Duc Hoang',
-          address: 'Vinh Yen',
-          phone: '0123456789'
+          fullname: 'Hoang Do'
         })
         .then((res) => {
-          //expect(res.status).equal(200);
+          expect(res.body.success).equal(false);
           expect(res.body.msg).equal('Account is exits');
+          done();
+        });
+    });
+
+    it('shoud fail because findOne error.', (done) => {
+      findOneUserStub.yields({ error: 'cannot connect db' }, null);
+
+      request(app)
+        .post('/auth/register')
+        .send({
+          username: 'hoangdd',
+          password: '123456',
+          fullname: 'Hoang Do'
+        })
+        .then((res) => {
+          expect(res.status).equal(500);
+          expect(res.body.success).equal(false);
+          done();
+        });
+    });
+
+    it('shoud fail because error when call registerStudentOnBlockChain function.', (done) => {
+      findOneUserStub.yields(undefined, null);
+      registerStudentStub.returns({
+        success: false,
+        msg: 'cannot call chaincode'
+      });
+
+      request(app)
+        .post('/auth/register')
+        .send({
+          username: 'hoangdd',
+          password: '123456',
+          fullname: 'Hoang Do'
+        })
+        .then((res) => {
+          expect(res.body.success).equal(false);
+          expect(res.body.msg).equal('cannot call chaincode');
           done();
         });
     });
@@ -107,6 +141,50 @@ describe('Route : /auth', () => {
         .then((res) => {
           expect(res.status).equal(422);
           expect(res.body.errors[0].msg).equal('Invalid value');
+          done();
+        });
+    });
+
+    it('should be invalid if username is empty', (done) => {
+      request(app)
+        .post('/auth/login')
+        .send({
+          username: '',
+          password: '123123'
+        })
+        .then((res) => {
+          expect(res.status).equal(422);
+          expect(res.body.errors[0].msg).equal('Invalid value');
+          done();
+        });
+    });
+
+    it('should be invalid if password is empty', (done) => {
+      request(app)
+        .post('/auth/login')
+        .send({
+          username: 'hoangdd',
+          password: ''
+        })
+        .then((res) => {
+          expect(res.status).equal(422);
+          expect(res.body.errors[0].msg).equal('Invalid value');
+          done();
+        });
+    });
+
+    it('shoud fail because can not query database', (done) => {
+      findOneUserStub.yields({ error: 'failed to query document' }, null);
+
+      request(app)
+        .post('/auth/login')
+        .send({
+          username: 'hoangddhaycuphoc',
+          password: '1234567'
+        })
+        .then((res) => {
+          expect(res.status).equal(500);
+          expect(res.body.success).equal(false);
           done();
         });
     });
