@@ -37,7 +37,7 @@ Organizations:
       Rule: "OR('AcademyMSP.admin')"
 
   AnchorPeers:
-  - Host: peer0.academyr1.certificate.com
+  - Host: peer0.academy.certificate.com
     Port: 7051
 
 - &Student
