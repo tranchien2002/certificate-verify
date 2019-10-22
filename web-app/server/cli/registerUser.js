@@ -15,7 +15,6 @@ mongoose.connect(
   { useUnifiedTopology: true, useNewUrlParser: true },
   (error) => {
     if (error) console.log(error);
-    else console.log('connection successful');
   }
 );
 mongoose.set('useCreateIndex', true);
@@ -151,7 +150,7 @@ async function main() {
         await wallet.import(user.username, userIdentity);
 
         console.log(
-          `Successfully registered and enrolled admin user ${user.username} and imported it into the wallet`
+          `Successfully registered and enrolled user ${user.username} and imported it into the wallet`
         );
       }
       await gateway.disconnect();
