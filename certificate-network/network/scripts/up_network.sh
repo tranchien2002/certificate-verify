@@ -12,7 +12,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 LANGUAGE="$3"
 TIMEOUT="$4"
-: ${CHANNEL_NAME:="certificatechannel"}
+: ${CHANNEL_NAME:=certificatechannel}
 : ${DELAY:="3"}
 : ${TIMEOUT:="10"}
 LANGUAGE=`echo "$LANGUAGE" | tr [:upper:] [:lower:]`
@@ -79,7 +79,7 @@ joinChannelWithRetry () {
 }
 
 createChannel() {
-	setGlobals 0 1
+	setGlobals 1
 
 	if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
             set -x
@@ -133,13 +133,3 @@ updateAnchorPeers 2
 echo
 echo "========= All GOOD, up-network execution completed =========== "
 echo
-
-#echo
-#echo " _____   _   _   ____   "
-#echo "| ____| | \ | | |  _ \  "
-#echo "|  _|   |  \| | | | | | "
-#echo "| |___  | |\  | | |_| | "
-#echo "|_____| |_| \_| |____/  "
-#echo
-
-#exit 0

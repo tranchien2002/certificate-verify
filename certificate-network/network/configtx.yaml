@@ -1,66 +1,66 @@
 Organizations:
 
-- &OrdererOrg
-  Name: OrdererOrg
+  - &OrdererOrg
+      Name: OrdererOrg
 
-  ID: OrdererMSP
+      ID: OrdererMSP
 
-  MSPDir: crypto-config/ordererOrganizations/certificate.com/msp
+      MSPDir: crypto-config/ordererOrganizations/certificate.com/msp
 
-  Policies:
-    Readers:
-      Type: Signature
-      Rule: "OR('OrdererMSP.member')"
-    Writers:
-      Type: Signature
-      Rule: "OR('OrdererMSP.member')"
-    Admins:
-      Type: Signature
-      Rule: "OR('OrdererMSP.admin')"
+      Policies:
+        Readers:
+          Type: Signature
+          Rule: "OR('OrdererMSP.member')"
+        Writers:
+          Type: Signature
+          Rule: "OR('OrdererMSP.member')"
+        Admins:
+          Type: Signature
+          Rule: "OR('OrdererMSP.admin')"
 
-- &Academy
-  Name: AcademyMSP
+  - &Academy
+      Name: AcademyMSP
 
-  ID: AcademyMSP
+      ID: AcademyMSP
 
-  MSPDir: crypto-config/peerOrganizations/academy.certificate.com/msp
+      MSPDir: crypto-config/peerOrganizations/academy.certificate.com/msp
 
-  Policies:
-    Readers:
-      Type: Signature
-      Rule: "OR('AcademyMSP.admin', 'AcademyMSP.peer', 'AcademyMSP.client')"
-    Writers:
-      Type: Signature
-      Rule: "OR('AcademyMSP.admin', 'AcademyMSP.client')"
-    Admins:
-      Type: Signature
-      Rule: "OR('AcademyMSP.admin')"
+      Policies:
+        Readers:
+          Type: Signature
+          Rule: "OR('AcademyMSP.admin', 'AcademyMSP.peer', 'AcademyMSP.client')"
+        Writers:
+          Type: Signature
+          Rule: "OR('AcademyMSP.admin', 'AcademyMSP.client')"
+        Admins:
+          Type: Signature
+          Rule: "OR('AcademyMSP.admin')"
 
-  AnchorPeers:
-  - Host: peer0.academy.certificate.com
-    Port: 7051
+      AnchorPeers:
+        - Host: peer0.academy.certificate.com
+          Port: 7051
 
-- &Student
-  Name: StudentMSP
+  - &Student
+      Name: StudentMSP
 
-  ID: StudentMSP
+      ID: StudentMSP
 
-  MSPDir: crypto-config/peerOrganizations/student.certificate.com/msp
+      MSPDir: crypto-config/peerOrganizations/student.certificate.com/msp
 
-  Policies:
-    Readers:
-      Type: Signature
-      Rule: "OR('StudentMSP.admin', 'StudentMSP.peer', 'StudentMSP.client')"
-    Writers:
-      Type: Signature
-      Rule: "OR('StudentMSP.admin', 'StudentMSP.client')"
-    Admins:
-      Type: Signature
-      Rule: "OR('StudentMSP.admin')"
+      Policies:
+        Readers:
+          Type: Signature
+          Rule: "OR('StudentMSP.admin', 'StudentMSP.peer', 'StudentMSP.client')"
+        Writers:
+          Type: Signature
+          Rule: "OR('StudentMSP.admin', 'StudentMSP.client')"
+        Admins:
+          Type: Signature
+          Rule: "OR('StudentMSP.admin')"
 
-  AnchorPeers:
-  - Host: peer0.student.certificate.com
-    Port: 7051
+      AnchorPeers:
+        - Host: peer0.student.certificate.com
+          Port: 7051
 
 Capabilities:
   Channel: &ChannelCapabilities
@@ -98,7 +98,7 @@ Orderer: &OrdererDefaults
   OrdererType: solo
 
   Addresses:
-  - orderer.certificate.com:7050
+    - orderer.certificate.com:7050
 
   BatchTimeout: 2s
 
@@ -109,10 +109,6 @@ Orderer: &OrdererDefaults
     AbsoluteMaxBytes: 99 MB
 
     PreferredMaxBytes: 512 KB
-
-  Kafka:
-    Brokers:
-    - 127.0.0.1:9092
 
   Organizations:
 
@@ -158,10 +154,11 @@ Profiles:
     Consortiums:
       SampleConsortium:
         Organizations:
-        - *Academy
-        - *Student
+          - *Academy
+          - *Student
   TwoOrgsChannel:
     Consortium: SampleConsortium
+    <<: *ChannelDefaults
     Application:
       <<: *ApplicationDefaults
       Organizations:
@@ -169,4 +166,3 @@ Profiles:
         - *Student
       Capabilities:
         <<: *ApplicationCapabilities
-
