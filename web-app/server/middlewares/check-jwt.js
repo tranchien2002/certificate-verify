@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
           if (err) {
             res.status(403).json({
               success: false,
-              message: 'User does not exist'
+              message: 'Error find username'
             });
           }
           if (user) {

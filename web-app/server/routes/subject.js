@@ -128,22 +128,21 @@ router.post(
 router.get('/all', async (req, res, next) => {
   await User.findOne({ username: req.decoded.user.username }, async (err, user) => {
     if (err) throw err;
-    else {
-      const networkObj = await network.connectToNetwork(user);
 
-      const response = await network.query(networkObj, 'GetAllSubjects');
+    const networkObj = await network.connectToNetwork(user);
 
-      if (response.success) {
-        return res.json({
-          success: true,
-          subjects: JSON.parse(response.msg)
-        });
-      }
+    const response = await network.query(networkObj, 'GetAllSubjects');
+
+    if (response.success) {
       return res.json({
-        success: false,
-        msg: response.msg.toString()
+        success: true,
+        subjects: JSON.parse(response.msg)
       });
     }
+    return res.json({
+      success: false,
+      msg: response.msg.toString()
+    });
   });
 });
 
@@ -192,22 +191,21 @@ router.get('/:subjectId', async (req, res, next) => {
 router.get('/:subjectId/students', checkJWT, async (req, res, next) => {
   await User.findOne({ username: req.decoded.user }, async (err, user) => {
     if (err) throw err;
-    else {
-      const subjectID = req.params.subjectId;
-      const networkObj = await network.connectToNetwork(req.decoded.user);
-      const response = await network.query(networkObj, 'GetStudentsBySubject', subjectID);
 
-      if (response.success) {
-        return res.json({
-          success: true,
-          students: JSON.parse(response.msg)
-        });
-      }
+    const subjectID = req.params.subjectId;
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    const response = await network.query(networkObj, 'GetStudentsBySubject', subjectID);
+
+    if (response.success) {
       return res.json({
-        success: false,
-        msg: response.msg.toString()
+        success: true,
+        students: JSON.parse(response.msg)
       });
     }
+    return res.json({
+      success: false,
+      msg: response.msg.toString()
+    });
   });
 });
 
@@ -257,7 +255,7 @@ router.get('/:subjectId/certificates', async (req, res, next) => {
   if (!queryCertificate.success || !queryScore.success || !queryStudent.success) {
     return res.json({
       success: false,
-      msg: response.msg.toString()
+      msg: 'failed to call chaincode'
     });
   }
 

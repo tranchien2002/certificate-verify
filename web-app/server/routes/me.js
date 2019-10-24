@@ -401,7 +401,7 @@ router.get('/:subjectId/students', checkJWT, async (req, res, next) => {
       if (!queryStudents.success || !queryScore.success) {
         return res.json({
           success: false,
-          msg: response.msg.toString()
+          msg: 'Error when call chaincode'
         });
       }
 

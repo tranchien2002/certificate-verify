@@ -37,7 +37,13 @@ router.post(
     }
 
     User.findOne({ username: req.body.username }, async (err, existing) => {
-      if (err) throw next(err);
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          msg: err
+        });
+      }
+
       if (existing) {
         return res.json({
           success: false,
@@ -86,14 +92,22 @@ router.post(
 
     // After the validation
     User.findOne({ username: req.body.username }, async (err, user) => {
-      if (err) throw next(err);
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          msg: err
+        });
+      }
+
       if (!user) {
         return res.json({
           success: false,
           msg: 'Username or Password incorrect'
         });
       }
-      var validPassword = await bcrypt.compare(req.body.password, user.password);
+
+      let validPassword = await bcrypt.compare(req.body.password, user.password);
+
       if (!validPassword) {
         return res.json({
           success: false,

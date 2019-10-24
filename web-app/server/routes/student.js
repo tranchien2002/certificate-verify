@@ -29,7 +29,7 @@ router.get('/all', async (req, res) => {
   });
 });
 
-router.get('/:username/subjects', checkJWT, async (req, res, next) => {
+router.get('/:username/subjects', async (req, res, next) => {
   if (req.decoded.user.role !== USER_ROLES.ADMIN_ACADEMY) {
     return res.json({
       success: false,
@@ -38,25 +38,30 @@ router.get('/:username/subjects', checkJWT, async (req, res, next) => {
     });
   }
   await User.findOne({ username: req.params.username }, async (err, student) => {
-    if (err) throw err;
-    else {
-      const networkObj = await network.connectToNetwork(req.decoded.user);
-      let subjectsByStudent = await network.query(
-        networkObj,
-        'GetSubjectsByStudent',
-        student.username
-      );
-      if (subjectsByStudent.success) {
-        return res.json({
-          success: true,
-          subjects: JSON.parse(subjectsByStudent.msg)
-        });
-      }
+    if (err) {
+      return res.json({ success: false, msg: 'error query subjects of student' });
+    }
+
+    if (!student) {
+      return res.json({ success: false, msg: 'student is not exists' });
+    }
+
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    let subjectsByStudent = await network.query(
+      networkObj,
+      'GetSubjectsByStudent',
+      student.username
+    );
+    if (subjectsByStudent.success) {
       return res.json({
-        success: false,
-        msg: subjectsByStudent.msg.toString()
+        success: true,
+        subjects: JSON.parse(subjectsByStudent.msg)
       });
     }
+    return res.json({
+      success: false,
+      msg: subjectsByStudent.msg.toString()
+    });
   });
 });
 
@@ -69,25 +74,26 @@ router.get('/:username/scores', async (req, res, next) => {
     });
   } else {
     await User.findOne({ username: req.params.username }, async (err, student) => {
-      if (err) throw err;
-      else {
-        const networkObj = await network.connectToNetwork(student.user);
-        let scoresByStudent = await network.query(
-          networkObj,
-          'GetScoresByStudent',
-          student.username
-        );
-        if (scoresByStudent.success) {
-          return res.json({
-            success: true,
-            scores: JSON.parse(scoresByStudent.msg)
-          });
-        }
+      if (err) {
+        return res.json({ success: false, msg: 'error query scores of student' });
+      }
+
+      if (!student) {
+        return res.json({ success: false, msg: 'student is not exists' });
+      }
+
+      const networkObj = await network.connectToNetwork(student.user);
+      let scoresByStudent = await network.query(networkObj, 'GetScoresByStudent', student.username);
+      if (scoresByStudent.success) {
         return res.json({
-          success: false,
-          msg: scoresByStudent.msg.toString()
+          success: true,
+          scores: JSON.parse(scoresByStudent.msg)
         });
       }
+      return res.json({
+        success: false,
+        msg: scoresByStudent.msg.toString()
+      });
     });
   }
 });
@@ -101,25 +107,30 @@ router.get('/:username/certificates', async (req, res, next) => {
     });
   } else {
     await User.findOne({ username: req.params.username }, async (err, student) => {
-      if (err) throw err;
-      else {
-        const networkObj = await network.connectToNetwork(student.user);
-        let certificatesByStudent = await network.query(
-          networkObj,
-          'GetCertificatesByStudent',
-          student.username
-        );
-        if (scoresByStudent.success) {
-          return res.json({
-            success: true,
-            certificates: JSON.parse(certificatesByStudent.msg)
-          });
-        }
+      if (err) {
+        return res.json({ success: false, msg: 'error query certificates of student' });
+      }
+
+      if (!student) {
+        return res.json({ success: false, msg: 'student is not exists' });
+      }
+
+      const networkObj = await network.connectToNetwork(student.user);
+      let certificatesByStudent = await network.query(
+        networkObj,
+        'GetCertificatesByStudent',
+        student.username
+      );
+      if (certificatesByStudent.success) {
         return res.json({
-          success: false,
-          msg: scoresByStudent.msg.toString()
+          success: true,
+          certificates: JSON.parse(certificatesByStudent.msg)
         });
       }
+      return res.json({
+        success: false,
+        msg: certificatesByStudent.msg.toString()
+      });
     });
   }
 });

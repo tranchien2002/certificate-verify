@@ -121,10 +121,16 @@ router.get(
           msg: err
         });
       }
+      if (!teacher) {
+        res.json({
+          success: false,
+          msg: 'teacher is not exists'
+        });
+      }
       const networkObj = await network.connectToNetwork(req.decoded.user);
       const response = await network.query(networkObj, 'QueryTeacher', username);
       let subjects = await network.query(networkObj, 'GetSubjectsByTeacher', teacher.username);
-      if (response.success || subjects.success) {
+      if (response.success && subjects.success) {
         return res.json({
           success: true,
           msg: response.msg.toString(),
@@ -149,30 +155,30 @@ router.get('/:username/subjects', async (req, res, next) => {
   }
   await User.findOne({ username: req.params.username }, async (err, teacher) => {
     if (err) throw err;
-    else {
-      const networkObj = await network.connectToNetwork(req.decoded.user);
-      let subjectsByTeacher = await network.query(
-        networkObj,
-        'GetSubjectsByTeacher',
-        teacher.username
-      );
-      let subjects = await network.query(networkObj, 'GetAllSubjects');
-      let subjectsNoTeacher = JSON.parse(subjects.msg).filter(
-        (subject) => subject.TeacherUsername === ''
-      );
+    if (!teacher) return res.json({ success: false, msg: 'teacher is not exists' });
 
-      if (subjectsByTeacher.success && subjects.success) {
-        return res.json({
-          success: true,
-          subjects: JSON.parse(subjectsByTeacher.msg),
-          subjectsNoTeacher: subjectsNoTeacher
-        });
-      }
+    const networkObj = await network.connectToNetwork(req.decoded.user);
+    let subjectsByTeacher = await network.query(
+      networkObj,
+      'GetSubjectsByTeacher',
+      teacher.username
+    );
+    let subjects = await network.query(networkObj, 'GetAllSubjects');
+    let subjectsNoTeacher = JSON.parse(subjects.msg).filter(
+      (subject) => subject.TeacherUsername === ''
+    );
+
+    if (subjectsByTeacher.success && subjects.success) {
       return res.json({
-        success: false,
-        msg: subjectsByTeacher.msg.toString()
+        success: true,
+        subjects: JSON.parse(subjectsByTeacher.msg),
+        subjectsNoTeacher: subjectsNoTeacher
       });
     }
+    return res.json({
+      success: false,
+      msg: subjectsByTeacher.msg.toString()
+    });
   });
 });
 
